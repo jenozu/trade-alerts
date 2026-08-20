@@ -1,0 +1,20 @@
+# ============================================================
+# NQ Research / Backtesting Framework
+# Python 3.11+ recommended
+# ============================================================
+
+# Core data processing
+pandas>=2.2.0,<3.0.0
+numpy>=1.26.0,<3.0.0
+
+# YAML configuration
+PyYAML>=6.0.1,<7.0.0
+
+# Parquet read/write support
+pyarrow>=15.0.0,<24.0.0
+
+# Timezone support
+tzdata>=2024.1
+
+# Testing
+pytest>=8.0.0,<10.0.0
