@@ -1,0 +1,57 @@
+# Python bytecode / caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+credentials/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Market data and generated datasets
+data/raw/**
+data/normalized/**
+data/processed/**
+data/results/**
+!data/raw/.gitkeep
+!data/normalized/.gitkeep
+!data/processed/.gitkeep
+!data/results/.gitkeep
+*.parquet
+*.feather
+*.arrow
+
+# Generated backtest/research outputs
+backtest_results/
+results/
+reports/
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
