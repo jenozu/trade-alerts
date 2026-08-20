@@ -1,0 +1,728 @@
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+import traceback
+from datetime import datetime
+from pathlib import Path
+from typing import Any
+
+import pandas as pd
+import yaml
+
+PROJECT_ROOT = Path(__file__).resolve().parent
+SRC_DIRECTORY = PROJECT_ROOT / "src"
+if str(SRC_DIRECTORY) not in sys.path:
+    sys.path.insert(0, str(SRC_DIRECTORY))
+
+from data_loader import DatasetMetadata, load_csv, save_parquet  # noqa: E402
+from validate_data import (  # noqa: E402
+    validate_market_data,
+    print_validation_report,
+    save_validation_report_json,
+    save_coverage_reports,
+)
+from resample import (  # noqa: E402
+    generate_standard_timeframes,
+    validate_resampled_bars,
+    save_resampled_parquet,
+)
+from sessions import (  # noqa: E402
+    load_sessions_config,
+    enrich_with_sessions,
+    save_session_outputs,
+)
+from volume import (  # noqa: E402
+    enrich_volume_features,
+    volume_summary,
+    save_volume_outputs,
+)
+from snr import (  # noqa: E402
+    build_multitimeframe_snr,
+    snr_summary,
+    save_snr_outputs,
+)
+from swings import (  # noqa: E402
+    enrich_swings,
+    swing_summary,
+    save_swing_outputs,
+)
+from liquidity import (  # noqa: E402
+    enrich_liquidity_features,
+    liquidity_summary,
+    save_liquidity_outputs,
+)
+from fvg import enrich_fvg_features, fvg_summary, save_fvg_outputs  # noqa: E402
+from structure import (  # noqa: E402
+    enrich_structure_features,
+    structure_summary,
+    save_structure_outputs,
+)
+from scorer import (  # noqa: E402
+    enrich_scores,
+    add_score_change_events,
+    scoring_summary,
+    save_scoring_outputs,
+)
+from backtest import (  # noqa: E402
+    run_backtest,
+    calculate_backtest_metrics,
+    save_backtest_outputs,
+)
+
+DEFAULT_SESSION_CONFIG = PROJECT_ROOT / "config" / "sessions.yaml"
+DEFAULT_STRATEGY_CONFIG = PROJECT_ROOT / "config" / "strategy.yaml"
+DEFAULT_RESULTS_DIRECTORY = PROJECT_ROOT / "data" / "results"
+DEFAULT_PROCESSED_DIRECTORY = PROJECT_ROOT / "data" / "processed"
+DEFAULT_NORMALIZED_DIRECTORY = PROJECT_ROOT / "data" / "normalized"
+
+
+class PipelineError(RuntimeError):
+    """Raised when the end-to-end research pipeline fails."""
+
+
+PIPELINE_STAGES = [
+    "load",
+    "validate",
+    "resample",
+    "sessions",
+    "volume",
+    "snr",
+    "swings",
+    "liquidity",
+    "fvg",
+    "structure",
+    "scoring",
+    "backtest",
+]
+
+
+def print_header(text: str) -> None:
+    print("\n============================================================")
+    print(text)
+    print("============================================================")
+
+
+def print_stage(stage_number: int, total_stages: int, name: str) -> None:
+    print(f"\n[{stage_number}/{total_stages}] {name.upper()}")
+    print("-" * 60)
+
+
+def load_yaml(filepath: Path) -> dict[str, Any]:
+    if not filepath.exists():
+        raise FileNotFoundError(f"Configuration file not found: {filepath}")
+    with filepath.open("r", encoding="utf-8") as file:
+        config = yaml.safe_load(file)
+    if not isinstance(config, dict):
+        raise PipelineError(f"Invalid YAML configuration: {filepath}")
+    return config
+
+
+def ensure_datetime_columns(df: pd.DataFrame) -> pd.DataFrame:
+    result = df.copy()
+    if "timestamp" in result.columns:
+        result["timestamp"] = pd.to_datetime(result["timestamp"], utc=True)
+    if "timestamp_et" in result.columns:
+        result["timestamp_et"] = result["timestamp"].dt.tz_convert("America/New_York")
+    return result
+
+
+def dataframe_health_summary(df: pd.DataFrame) -> dict[str, Any]:
+    if df.empty:
+        return {"rows": 0}
+    result: dict[str, Any] = {"rows": int(len(df))}
+    if "timestamp" in df.columns:
+        result["start"] = str(df["timestamp"].min())
+        result["end"] = str(df["timestamp"].max())
+    return result
+
+
+def create_run_metadata(
+    *,
+    input_file: Path,
+    source: str,
+    symbol: str,
+    contract: str | None,
+    source_timezone: str,
+    sessions_config: dict[str, Any],
+    strategy_config: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "run_started_at": datetime.now().astimezone().isoformat(),
+        "input_file": str(input_file.resolve()),
+        "source": source,
+        "symbol": symbol,
+        "contract": contract,
+        "source_timezone": source_timezone,
+        "session_config_version": sessions_config.get("metadata", {}).get("config_version"),
+        "strategy_config_version": strategy_config.get("metadata", {}).get("config_version"),
+        "strategy_name": strategy_config.get("metadata", {}).get("strategy_name"),
+        "status": "running",
+        "stages": {},
+    }
+
+
+def record_stage(
+    run_metadata: dict[str, Any],
+    stage: str,
+    *,
+    status: str,
+    details: dict[str, Any] | None = None,
+) -> None:
+    run_metadata["stages"][stage] = {
+        "status": status,
+        "completed_at": datetime.now().astimezone().isoformat(),
+        "details": details or {},
+    }
+
+
+def save_run_metadata(metadata: dict[str, Any], filepath: Path) -> None:
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+    with filepath.open("w", encoding="utf-8") as file:
+        json.dump(metadata, file, indent=2, default=str)
+
+
+def stage_load(
+    *,
+    input_file: Path,
+    source: str,
+    symbol: str,
+    contract: str | None,
+    source_timezone: str,
+) -> pd.DataFrame:
+    metadata = DatasetMetadata(
+        source=source,
+        symbol=symbol,
+        contract=contract,
+        source_timezone=source_timezone,
+        filename=input_file.name,
+    )
+    dataframe = load_csv(input_file, metadata=metadata)
+    print(f"Loaded {len(dataframe):,} raw bars.")
+    return dataframe
+
+
+def stage_validate(
+    dataframe: pd.DataFrame,
+    *,
+    results_directory: Path,
+    normalized_directory: Path,
+) -> tuple[pd.DataFrame, Any]:
+    validation_directory = results_directory / "validation"
+    report = validate_market_data(
+        dataframe,
+        tick_size=0.25,
+        expected_interval_minutes=1,
+        large_gap_points=100.0,
+    )
+    print_validation_report(report)
+    save_validation_report_json(report, validation_directory / "validation_report.json")
+    save_coverage_reports(dataframe, validation_directory / "diagnostics")
+    if not report.passed:
+        raise PipelineError(
+            "Data validation FAILED. The pipeline will not continue into strategy research."
+        )
+    normalized_directory.mkdir(parents=True, exist_ok=True)
+    normalized_path = normalized_directory / "nq_1m_normalized.parquet"
+    save_parquet(dataframe, normalized_path)
+    print(f"Validated dataset saved to:\n{normalized_path}")
+    return dataframe, report
+
+
+def stage_resample(
+    dataframe: pd.DataFrame,
+    *,
+    processed_directory: Path,
+) -> dict[str, Any]:
+    output_directory = processed_directory / "timeframes"
+    results = generate_standard_timeframes(dataframe)
+    for timeframe, result in results.items():
+        validate_resampled_bars(result.dataframe)
+        output_path = output_directory / f"nq_{timeframe}.parquet"
+        save_resampled_parquet(result, str(output_path))
+        print(
+            f"{timeframe:>4}: {result.rows_out:,} bars "
+            f"({result.incomplete_bars:,} incomplete)"
+        )
+    return results
+
+
+def stage_sessions(
+    dataframe: pd.DataFrame,
+    *,
+    sessions_config: dict[str, Any],
+    processed_directory: Path,
+) -> pd.DataFrame:
+    enriched, levels = enrich_with_sessions(dataframe, sessions_config, causal=True)
+    save_session_outputs(enriched, levels, processed_directory / "sessions")
+    print(f"Session enrichment complete: {len(levels):,} sessions.")
+    return enriched
+
+
+def stage_volume(
+    dataframe: pd.DataFrame,
+    *,
+    strategy_config: dict[str, Any],
+    processed_directory: Path,
+) -> pd.DataFrame:
+    enriched = enrich_volume_features(dataframe, strategy_config)
+    summary = volume_summary(enriched)
+    save_volume_outputs(enriched, processed_directory / "volume")
+    print(f"Rolling RVOL available: {summary.rolling_rvol_available:,}")
+    print(f"Time-of-day RVOL available: {summary.tod_rvol_available:,}")
+    print(
+        f"Volume spikes: {summary.rolling_spikes:,} rolling / "
+        f"{summary.tod_spikes:,} time-of-day"
+    )
+    return enriched
+
+
+def stage_snr(
+    dataframe_1m: pd.DataFrame,
+    *,
+    resampled_results: dict[str, Any],
+    strategy_config: dict[str, Any],
+    processed_directory: Path,
+) -> pd.DataFrame:
+    if "5m" not in resampled_results:
+        raise PipelineError("5m resampled dataset is required for SNR.")
+    if "15m" not in resampled_results:
+        raise PipelineError("15m resampled dataset is required for SNR.")
+
+    bars_5m = ensure_datetime_columns(resampled_results["5m"].dataframe)
+    bars_15m = ensure_datetime_columns(resampled_results["15m"].dataframe)
+    enriched = build_multitimeframe_snr(
+        dataframe_1m,
+        bars_5m,
+        bars_15m,
+        strategy_config,
+    )
+    save_snr_outputs(enriched, processed_directory / "snr")
+    for timeframe in ["1m", "5m", "15m"]:
+        summary = snr_summary(enriched, timeframe=timeframe)
+        print(
+            f"{timeframe}: median SNR={summary.median_snr}, "
+            f"median efficiency={summary.median_efficiency}"
+        )
+    return enriched
+
+
+def stage_swings(
+    dataframe: pd.DataFrame,
+    *,
+    strategy_config: dict[str, Any],
+    processed_directory: Path,
+) -> pd.DataFrame:
+    enriched = enrich_swings(dataframe, strategy_config)
+    summary = swing_summary(enriched)
+    save_swing_outputs(enriched, processed_directory / "swings")
+    print(
+        f"Internal swings: {summary.internal_swing_highs:,} highs / "
+        f"{summary.internal_swing_lows:,} lows"
+    )
+    print(
+        f"External swings: {summary.external_swing_highs:,} highs / "
+        f"{summary.external_swing_lows:,} lows"
+    )
+    return enriched
+
+
+def stage_liquidity(
+    dataframe: pd.DataFrame,
+    *,
+    strategy_config: dict[str, Any],
+    processed_directory: Path,
+) -> pd.DataFrame:
+    enriched = enrich_liquidity_features(dataframe, strategy_config)
+    summary = liquidity_summary(enriched)
+    save_liquidity_outputs(enriched, processed_directory / "liquidity")
+    print(f"Liquidity sweeps: {summary.sweep_events:,}")
+    print(f"Buy-side: {summary.buy_side_sweeps:,}")
+    print(f"Sell-side: {summary.sell_side_sweeps:,}")
+    return enriched
+
+
+def stage_fvg(
+    dataframe: pd.DataFrame,
+    *,
+    strategy_config: dict[str, Any],
+    processed_directory: Path,
+) -> pd.DataFrame:
+    enriched, lifecycle = enrich_fvg_features(dataframe, strategy_config)
+    summary = fvg_summary(enriched)
+    save_fvg_outputs(enriched, lifecycle, processed_directory / "fvg")
+    print(f"Bullish FVGs: {summary.bullish_created:,}")
+    print(f"Bearish FVGs: {summary.bearish_created:,}")
+    print(
+        f"Retest holds: {summary.bullish_retest_holds:,} bullish / "
+        f"{summary.bearish_retest_holds:,} bearish"
+    )
+    return enriched
+
+
+def stage_structure(
+    dataframe: pd.DataFrame,
+    *,
+    strategy_config: dict[str, Any],
+    processed_directory: Path,
+) -> pd.DataFrame:
+    enriched = enrich_structure_features(dataframe, strategy_config)
+    summary = structure_summary(enriched)
+    save_structure_outputs(enriched, processed_directory / "structure")
+    print(
+        f"Displacement: {summary.bullish_displacement:,} bullish / "
+        f"{summary.bearish_displacement:,} bearish"
+    )
+    print(f"MSS: {summary.bullish_mss:,} bullish / {summary.bearish_mss:,} bearish")
+    print(f"BOS: {summary.bullish_bos:,} bullish / {summary.bearish_bos:,} bearish")
+    return enriched
+
+
+def stage_scoring(
+    dataframe: pd.DataFrame,
+    *,
+    strategy_config: dict[str, Any],
+    processed_directory: Path,
+) -> pd.DataFrame:
+    scored = enrich_scores(dataframe, strategy_config)
+    scored = add_score_change_events(scored, strategy_config)
+    summary = scoring_summary(scored)
+    save_scoring_outputs(scored, processed_directory / "scoring")
+    print(f"Long candidates: {summary.long_candidates:,}")
+    print(f"Short candidates: {summary.short_candidates:,}")
+    print(f"Max long score: {summary.max_long_score}")
+    print(f"Max short score: {summary.max_short_score}")
+    return scored
+
+
+def stage_backtest(
+    dataframe: pd.DataFrame,
+    *,
+    strategy_config: dict[str, Any],
+    results_directory: Path,
+) -> pd.DataFrame:
+    trades = run_backtest(dataframe, strategy_config)
+    output_directory = results_directory / "backtest"
+    if trades.empty:
+        output_directory.mkdir(parents=True, exist_ok=True)
+        empty_path = output_directory / "trades.csv"
+        trades.to_csv(empty_path, index=False)
+        print("No trades generated.")
+        return trades
+
+    metrics = calculate_backtest_metrics(trades)
+    save_backtest_outputs(trades, output_directory)
+    print(f"Trades: {metrics.get('trades', 0):,}")
+    print(f"Win rate: {metrics.get('win_rate')}")
+    print(f"Expectancy points: {metrics.get('expectancy_points')}")
+    print(f"Expectancy R: {metrics.get('expectancy_r')}")
+    print(f"Profit factor: {metrics.get('profit_factor')}")
+    return trades
+
+
+def run_pipeline(
+    *,
+    input_file: Path,
+    source: str,
+    symbol: str,
+    contract: str | None,
+    source_timezone: str,
+    sessions_config_path: Path,
+    strategy_config_path: Path,
+    stop_after: str | None = None,
+) -> dict[str, Any]:
+    print_header("NQ HISTORICAL RESEARCH PIPELINE")
+    print(f"Input:     {input_file}")
+    print(f"Source:    {source}")
+    print(f"Symbol:    {symbol}")
+    print(f"Contract:  {contract}")
+    print(f"Timezone:  {source_timezone}")
+
+    sessions_config = load_sessions_config(sessions_config_path)
+    strategy_config = load_yaml(strategy_config_path)
+    processed_directory = DEFAULT_PROCESSED_DIRECTORY
+    results_directory = DEFAULT_RESULTS_DIRECTORY
+    normalized_directory = DEFAULT_NORMALIZED_DIRECTORY
+    audit_file = results_directory / "pipeline" / "latest_run.json"
+
+    run_metadata = create_run_metadata(
+        input_file=input_file,
+        source=source,
+        symbol=symbol,
+        contract=contract,
+        source_timezone=source_timezone,
+        sessions_config=sessions_config,
+        strategy_config=strategy_config,
+    )
+    save_run_metadata(run_metadata, audit_file)
+
+    stage_number = 0
+    total_stages = len(PIPELINE_STAGES)
+    artifacts: dict[str, Any] = {}
+
+    try:
+        stage_number += 1
+        print_stage(stage_number, total_stages, "Load raw LSE data")
+        data = stage_load(
+            input_file=input_file,
+            source=source,
+            symbol=symbol,
+            contract=contract,
+            source_timezone=source_timezone,
+        )
+        record_stage(run_metadata, "load", status="passed", details=dataframe_health_summary(data))
+        if stop_after == "load":
+            return {"data": data, "metadata": run_metadata}
+
+        stage_number += 1
+        print_stage(stage_number, total_stages, "Validate market data")
+        data, validation_report = stage_validate(
+            data,
+            results_directory=results_directory,
+            normalized_directory=normalized_directory,
+        )
+        record_stage(
+            run_metadata,
+            "validate",
+            status="passed",
+            details={
+                "report_passed": validation_report.passed,
+                "rows": validation_report.rows,
+            },
+        )
+        if stop_after == "validate":
+            return {"data": data, "metadata": run_metadata}
+
+        stage_number += 1
+        print_stage(stage_number, total_stages, "Generate higher timeframes")
+        resampled = stage_resample(data, processed_directory=processed_directory)
+        record_stage(
+            run_metadata,
+            "resample",
+            status="passed",
+            details={
+                timeframe: {
+                    "rows": result.rows_out,
+                    "incomplete": result.incomplete_bars,
+                }
+                for timeframe, result in resampled.items()
+            },
+        )
+        if stop_after == "resample":
+            return {"data": data, "resampled": resampled, "metadata": run_metadata}
+
+        stage_number += 1
+        print_stage(stage_number, total_stages, "Calculate session levels")
+        data = stage_sessions(
+            data,
+            sessions_config=sessions_config,
+            processed_directory=processed_directory,
+        )
+        record_stage(run_metadata, "sessions", status="passed", details=dataframe_health_summary(data))
+        if stop_after == "sessions":
+            return {"data": data, "metadata": run_metadata}
+
+        stage_number += 1
+        print_stage(stage_number, total_stages, "Calculate volume and RVOL")
+        data = stage_volume(
+            data,
+            strategy_config=strategy_config,
+            processed_directory=processed_directory,
+        )
+        record_stage(run_metadata, "volume", status="passed")
+        if stop_after == "volume":
+            return {"data": data, "metadata": run_metadata}
+
+        stage_number += 1
+        print_stage(stage_number, total_stages, "Calculate multi-timeframe SNR")
+        data = stage_snr(
+            data,
+            resampled_results=resampled,
+            strategy_config=strategy_config,
+            processed_directory=processed_directory,
+        )
+        record_stage(run_metadata, "snr", status="passed")
+        if stop_after == "snr":
+            return {"data": data, "metadata": run_metadata}
+
+        stage_number += 1
+        print_stage(stage_number, total_stages, "Detect confirmed swings")
+        data = stage_swings(
+            data,
+            strategy_config=strategy_config,
+            processed_directory=processed_directory,
+        )
+        record_stage(run_metadata, "swings", status="passed")
+        if stop_after == "swings":
+            return {"data": data, "metadata": run_metadata}
+
+        stage_number += 1
+        print_stage(stage_number, total_stages, "Detect liquidity events")
+        data = stage_liquidity(
+            data,
+            strategy_config=strategy_config,
+            processed_directory=processed_directory,
+        )
+        record_stage(run_metadata, "liquidity", status="passed")
+        if stop_after == "liquidity":
+            return {"data": data, "metadata": run_metadata}
+
+        stage_number += 1
+        print_stage(stage_number, total_stages, "Detect FVG lifecycle")
+        data = stage_fvg(
+            data,
+            strategy_config=strategy_config,
+            processed_directory=processed_directory,
+        )
+        record_stage(run_metadata, "fvg", status="passed")
+        if stop_after == "fvg":
+            return {"data": data, "metadata": run_metadata}
+
+        stage_number += 1
+        print_stage(stage_number, total_stages, "Detect displacement and structure shifts")
+        data = stage_structure(
+            data,
+            strategy_config=strategy_config,
+            processed_directory=processed_directory,
+        )
+        record_stage(run_metadata, "structure", status="passed")
+        if stop_after == "structure":
+            return {"data": data, "metadata": run_metadata}
+
+        stage_number += 1
+        print_stage(stage_number, total_stages, "Score long and short setups")
+        data = stage_scoring(
+            data,
+            strategy_config=strategy_config,
+            processed_directory=processed_directory,
+        )
+        record_stage(run_metadata, "scoring", status="passed")
+        if stop_after == "scoring":
+            return {"data": data, "metadata": run_metadata}
+
+        stage_number += 1
+        print_stage(stage_number, total_stages, "Run backtest")
+        trades = stage_backtest(
+            data,
+            strategy_config=strategy_config,
+            results_directory=results_directory,
+        )
+        record_stage(
+            run_metadata,
+            "backtest",
+            status="passed",
+            details={"trades": int(len(trades))},
+        )
+
+        run_metadata["status"] = "completed"
+        run_metadata["run_completed_at"] = datetime.now().astimezone().isoformat()
+        save_run_metadata(run_metadata, audit_file)
+
+        print_header("PIPELINE COMPLETE")
+        print(f"Final enriched bars: {len(data):,}")
+        print(f"Trades generated: {len(trades):,}")
+        print("\nResults directory:")
+        print(results_directory)
+        print("\nPipeline audit:")
+        print(audit_file)
+
+        artifacts["enriched_data"] = data
+        artifacts["trades"] = trades
+        artifacts["metadata"] = run_metadata
+        return artifacts
+
+    except Exception as exc:
+        run_metadata["status"] = "failed"
+        run_metadata["failed_stage"] = (
+            PIPELINE_STAGES[max(0, stage_number - 1)] if stage_number > 0 else "startup"
+        )
+        run_metadata["error"] = str(exc)
+        run_metadata["traceback"] = traceback.format_exc()
+        run_metadata["run_completed_at"] = datetime.now().astimezone().isoformat()
+        save_run_metadata(run_metadata, audit_file)
+
+        print_header("PIPELINE FAILED")
+        print(f"Stage: {run_metadata['failed_stage']}")
+        print(f"Error: {exc}")
+        print("\nFull failure details saved to:")
+        print(audit_file)
+        raise
+
+
+def parse_arguments() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Run the NQ historical research and backtesting pipeline."
+    )
+    parser.add_argument("--input", required=True, help="Path to raw LSE 1-minute CSV.")
+    parser.add_argument("--source", default="LSE", help="Market-data source label. Default: LSE")
+    parser.add_argument("--symbol", default="NQ", help="Instrument symbol. Default: NQ")
+    parser.add_argument(
+        "--contract",
+        default=None,
+        help="Futures contract, e.g. NQU26. Optional while investigating LSE schema.",
+    )
+    parser.add_argument(
+        "--timezone",
+        default=None,
+        help=(
+            "Timezone of raw timestamps, e.g. UTC or America/New_York. "
+            "Required if CSV timestamps are timezone-naive."
+        ),
+    )
+    parser.add_argument(
+        "--sessions-config",
+        default=str(DEFAULT_SESSION_CONFIG),
+        help="Path to sessions.yaml.",
+    )
+    parser.add_argument(
+        "--strategy-config",
+        default=str(DEFAULT_STRATEGY_CONFIG),
+        help="Path to strategy.yaml.",
+    )
+    parser.add_argument(
+        "--stop-after",
+        choices=PIPELINE_STAGES,
+        default=None,
+        help="Stop pipeline after a specific stage. Useful while debugging.",
+    )
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_arguments()
+    input_file = Path(args.input)
+    if not input_file.is_absolute():
+        input_file = PROJECT_ROOT / input_file
+    if not input_file.exists():
+        raise FileNotFoundError(f"Input file does not exist: {input_file}")
+
+    if args.timezone is None:
+        print("\nERROR:")
+        print("You must currently specify the source timezone.")
+        print("\nExample:")
+        print(
+            "python run_pipeline.py "
+            "--input data/raw/lse/nq_sample.csv "
+            "--timezone UTC"
+        )
+        print(
+            "\nDo not use UTC unless we have confirmed that "
+            "LSE's timestamps are actually UTC."
+        )
+        sys.exit(1)
+
+    run_pipeline(
+        input_file=input_file,
+        source=args.source,
+        symbol=args.symbol,
+        contract=args.contract,
+        source_timezone=args.timezone,
+        sessions_config_path=Path(args.sessions_config),
+        strategy_config_path=Path(args.strategy_config),
+        stop_after=args.stop_after,
+    )
+
+
+if __name__ == "__main__":
+    main()
