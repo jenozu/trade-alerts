@@ -1,0 +1,283 @@
+metadata:
+  config_version: "0.1.0-reconstructed"
+  strategy_name: "NQ Historical Research and Backtesting Framework"
+  score_is_probability: false
+  note: "Reconstructed-compatible configuration; raw 0-100 score is a confluence score, not a calibrated win probability."
+
+market:
+  symbol: "NQ"
+  tick_size: 0.25
+  point_value: 20.0
+
+analysis_timeframes:
+  master: "1m"
+  execution: ["1m", "5m"]
+  context: ["15m", "30m", "1h", "4h", "1d"]
+
+higher_timeframe_bias:
+  enabled: true
+  timeframes: ["1h", "4h", "1d"]
+  output_values: ["bullish", "bearish", "neutral"]
+
+# Draw on Liquidity remains a research feature. Historical testing should
+# determine its actual incremental value before it is treated as mandatory.
+draw_on_liquidity:
+  enabled: true
+  candidate_sources:
+    - "external_swings"
+    - "pdh_pdl"
+    - "pmh_pml"
+    - "onh_onl"
+    - "loh_lol"
+    - "fair_value_gaps"
+
+swings:
+  enabled: true
+  internal:
+    left_bars: 2
+    right_bars: 2
+  external:
+    left_bars: 5
+    right_bars: 5
+  confirmation:
+    causal_only: true
+    use_pivot_only_after_right_bars_close: true
+
+liquidity:
+  enabled: true
+  tracked_levels:
+    - "pdh"
+    - "pdl"
+    - "pmh"
+    - "pml"
+    - "onh"
+    - "onl"
+    - "loh"
+    - "lol"
+    - "internal_swings"
+    - "external_swings"
+  sweep:
+    minimum_penetration_ticks: 1
+    require_close_back_through_level: true
+    recent_context_bars: 10
+
+relative_volume:
+  enabled: true
+  initial_signal_threshold: 1.50
+  zscore_threshold: 2.0
+  rolling:
+    lookback_bars: 20
+    minimum_periods: 20
+    baseline_uses_previous_bars_only: true
+  time_of_day:
+    lookback_sessions: 20
+    minimum_sessions: 5
+    baseline_uses_previous_sessions_only: true
+
+snr:
+  enabled: true
+  definition: "absolute_net_movement_over_atr"
+  lookback_bars: 5
+  atr_period: 14
+  slope_bars: 3
+  timeframes:
+    1m:
+      lookback_bars: 5
+      atr_period: 14
+      slope_bars: 3
+    5m:
+      lookback_bars: 5
+      atr_period: 14
+      slope_bars: 3
+    15m:
+      lookback_bars: 5
+      atr_period: 14
+      slope_bars: 3
+  initial_thresholds:
+    weak_maximum: 0.80
+    developing_minimum: 0.80
+    strong_minimum: 1.20
+  path_efficiency:
+    enabled: true
+    definition: "absolute_net_movement_over_total_travelled_movement"
+  causal_merge:
+    higher_timeframe_values_available_only_after_bar_close: true
+
+fvg:
+  enabled: true
+  detection:
+    minimum_gap_ticks: 1
+    minimum_gap_atr_fraction: 0.0
+    require_displacement_candle: false
+  mitigation:
+    track_first_touch: true
+    track_fill_percentage: true
+    full_fill_percentage: 1.0
+    invalidate_on_full_fill: false
+  retest:
+    enabled: true
+    require_close_hold: true
+    maximum_bars_after_creation: 20
+  inverse_fvg:
+    enabled: true
+    require_close_through_original_fvg: true
+
+# Displacement and structure are intentionally recorded as separate features so
+# later ablation tests can measure whether each condition adds value.
+displacement:
+  enabled: true
+  atr_period: 14
+  body_lookback: 20
+  minimum_body_atr_multiple: 0.80
+  minimum_body_median_multiple: 1.80
+  close_extreme_fraction: 0.25
+  require_directional_close: true
+  relative_volume_confirmation:
+    enabled: false
+    minimum_rvol: 1.25
+
+structure:
+  enabled: true
+  break_method: "close"
+  break_buffer_points: 0.25
+  bos:
+    enabled: true
+    require_confirmed_swing: true
+  mss:
+    enabled: true
+    require_confirmed_swing: true
+    require_prior_liquidity_event: false
+    require_displacement:
+      enabled: false
+  choch:
+    enabled: true
+    structure_scope: "internal"
+  wick_breaks:
+    record: true
+    count_as_confirmation: false
+
+premium_discount:
+  enabled: true
+  equilibrium_fraction: 0.50
+
+breakout_retest:
+  enabled: true
+  baseline_first: true
+  require_close_beyond_level: true
+  retest_required_for_primary_model: true
+
+room_to_target:
+  enabled: true
+  minimum_points: 25.0
+
+scoring:
+  enabled: true
+  interpretation: "raw_confluence_score_not_probability"
+  positive_weights:
+    higher_timeframe_bias: 10
+    draw_on_liquidity: 10
+    key_location: 8
+    liquidity_sweep: 14
+    displacement: 12
+    structure_shift: 12
+    fvg_or_retest: 8
+    relative_volume: 6
+    signal_to_noise: 10
+    premium_discount: 4
+    room_to_target: 6
+  penalties:
+    higher_timeframe_conflict: -20
+    snr_conflict: -10
+    major_obstacle: -15
+    stale_setup: -10
+    failed_retest: -15
+    data_quality_warning: -20
+  hard_disable:
+    unhealthy_data: true
+    invalidated_thesis: true
+    outside_entry_window: true
+  clamp:
+    minimum: 0
+    maximum: 100
+
+score_bands:
+  no_trade:
+    minimum: 0
+    maximum: 39
+  watch:
+    minimum: 40
+    maximum: 54
+  developing:
+    minimum: 55
+    maximum: 69
+  near_trigger:
+    minimum: 70
+    maximum: 79
+  high_probability:
+    minimum: 80
+    maximum: 89
+  a_plus_plus:
+    minimum: 90
+    maximum: 100
+
+events:
+  score_change_threshold: 8
+
+entry_model:
+  primary_sequence:
+    - "important_level"
+    - "breakout_close"
+    - "retest"
+    - "hold"
+    - "confirmation"
+  signal_known_at_bar_close: true
+
+stop_loss:
+  primary_method: "structural"
+  structural:
+    buffer_points: 2.0
+  preferred_initial_range_points:
+    minimum: 20
+    maximum: 25
+  fixed_research_values_points: [15, 20, 25, 30, 35]
+
+take_profit:
+  number_of_targets: 4
+  preferred_initial:
+    tp1_points: 25
+    tp2_points: 50
+    tp3_points: 75
+    tp4_points: 100
+  track_as_milestones: true
+
+trade_management:
+  maximum_holding_minutes: 60
+  maximum_one_open_trade: true
+  partial_exits_enabled: false
+  move_to_breakeven_initially: false
+
+backtest:
+  use_completed_bars_only: true
+  entry_on_next_bar_open: true
+  conservative_same_bar_resolution: true
+  same_bar_stop_and_target_behavior: "stop_first"
+  commission:
+    enabled: false
+    per_contract_round_trip: 0.0
+  slippage:
+    enabled: true
+    points_per_entry: 0.25
+    points_per_exit: 0.25
+
+metrics:
+  track_mfe: true
+  track_mae: true
+  track_r_multiples: true
+  track_tp_milestones: true
+
+causality:
+  prohibit_future_information: true
+  higher_timeframe_requires_closed_bar: true
+  swing_available_only_after_confirmation: true
+  session_final_level_available_only_after_window_close: true
+  current_session_excluded_from_time_of_day_rvol_baseline: true
