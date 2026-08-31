@@ -1,13 +1,13 @@
 metadata:
   config_version: "0.1.0-reconstructed"
-  strategy_name: "NQ Historical Research and Backtesting Framework"
+  strategy_name: "MNQ Historical Research and Backtesting Framework"
   score_is_probability: false
   note: "Reconstructed-compatible configuration; raw 0-100 score is a confluence score, not a calibrated win probability."
 
 market:
-  symbol: "NQ"
+  symbol: "MNQ"
   tick_size: 0.25
-  point_value: 20.0
+  point_value: 2.0
 
 analysis_timeframes:
   master: "1m"
