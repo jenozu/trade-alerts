@@ -411,7 +411,7 @@ def simulate_trade(
     for i in range(entry_index, len(df)):
         row = df.iloc[i]
         timestamp = row["timestamp"]
-        if timestamp > maximum_end_time:
+        if timestamp >= maximum_end_time:
             previous_index = max(entry_index, i - 1)
             exit_index = previous_index
             raw_exit = float(df.iloc[previous_index]["close"])
@@ -586,6 +586,12 @@ def run_backtest(df: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
             continue
 
         row = data.iloc[i]
+        if settings.use_completed_bars_only:
+            if "bar_complete" in row.index and not safe_bool(row, "bar_complete"):
+                continue
+            if "is_complete" in row.index and not safe_bool(row, "is_complete"):
+                continue
+
         candidates = []
         for direction in ["long", "short"]:
             if directional_candidate(row, direction):
