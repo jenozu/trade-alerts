@@ -310,15 +310,26 @@ def track_fvg_lifecycle(
         return fvg_table.copy()
 
     tracked = fvg_table.copy()
-    tracked["first_touch_time"] = pd.NaT
+    timestamp_dtype = df["timestamp"].dtype
+    tracked["first_touch_time"] = pd.Series(
+        pd.NaT, index=tracked.index, dtype=timestamp_dtype
+    )
     tracked["first_touch_index"] = np.nan
     tracked["maximum_fill_percentage"] = 0.0
-    tracked["full_fill_time"] = pd.NaT
-    tracked["retest_hold_time"] = pd.NaT
+    tracked["full_fill_time"] = pd.Series(
+        pd.NaT, index=tracked.index, dtype=timestamp_dtype
+    )
+    tracked["retest_hold_time"] = pd.Series(
+        pd.NaT, index=tracked.index, dtype=timestamp_dtype
+    )
     tracked["invalidated"] = False
-    tracked["invalidation_time"] = pd.NaT
+    tracked["invalidation_time"] = pd.Series(
+        pd.NaT, index=tracked.index, dtype=timestamp_dtype
+    )
     tracked["inverse_fvg_created"] = False
-    tracked["inverse_fvg_time"] = pd.NaT
+    tracked["inverse_fvg_time"] = pd.Series(
+        pd.NaT, index=tracked.index, dtype=timestamp_dtype
+    )
 
     for fvg_row_index, fvg in tracked.iterrows():
         direction = fvg["direction"]
