@@ -401,35 +401,239 @@ def add_recent_structure_context(df: pd.DataFrame, *, lookback_bars: int = 10) -
     return result
 
 
-def add_core_sequence_flags(df: pd.DataFrame) -> pd.DataFrame:
+def _liquidity_sweep_events(
+    df: pd.DataFrame,
+    *,
+    raw_column: str,
+    recent_column: str,
+) -> pd.Series:
+    """Return causal sweep event bars.
+
+    Prefer the raw one-bar sweep event emitted by liquidity.py. Synthetic or
+    reduced research fixtures may contain only a rolling ``recent_*`` flag; in
+    that case, the rising edge is the only causally defensible sweep event.
+    """
+    if raw_column in df.columns:
+        return df[raw_column].fillna(False).astype(bool)
+
+    recent = df.get(
+        recent_column,
+        pd.Series(False, index=df.index),
+    ).fillna(False).astype(bool)
+    previous = recent.shift(1, fill_value=False)
+    return recent & ~previous
+
+
+def _ordered_core_sequence(
+    *,
+    sweep_events: pd.Series,
+    displacement_events: pd.Series,
+    mss_events: pd.Series,
+    lookback_bars: int,
+) -> tuple[pd.Series, pd.Series]:
+    """Build a causal sweep -> displacement -> MSS state machine.
+
+    The sequence can only advance forward in time. A new sweep restarts the
+    sequence. The context expires once the initiating sweep is outside the
+    configured lookback window. Events occurring before their prerequisite are
+    ignored rather than being pulled forward by rolling-window coincidence.
+    """
+    n = len(sweep_events)
+    active = np.zeros(n, dtype=bool)
+    completed = np.zeros(n, dtype=bool)
+
+    sweep_index: int | None = None
+    displacement_index: int | None = None
+    completion_index: int | None = None
+
+    for i in range(n):
+        if bool(sweep_events.iloc[i]):
+            sweep_index = i
+            displacement_index = None
+            completion_index = None
+
+        if sweep_index is not None and i - sweep_index >= lookback_bars:
+            sweep_index = None
+            displacement_index = None
+            completion_index = None
+
+        if (
+            sweep_index is not None
+            and displacement_index is None
+            and bool(displacement_events.iloc[i])
+        ):
+            displacement_index = i
+
+        if (
+            sweep_index is not None
+            and displacement_index is not None
+            and completion_index is None
+            and bool(mss_events.iloc[i])
+        ):
+            completion_index = i
+            completed[i] = True
+
+        if completion_index is not None and sweep_index is not None:
+            active[i] = True
+
+    return (
+        pd.Series(active, index=sweep_events.index, dtype=bool),
+        pd.Series(completed, index=sweep_events.index, dtype=bool),
+    )
+
+
+def add_core_sequence_flags(
+    df: pd.DataFrame,
+    *,
+    lookback_bars: int = 10,
+) -> pd.DataFrame:
     result = df.copy()
-    result["bullish_core_sequence"] = (
-        result.get("recent_sell_side_sweep", pd.Series(False, index=result.index))
-        & result.get("recent_bullish_displacement", pd.Series(False, index=result.index))
-        & result.get("recent_bullish_mss", pd.Series(False, index=result.index))
+
+    sell_sweep_events = _liquidity_sweep_events(
+        result,
+        raw_column="sell_side_liquidity_sweep",
+        recent_column="recent_sell_side_sweep",
     )
-    result["bearish_core_sequence"] = (
-        result.get("recent_buy_side_sweep", pd.Series(False, index=result.index))
-        & result.get("recent_bearish_displacement", pd.Series(False, index=result.index))
-        & result.get("recent_bearish_mss", pd.Series(False, index=result.index))
+    buy_sweep_events = _liquidity_sweep_events(
+        result,
+        raw_column="buy_side_liquidity_sweep",
+        recent_column="recent_buy_side_sweep",
     )
+
+    bullish_displacement = result.get(
+        "bullish_displacement",
+        pd.Series(False, index=result.index),
+    ).fillna(False).astype(bool)
+    bearish_displacement = result.get(
+        "bearish_displacement",
+        pd.Series(False, index=result.index),
+    ).fillna(False).astype(bool)
+    bullish_mss = result.get(
+        "bullish_mss",
+        pd.Series(False, index=result.index),
+    ).fillna(False).astype(bool)
+    bearish_mss = result.get(
+        "bearish_mss",
+        pd.Series(False, index=result.index),
+    ).fillna(False).astype(bool)
+
+    bullish_active, bullish_completed = _ordered_core_sequence(
+        sweep_events=sell_sweep_events,
+        displacement_events=bullish_displacement,
+        mss_events=bullish_mss,
+        lookback_bars=lookback_bars,
+    )
+    bearish_active, bearish_completed = _ordered_core_sequence(
+        sweep_events=buy_sweep_events,
+        displacement_events=bearish_displacement,
+        mss_events=bearish_mss,
+        lookback_bars=lookback_bars,
+    )
+
+    result["bullish_core_sequence"] = bullish_active
+    result["bearish_core_sequence"] = bearish_active
+    result["bullish_core_sequence_completed"] = bullish_completed
+    result["bearish_core_sequence_completed"] = bearish_completed
     return result
+
+
+def _ordered_fvg_confirmation(
+    *,
+    core_active: pd.Series,
+    core_completed: pd.Series,
+    fvg_created: pd.Series,
+    fvg_retest: pd.Series,
+) -> tuple[pd.Series, pd.Series]:
+    """Require FVG creation, then retest, after core-sequence completion."""
+    n = len(core_active)
+    plus_fvg = np.zeros(n, dtype=bool)
+    plus_retest = np.zeros(n, dtype=bool)
+
+    fvg_seen = False
+    retest_seen = False
+
+    for i in range(n):
+        if bool(core_completed.iloc[i]):
+            fvg_seen = False
+            retest_seen = False
+
+        if not bool(core_active.iloc[i]):
+            fvg_seen = False
+            retest_seen = False
+            continue
+
+        if bool(fvg_created.iloc[i]):
+            fvg_seen = True
+
+        if fvg_seen:
+            plus_fvg[i] = True
+            if bool(fvg_retest.iloc[i]):
+                retest_seen = True
+
+        if fvg_seen and retest_seen:
+            plus_retest[i] = True
+
+    return (
+        pd.Series(plus_fvg, index=core_active.index, dtype=bool),
+        pd.Series(plus_retest, index=core_active.index, dtype=bool),
+    )
 
 
 def add_fvg_structure_sequences(df: pd.DataFrame) -> pd.DataFrame:
     result = df.copy()
-    bullish_created = result.get("bullish_fvg_created", pd.Series(False, index=result.index))
-    bearish_created = result.get("bearish_fvg_created", pd.Series(False, index=result.index))
-    bullish_retest = result.get("bullish_fvg_retest_hold", pd.Series(False, index=result.index))
-    bearish_retest = result.get("bearish_fvg_retest_hold", pd.Series(False, index=result.index))
 
-    recent_bullish_fvg = bullish_created.astype(int).rolling(window=10, min_periods=1).max().astype(bool)
-    recent_bearish_fvg = bearish_created.astype(int).rolling(window=10, min_periods=1).max().astype(bool)
+    bullish_core = result.get(
+        "bullish_core_sequence",
+        pd.Series(False, index=result.index),
+    ).fillna(False).astype(bool)
+    bearish_core = result.get(
+        "bearish_core_sequence",
+        pd.Series(False, index=result.index),
+    ).fillna(False).astype(bool)
 
-    result["bullish_core_plus_fvg"] = result["bullish_core_sequence"] & recent_bullish_fvg
-    result["bearish_core_plus_fvg"] = result["bearish_core_sequence"] & recent_bearish_fvg
-    result["bullish_core_plus_fvg_retest"] = result["bullish_core_sequence"] & bullish_retest
-    result["bearish_core_plus_fvg_retest"] = result["bearish_core_sequence"] & bearish_retest
+    bullish_completed = result.get(
+        "bullish_core_sequence_completed",
+        bullish_core & ~bullish_core.shift(1, fill_value=False),
+    ).fillna(False).astype(bool)
+    bearish_completed = result.get(
+        "bearish_core_sequence_completed",
+        bearish_core & ~bearish_core.shift(1, fill_value=False),
+    ).fillna(False).astype(bool)
+
+    bullish_created = result.get(
+        "bullish_fvg_created",
+        pd.Series(False, index=result.index),
+    ).fillna(False).astype(bool)
+    bearish_created = result.get(
+        "bearish_fvg_created",
+        pd.Series(False, index=result.index),
+    ).fillna(False).astype(bool)
+    bullish_retest = result.get(
+        "bullish_fvg_retest_hold",
+        pd.Series(False, index=result.index),
+    ).fillna(False).astype(bool)
+    bearish_retest = result.get(
+        "bearish_fvg_retest_hold",
+        pd.Series(False, index=result.index),
+    ).fillna(False).astype(bool)
+
+    bullish_plus_fvg, bullish_plus_retest = _ordered_fvg_confirmation(
+        core_active=bullish_core,
+        core_completed=bullish_completed,
+        fvg_created=bullish_created,
+        fvg_retest=bullish_retest,
+    )
+    bearish_plus_fvg, bearish_plus_retest = _ordered_fvg_confirmation(
+        core_active=bearish_core,
+        core_completed=bearish_completed,
+        fvg_created=bearish_created,
+        fvg_retest=bearish_retest,
+    )
+
+    result["bullish_core_plus_fvg"] = bullish_plus_fvg
+    result["bearish_core_plus_fvg"] = bearish_plus_fvg
+    result["bullish_core_plus_fvg_retest"] = bullish_plus_retest
+    result["bearish_core_plus_fvg_retest"] = bearish_plus_retest
     return result
 
 
@@ -496,7 +700,7 @@ def enrich_structure_features(df: pd.DataFrame, config: dict[str, Any]) -> pd.Da
     result = deduplicate_breaks(result)
     result = classify_structure_events(result, settings=structure_settings)
     result = add_recent_structure_context(result, lookback_bars=10)
-    result = add_core_sequence_flags(result)
+    result = add_core_sequence_flags(result, lookback_bars=10)
     result = add_fvg_structure_sequences(result)
     return result
 
@@ -547,6 +751,8 @@ def save_structure_outputs(df: pd.DataFrame, output_directory: str | Path) -> di
         "bearish_mss",
         "bullish_core_sequence",
         "bearish_core_sequence",
+        "bullish_core_sequence_completed",
+        "bearish_core_sequence_completed",
         "bullish_core_plus_fvg",
         "bearish_core_plus_fvg",
         "bullish_core_plus_fvg_retest",
