@@ -61,23 +61,53 @@ def _session_date(et: pd.Series, globex_start: str) -> pd.Series:
     return pd.Series(adjusted, index=et.index)
 
 
-def _window_config(config: dict[str, Any], name: str, default_start: str, default_end: str) -> tuple[str, str]:
+def _window_config(
+    config: dict[str, Any],
+    name: str,
+    default_start: str,
+    default_end: str,
+) -> tuple[str, str]:
     section = config.get("sessions", {}).get(name, {})
     return str(section.get("start", default_start)), str(section.get("end", default_end))
 
 
-def _running_extreme(df: pd.DataFrame, mask: pd.Series, session_date: pd.Series, column: str, kind: str) -> pd.Series:
+def _running_extreme(
+    df: pd.DataFrame,
+    mask: pd.Series,
+    session_date: pd.Series,
+    column: str,
+    kind: str,
+) -> pd.Series:
     values = df[column].where(mask)
     grouped = values.groupby(session_date)
     return grouped.cummax() if kind == "max" else grouped.cummin()
 
 
-def _final_by_session(df: pd.DataFrame, mask: pd.Series, column: str, agg: str) -> pd.Series:
+def _final_by_session(
+    df: pd.DataFrame,
+    mask: pd.Series,
+    column: str,
+    agg: str,
+) -> pd.Series:
     subset = df.loc[mask, ["session_date", column]]
     if subset.empty:
         return pd.Series(dtype=float)
     grouped = subset.groupby("session_date")[column]
     return grouped.max() if agg == "max" else grouped.min()
+
+
+def _availability_timestamp(df: pd.DataFrame, hhmm: str) -> pd.Series:
+    """Build the real ET timestamp at which a same-session value becomes known.
+
+    session_date intentionally rolls at the Globex open. Therefore an evening bar
+    at 18:00 ET may already belong to the following session_date. Comparing only
+    clock times (for example, 18:00 >= 09:30) leaks next-morning information into
+    the prior evening. This helper anchors the availability time to session_date.
+    """
+
+    timezone = df["timestamp_et"].dt.tz
+    naive = pd.to_datetime(df["session_date"].astype(str) + " " + hhmm)
+    return naive.dt.tz_localize(timezone)
 
 
 def _make_available(
@@ -90,25 +120,34 @@ def _make_available(
     mapped = df["session_date"].map(values_by_session)
     if not causal:
         return mapped
-    available = _parse_hhmm(available_hhmm)
-    visible = df["timestamp_et"].dt.time >= available
+    available_at = _availability_timestamp(df, available_hhmm)
+    visible = df["timestamp_et"] >= available_at
     return mapped.where(visible)
 
 
-def _opening_range(df: pd.DataFrame, minutes: int, causal: bool) -> tuple[pd.Series, pd.Series]:
+def _opening_range(
+    df: pd.DataFrame,
+    minutes: int,
+    causal: bool,
+) -> tuple[pd.Series, pd.Series]:
     start = _parse_hhmm("09:30")
     end_dt_minutes = 9 * 60 + 30 + minutes
     end = time(end_dt_minutes // 60, end_dt_minutes % 60)
+    end_hhmm = f"{end.hour:02d}:{end.minute:02d}"
+
     t = df["timestamp_et"].dt.time
     mask = (t >= start) & (t < end)
     highs = _final_by_session(df, mask, "high", "max")
     lows = _final_by_session(df, mask, "low", "min")
     mapped_high = df["session_date"].map(highs)
     mapped_low = df["session_date"].map(lows)
+
     if causal:
-        visible = t >= end
+        available_at = _availability_timestamp(df, end_hhmm)
+        visible = df["timestamp_et"] >= available_at
         mapped_high = mapped_high.where(visible)
         mapped_low = mapped_low.where(visible)
+
     return mapped_high, mapped_low
 
 
@@ -121,6 +160,7 @@ def enrich_with_sessions(
     missing = REQUIRED_COLUMNS - set(df.columns)
     if missing:
         raise SessionError(f"Missing required columns: {sorted(missing)}")
+
     result = df.sort_values("timestamp").copy().reset_index(drop=True)
     if not pd.api.types.is_datetime64_any_dtype(result["timestamp"]):
         raise SessionError("'timestamp' must be datetime.")
@@ -135,7 +175,12 @@ def enrich_with_sessions(
     pm_start, pm_end = _window_config(config, "premarket", "04:00", "09:30")
     on_start, on_end = _window_config(config, "overnight", "18:00", "09:30")
     london_start, london_end = _window_config(config, "london", "02:00", "05:00")
-    strategy_start, strategy_end = _window_config(config, "strategy_window", "09:30", "10:30")
+    strategy_start, strategy_end = _window_config(
+        config,
+        "strategy_window",
+        "09:30",
+        "10:30",
+    )
 
     result["session_date"] = _session_date(result["timestamp_et"], globex_start)
     result["is_globex"] = _time_mask(result["timestamp_et"], globex_start, globex_end)
@@ -143,16 +188,56 @@ def enrich_with_sessions(
     result["is_premarket"] = _time_mask(result["timestamp_et"], pm_start, pm_end)
     result["is_overnight"] = _time_mask(result["timestamp_et"], on_start, on_end)
     result["is_london"] = _time_mask(result["timestamp_et"], london_start, london_end)
-    result["is_strategy_window"] = _time_mask(result["timestamp_et"], strategy_start, strategy_end)
+    result["is_strategy_window"] = _time_mask(
+        result["timestamp_et"],
+        strategy_start,
+        strategy_end,
+    )
     result["new_entry_allowed"] = result["is_strategy_window"]
 
     # Developing levels are causal by construction.
-    result["developing_pmh"] = _running_extreme(result, result["is_premarket"], result["session_date"], "high", "max")
-    result["developing_pml"] = _running_extreme(result, result["is_premarket"], result["session_date"], "low", "min")
-    result["developing_onh"] = _running_extreme(result, result["is_overnight"], result["session_date"], "high", "max")
-    result["developing_onl"] = _running_extreme(result, result["is_overnight"], result["session_date"], "low", "min")
-    result["developing_loh"] = _running_extreme(result, result["is_london"], result["session_date"], "high", "max")
-    result["developing_lol"] = _running_extreme(result, result["is_london"], result["session_date"], "low", "min")
+    result["developing_pmh"] = _running_extreme(
+        result,
+        result["is_premarket"],
+        result["session_date"],
+        "high",
+        "max",
+    )
+    result["developing_pml"] = _running_extreme(
+        result,
+        result["is_premarket"],
+        result["session_date"],
+        "low",
+        "min",
+    )
+    result["developing_onh"] = _running_extreme(
+        result,
+        result["is_overnight"],
+        result["session_date"],
+        "high",
+        "max",
+    )
+    result["developing_onl"] = _running_extreme(
+        result,
+        result["is_overnight"],
+        result["session_date"],
+        "low",
+        "min",
+    )
+    result["developing_loh"] = _running_extreme(
+        result,
+        result["is_london"],
+        result["session_date"],
+        "high",
+        "max",
+    )
+    result["developing_lol"] = _running_extreme(
+        result,
+        result["is_london"],
+        result["session_date"],
+        "low",
+        "min",
+    )
 
     pmh = _final_by_session(result, result["is_premarket"], "high", "max")
     pml = _final_by_session(result, result["is_premarket"], "low", "min")
@@ -161,14 +246,45 @@ def enrich_with_sessions(
     loh = _final_by_session(result, result["is_london"], "high", "max")
     lol = _final_by_session(result, result["is_london"], "low", "min")
 
-    result["pmh"] = _make_available(result, pmh, available_hhmm=pm_end, causal=causal)
-    result["pml"] = _make_available(result, pml, available_hhmm=pm_end, causal=causal)
-    result["onh"] = _make_available(result, onh, available_hhmm=on_end, causal=causal)
-    result["onl"] = _make_available(result, onl, available_hhmm=on_end, causal=causal)
-    result["loh"] = _make_available(result, loh, available_hhmm=london_end, causal=causal)
-    result["lol"] = _make_available(result, lol, available_hhmm=london_end, causal=causal)
+    result["pmh"] = _make_available(
+        result,
+        pmh,
+        available_hhmm=pm_end,
+        causal=causal,
+    )
+    result["pml"] = _make_available(
+        result,
+        pml,
+        available_hhmm=pm_end,
+        causal=causal,
+    )
+    result["onh"] = _make_available(
+        result,
+        onh,
+        available_hhmm=on_end,
+        causal=causal,
+    )
+    result["onl"] = _make_available(
+        result,
+        onl,
+        available_hhmm=on_end,
+        causal=causal,
+    )
+    result["loh"] = _make_available(
+        result,
+        loh,
+        available_hhmm=london_end,
+        causal=causal,
+    )
+    result["lol"] = _make_available(
+        result,
+        lol,
+        available_hhmm=london_end,
+        causal=causal,
+    )
 
     # Previous-day levels use the completed prior RTH session only.
+    # These are intentionally available as soon as the next Globex session starts.
     rth_high = _final_by_session(result, result["is_rth"], "high", "max")
     rth_low = _final_by_session(result, result["is_rth"], "low", "min")
     ordered_dates = sorted(set(result["session_date"]))
@@ -184,14 +300,11 @@ def enrich_with_sessions(
     result["pdh"] = result["session_date"].map(prev_high)
     result["pdl"] = result["session_date"].map(prev_low)
 
-    rth_open = (
-        result.loc[result["is_rth"]]
-        .groupby("session_date")["open"]
-        .first()
-    )
+    rth_open = result.loc[result["is_rth"]].groupby("session_date")["open"].first()
     mapped_open = result["session_date"].map(rth_open)
     if causal:
-        mapped_open = mapped_open.where(result["timestamp_et"].dt.time >= _parse_hhmm(rth_start))
+        available_at = _availability_timestamp(result, rth_start)
+        mapped_open = mapped_open.where(result["timestamp_et"] >= available_at)
     result["rth_open"] = mapped_open
 
     for minutes in (5, 15, 30):
@@ -211,9 +324,11 @@ def enrich_with_sessions(
     for session in ordered_dates:
         mask = result["session_date"] == session
         subset = result.loc[mask]
+
         def last_non_na(column: str):
             values = subset[column].dropna()
             return values.iloc[-1] if len(values) else np.nan
+
         level_rows.append(
             {
                 "session_date": session,
@@ -234,6 +349,7 @@ def enrich_with_sessions(
                 "or30_low": last_non_na("or30_low"),
             }
         )
+
     levels = pd.DataFrame(level_rows)
     return result, levels
 
