@@ -47,7 +47,7 @@ _COLUMN_ALIASES = {
     "open": {"open", "o", "open_price"},
     "high": {"high", "h", "high_price"},
     "low": {"low", "l", "low_price"},
-    "close": {"close", "c", "last", "close_price"},
+    "close": {"close", "c", "last", "latest", "close_price"},
     "volume": {"volume", "vol", "v", "trade_volume", "total_volume"},
 }
 
@@ -76,6 +76,42 @@ def standardize_column_names(df: pd.DataFrame) -> pd.DataFrame:
             rename[original] = target
             claimed.add(target)
     return result.rename(columns=rename)
+
+
+
+def drop_known_source_footer_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """Remove explicitly recognized non-market-data footer rows.
+
+    Barchart CSV exports append a provenance line such as:
+
+        Downloaded from Barchart.com as of ...
+
+    That row is metadata, not a market-data record, and must not be passed
+    into timestamp parsing. No other malformed rows are silently removed.
+    """
+    result = df.copy()
+
+    timestamp_source_column = None
+    for column in result.columns:
+        normalized = normalize_column_name(column)
+        if normalized in _COLUMN_ALIASES["timestamp"]:
+            timestamp_source_column = column
+            break
+
+    if timestamp_source_column is None:
+        return result
+
+    values = result[timestamp_source_column].astype("string")
+
+    barchart_footer = values.str.startswith(
+        "Downloaded from Barchart.com",
+        na=False,
+    )
+
+    if barchart_footer.any():
+        result = result.loc[~barchart_footer].copy()
+
+    return result
 
 
 def validate_required_columns(df: pd.DataFrame) -> None:
@@ -225,6 +261,7 @@ def load_csv(
     except Exception as exc:
         raise DataLoaderError(f"Could not read CSV: {path}") from exc
 
+    raw = drop_known_source_footer_rows(raw)
     result = standardize_column_names(raw)
     validate_required_columns(result)
     tz = metadata.source_timezone if metadata is not None else source_timezone
