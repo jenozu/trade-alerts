@@ -17,6 +17,12 @@ if str(SRC_DIRECTORY) not in sys.path:
     sys.path.insert(0, str(SRC_DIRECTORY))
 
 from data_loader import DatasetMetadata, load_csv, save_parquet  # noqa: E402
+from data_clock import (  # noqa: E402
+    filter_as_of,
+    filter_resampled_results_as_of,
+    normalize_as_of,
+    summarize_as_of,
+)
 from validate_data import (  # noqa: E402
     validate_market_data,
     print_validation_report,
@@ -159,6 +165,7 @@ def create_run_metadata(
     source_timezone: str,
     sessions_config: dict[str, Any],
     strategy_config: dict[str, Any],
+    as_of: pd.Timestamp | None = None,
 ) -> dict[str, Any]:
     return {
         "run_started_at": datetime.now().astimezone().isoformat(),
@@ -167,6 +174,7 @@ def create_run_metadata(
         "symbol": symbol,
         "contract": contract,
         "source_timezone": source_timezone,
+        "as_of": as_of.isoformat() if as_of is not None else None,
         "session_config_version": sessions_config.get("metadata", {}).get("config_version"),
         "strategy_config_version": strategy_config.get("metadata", {}).get("config_version"),
         "strategy_name": strategy_config.get("metadata", {}).get("strategy_name"),
@@ -246,9 +254,12 @@ def stage_resample(
     dataframe: pd.DataFrame,
     *,
     processed_directory: Path,
+    as_of: Any | None = None,
 ) -> dict[str, Any]:
     output_directory = processed_directory / "timeframes"
     results = generate_standard_timeframes(dataframe)
+    if as_of is not None:
+        results = filter_resampled_results_as_of(results, as_of=as_of)
     for timeframe, result in results.items():
         validate_resampled_bars(result.dataframe)
         output_path = output_directory / f"nq_{timeframe}.parquet"
@@ -483,6 +494,7 @@ def run_pipeline(
     sessions_config_path: Path,
     strategy_config_path: Path,
     stop_after: str | None = None,
+    as_of: Any | None = None,
 ) -> dict[str, Any]:
     print_header("NQ HISTORICAL RESEARCH PIPELINE")
     print(f"Input:     {input_file}")
@@ -490,6 +502,8 @@ def run_pipeline(
     print(f"Symbol:    {symbol}")
     print(f"Contract:  {contract}")
     print(f"Timezone:  {source_timezone}")
+    as_of_utc = normalize_as_of(as_of) if as_of is not None else None
+    print(f"As of:     {as_of_utc.isoformat() if as_of_utc is not None else 'FULL DATASET'}")
 
     sessions_config = load_sessions_config(sessions_config_path)
     strategy_config = load_yaml(strategy_config_path)
@@ -506,6 +520,7 @@ def run_pipeline(
         source_timezone=source_timezone,
         sessions_config=sessions_config,
         strategy_config=strategy_config,
+        as_of=as_of_utc,
     )
     save_run_metadata(run_metadata, audit_file)
 
@@ -523,8 +538,38 @@ def run_pipeline(
             contract=contract,
             source_timezone=source_timezone,
         )
-        record_stage(run_metadata, "load", status="passed", details=dataframe_health_summary(data))
+        load_details = dataframe_health_summary(data)
+        if as_of_utc is not None:
+            clock_summary = summarize_as_of(data, as_of=as_of_utc)
+            data = filter_as_of(data, as_of=as_of_utc)
+            if data.empty:
+                raise PipelineError(
+                    f"No completed one-minute bars are available by as_of={as_of_utc.isoformat()}."
+                )
+            run_metadata["data_clock"] = {
+                "as_of": as_of_utc.isoformat(),
+                "rows_in": clock_summary.rows_in,
+                "rows_visible": clock_summary.rows_visible,
+                "rows_hidden": clock_summary.rows_hidden,
+                "first_visible_timestamp": str(clock_summary.first_visible_timestamp),
+                "last_visible_timestamp": str(clock_summary.last_visible_timestamp),
+                "last_visible_available_at": str(clock_summary.last_visible_available_at),
+            }
+            load_details = dataframe_health_summary(data)
+            load_details.update(
+                {
+                    "as_of": as_of_utc.isoformat(),
+                    "rows_before_as_of": clock_summary.rows_in,
+                    "rows_hidden_by_as_of": clock_summary.rows_hidden,
+                }
+            )
+            print(
+                f"As-of cutoff: {clock_summary.rows_visible:,}/{clock_summary.rows_in:,} "
+                f"completed 1m bars visible; {clock_summary.rows_hidden:,} hidden."
+            )
+        record_stage(run_metadata, "load", status="passed", details=load_details)
         if stop_after == "load":
+            save_run_metadata(run_metadata, audit_file)
             return {"data": data, "metadata": run_metadata}
 
         stage_number += 1
@@ -548,7 +593,11 @@ def run_pipeline(
 
         stage_number += 1
         print_stage(stage_number, total_stages, "Generate higher timeframes")
-        resampled = stage_resample(data, processed_directory=processed_directory)
+        resampled = stage_resample(
+            data,
+            processed_directory=processed_directory,
+            as_of=as_of_utc,
+        )
         record_stage(
             run_metadata,
             "resample",
@@ -785,6 +834,15 @@ def parse_arguments() -> argparse.Namespace:
         help="Path to strategy.yaml.",
     )
     parser.add_argument(
+        "--as-of",
+        default=None,
+        help=(
+            "Optional timezone-aware replay cutoff. Example: "
+            "2026-08-10T09:00:00-04:00. Only completed data available by this "
+            "timestamp may influence the pipeline."
+        ),
+    )
+    parser.add_argument(
         "--stop-after",
         choices=PIPELINE_STAGES,
         default=None,
@@ -825,6 +883,7 @@ def main() -> None:
         sessions_config_path=Path(args.sessions_config),
         strategy_config_path=Path(args.strategy_config),
         stop_after=args.stop_after,
+        as_of=args.as_of,
     )
 
 
