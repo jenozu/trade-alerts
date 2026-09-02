@@ -64,6 +64,11 @@ from structure import (  # noqa: E402
     structure_summary,
     save_structure_outputs,
 )
+from dol import (  # noqa: E402
+    enrich_draw_on_liquidity,
+    dol_summary,
+    save_dol_outputs,
+)
 from scorer import (  # noqa: E402
     enrich_scores,
     add_score_change_events,
@@ -99,6 +104,7 @@ PIPELINE_STAGES = [
     "liquidity",
     "fvg",
     "structure",
+    "dol",
     "scoring",
     "backtest",
 ]
@@ -254,7 +260,6 @@ def stage_resample(
     return results
 
 
-
 def stage_bias(
     dataframe_1m: pd.DataFrame,
     *,
@@ -267,21 +272,14 @@ def stage_bias(
         resampled_results,
         strategy_config,
     )
-
     summary = bias_summary(enriched)
-
-    save_bias_outputs(
-        enriched,
-        processed_directory / "bias",
-    )
-
+    save_bias_outputs(enriched, processed_directory / "bias")
     print(f"Bullish HTF bias bars: {summary.bullish:,}")
     print(f"Bearish HTF bias bars: {summary.bearish:,}")
     print(f"Neutral HTF bias bars: {summary.neutral:,}")
     print(f"HTF bias conflicts: {summary.conflicts:,}")
     print(f"Known HTF bias bars: {summary.known:,}")
     print(f"Unknown HTF bias bars: {summary.unknown:,}")
-
     return enriched
 
 
@@ -413,6 +411,23 @@ def stage_structure(
     )
     print(f"MSS: {summary.bullish_mss:,} bullish / {summary.bearish_mss:,} bearish")
     print(f"BOS: {summary.bullish_bos:,} bullish / {summary.bearish_bos:,} bearish")
+    return enriched
+
+
+def stage_dol(
+    dataframe: pd.DataFrame,
+    *,
+    strategy_config: dict[str, Any],
+    processed_directory: Path,
+) -> pd.DataFrame:
+    enriched = enrich_draw_on_liquidity(dataframe, strategy_config)
+    summary = dol_summary(enriched)
+    save_dol_outputs(enriched, processed_directory / "dol")
+    print(f"Bullish DOL bars: {summary.bullish:,}")
+    print(f"Bearish DOL bars: {summary.bearish:,}")
+    print(f"Neutral DOL bars: {summary.neutral:,}")
+    print(f"Bullish DOL targets available: {summary.bullish_targets_available:,}")
+    print(f"Bearish DOL targets available: {summary.bearish_targets_available:,}")
     return enriched
 
 
@@ -557,9 +572,7 @@ def run_pipeline(
             strategy_config=strategy_config,
             processed_directory=processed_directory,
         )
-
         bias_stats = bias_summary(data)
-
         record_stage(
             run_metadata,
             "bias",
@@ -574,14 +587,9 @@ def run_pipeline(
                 "unknown": bias_stats.unknown,
             },
         )
-
         if stop_after == "bias":
             save_run_metadata(run_metadata, audit_file)
-            return {
-                "data": data,
-                "resampled": resampled,
-                "metadata": run_metadata,
-            }
+            return {"data": data, "resampled": resampled, "metadata": run_metadata}
 
         stage_number += 1
         print_stage(stage_number, total_stages, "Calculate session levels")
@@ -659,6 +667,31 @@ def run_pipeline(
         )
         record_stage(run_metadata, "structure", status="passed")
         if stop_after == "structure":
+            return {"data": data, "metadata": run_metadata}
+
+        stage_number += 1
+        print_stage(stage_number, total_stages, "Calculate draw on liquidity")
+        data = stage_dol(
+            data,
+            strategy_config=strategy_config,
+            processed_directory=processed_directory,
+        )
+        dol_stats = dol_summary(data)
+        record_stage(
+            run_metadata,
+            "dol",
+            status="passed",
+            details={
+                "rows": dol_stats.rows,
+                "bullish": dol_stats.bullish,
+                "bearish": dol_stats.bearish,
+                "neutral": dol_stats.neutral,
+                "bullish_targets_available": dol_stats.bullish_targets_available,
+                "bearish_targets_available": dol_stats.bearish_targets_available,
+            },
+        )
+        if stop_after == "dol":
+            save_run_metadata(run_metadata, audit_file)
             return {"data": data, "metadata": run_metadata}
 
         stage_number += 1
