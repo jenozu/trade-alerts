@@ -107,7 +107,7 @@ pytest -q
 - [x] ProjectX-specific test result reported: **21 passed**.
 - [x] Full-suite result reported after ProjectX Phase 1: **180 passed**.
 - [x] ProjectX collector checkpoint pushed: `950633e` — `checkpoint: projectx collector`.
-- [x] Reproduce the current full-suite count on the VPS after the latest pull — **180 passed, 21 warnings**.
+- [x] Reproduce the current full-suite count on the VPS after the latest pull — **200 passed, 25 warnings** at `9e7262a851e9c7264c3e0a66277b9ad13df8eef9`.
 - [x] Confirm the ProjectX collector succeeds on the VPS with `PROJECTX_LIVE=false`.
 
 ---
@@ -128,28 +128,30 @@ Freeze a trustworthy baseline before continuing production work.
 - [x] HTF bias exists.
 - [x] DOL exists.
 - [x] ProjectX reusable client exists.
-- [ ] Run `git pull --ff-only` on VPS.
-- [ ] Confirm working tree is clean.
-- [ ] Run `pytest -q`.
-- [ ] Record current passing test count.
-- [ ] Record warnings separately from failures.
-- [ ] Confirm Python/venv versions.
-- [ ] Confirm data directories are writable.
-- [ ] Confirm `.env` is ignored by Git.
-- [ ] Confirm no credentials are committed.
+- [x] Run `git pull --ff-only` on VPS.
+- [x] Confirm working tree is clean.
+- [x] Run `pytest -q`.
+- [x] Record current passing test count.
+- [x] Record warnings separately from failures.
+- [x] Confirm Python/venv versions.
+- [x] Confirm data directories are writable.
+- [x] Confirm `.env` is ignored by Git.
+- [x] Confirm no credentials are committed.
 - [ ] Back up current `config/strategy.yaml` before major strategy changes.
 - [ ] Back up current `config/sessions.yaml` before session changes.
 
+> **Phase 0 backup blocker:** No repository or trade-brain convention defines a safe backup location, filename, retention policy, or whether backup artifacts belong in Git. No backup was created; both config backup items and the “Configs are backed up” gate remain unchecked pending that decision.
+
 ## Done when
 
-- [ ] Latest `main` is pulled.
-- [ ] Full suite is green.
-- [ ] Working tree is clean.
+- [x] Latest `main` is pulled.
+- [x] Full suite is green.
+- [x] Working tree is clean.
 - [ ] Configs are backed up.
-- [ ] Test count and commit are recorded.
+- [x] Test count and commit are recorded.
 
-**Latest verified full-suite count:** `________________`  
-**Latest verified commit:** `________________`
+**Latest verified full-suite count:** `200 passed, 25 warnings`
+**Latest verified commit:** `9e7262a851e9c7264c3e0a66277b9ad13df8eef9`
 
 ---
 
