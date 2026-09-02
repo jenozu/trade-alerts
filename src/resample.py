@@ -9,6 +9,8 @@ import pandas as pd
 REQUIRED_COLUMNS = {"timestamp", "open", "high", "low", "close", "volume"}
 TIMEFRAME_RULES = {
     "1m": ("1min", 1),
+    "2m": ("2min", 2),
+    "3m": ("3min", 3),
     "5m": ("5min", 5),
     "15m": ("15min", 15),
     "30m": ("30min", 30),
