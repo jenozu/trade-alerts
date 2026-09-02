@@ -1,0 +1,33 @@
+# Non-secret ProjectX collection defaults.
+# Credentials belong in .env, never in this file.
+projectx:
+  base_url: "https://api.topstepx.com"
+  symbol: "MNQ"
+  live: false
+
+  historical_bars:
+    unit: 2
+    unit_number: 1
+    include_partial_bar: false
+    maximum_bars_per_request: 20000
+
+  collection:
+    history_days: 30
+    chunk_days: 10
+    request_delay_seconds: 0.8
+    timeout_seconds: 30
+    maximum_retries: 5
+    maximum_stale_minutes: 5
+
+  storage:
+    format: "parquet"
+    directory: "data/raw/projectx"
+    timestamp_timezone: "America/New_York"
+
+  safety:
+    market_data_only: true
+    order_endpoints_allowed: false
+    fail_on_zero_bars: true
+    fail_on_conflicting_duplicates: true
+    fail_on_invalid_ohlc: true
+    fail_on_stale_data: true
