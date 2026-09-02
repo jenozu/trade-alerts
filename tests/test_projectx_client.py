@@ -10,6 +10,7 @@ import pandas as pd
 import pytest
 
 import projectx_client
+import scripts.collect_projectx as collector_script
 from projectx_client import (
     AUTH_ENDPOINT,
     CONTRACT_SEARCH_ENDPOINT,
@@ -410,6 +411,11 @@ def test_collector_exits_nonzero_and_emits_fail_safe_without_credentials(
         "TOPSTEP_API_KEY",
     ):
         monkeypatch.delenv(name, raising=False)
+
+    # This test must remain deterministic even on a real VPS that has a valid
+    # project-level .env.  The behavior under test is the fail-safe path when
+    # no credentials are available, not whether the host machine has secrets.
+    monkeypatch.setattr(collector_script, "load_simple_env", lambda _path: None)
 
     with pytest.raises(SystemExit) as exc_info:
         collector_main(["--days", "1"])
