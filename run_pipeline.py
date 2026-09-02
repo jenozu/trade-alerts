@@ -28,6 +28,11 @@ from resample import (  # noqa: E402
     validate_resampled_bars,
     save_resampled_parquet,
 )
+from bias import (  # noqa: E402
+    enrich_htf_bias,
+    bias_summary,
+    save_bias_outputs,
+)
 from sessions import (  # noqa: E402
     load_sessions_config,
     enrich_with_sessions,
@@ -86,6 +91,7 @@ PIPELINE_STAGES = [
     "load",
     "validate",
     "resample",
+    "bias",
     "sessions",
     "volume",
     "snr",
@@ -246,6 +252,37 @@ def stage_resample(
             f"({result.incomplete_bars:,} incomplete)"
         )
     return results
+
+
+
+def stage_bias(
+    dataframe_1m: pd.DataFrame,
+    *,
+    resampled_results: dict[str, Any],
+    strategy_config: dict[str, Any],
+    processed_directory: Path,
+) -> pd.DataFrame:
+    enriched = enrich_htf_bias(
+        dataframe_1m,
+        resampled_results,
+        strategy_config,
+    )
+
+    summary = bias_summary(enriched)
+
+    save_bias_outputs(
+        enriched,
+        processed_directory / "bias",
+    )
+
+    print(f"Bullish HTF bias bars: {summary.bullish:,}")
+    print(f"Bearish HTF bias bars: {summary.bearish:,}")
+    print(f"Neutral HTF bias bars: {summary.neutral:,}")
+    print(f"HTF bias conflicts: {summary.conflicts:,}")
+    print(f"Known HTF bias bars: {summary.known:,}")
+    print(f"Unknown HTF bias bars: {summary.unknown:,}")
+
+    return enriched
 
 
 def stage_sessions(
@@ -511,6 +548,40 @@ def run_pipeline(
         )
         if stop_after == "resample":
             return {"data": data, "resampled": resampled, "metadata": run_metadata}
+
+        stage_number += 1
+        print_stage(stage_number, total_stages, "Calculate higher-timeframe bias")
+        data = stage_bias(
+            data,
+            resampled_results=resampled,
+            strategy_config=strategy_config,
+            processed_directory=processed_directory,
+        )
+
+        bias_stats = bias_summary(data)
+
+        record_stage(
+            run_metadata,
+            "bias",
+            status="passed",
+            details={
+                "rows": bias_stats.rows,
+                "bullish": bias_stats.bullish,
+                "bearish": bias_stats.bearish,
+                "neutral": bias_stats.neutral,
+                "conflicts": bias_stats.conflicts,
+                "known": bias_stats.known,
+                "unknown": bias_stats.unknown,
+            },
+        )
+
+        if stop_after == "bias":
+            save_run_metadata(run_metadata, audit_file)
+            return {
+                "data": data,
+                "resampled": resampled,
+                "metadata": run_metadata,
+            }
 
         stage_number += 1
         print_stage(stage_number, total_stages, "Calculate session levels")
