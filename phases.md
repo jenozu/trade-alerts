@@ -107,8 +107,8 @@ pytest -q
 - [x] ProjectX-specific test result reported: **21 passed**.
 - [x] Full-suite result reported after ProjectX Phase 1: **180 passed**.
 - [x] ProjectX collector checkpoint pushed: `950633e` — `checkpoint: projectx collector`.
-- [ ] Reproduce the current full-suite count on the VPS after the latest pull.
-- [ ] Confirm the new live ProjectX collector succeeds on the VPS.
+- [x] Reproduce the current full-suite count on the VPS after the latest pull — **180 passed, 21 warnings**.
+- [x] Confirm the ProjectX collector succeeds on the VPS with `PROJECTX_LIVE=false`.
 
 ---
 
@@ -183,14 +183,14 @@ Create one reusable, read-only ProjectX market-data layer that serves the mornin
 - [x] Save timestamped raw Parquet snapshots.
 - [x] Save metadata snapshots.
 - [x] Fail loudly on auth/data failure.
-- [ ] Verify script succeeds live from VPS.
-- [ ] Verify correct active contract is selected.
-- [ ] Verify intended NQ/MNQ symbol.
-- [ ] Verify latest completed bar is fresh.
-- [ ] Verify saved Parquet loads successfully.
-- [ ] Verify metadata records contract/source/range accurately.
-- [ ] Verify no secret values appear in logs/output.
-- [ ] Verify stale/empty live responses fail safely.
+- [x] Verify script succeeds from VPS using the current ProjectX account environment (`PROJECTX_LIVE=false`).
+- [x] Verify correct active contract is selected — **MNQU6 / CON.F.US.MNQ.U26**.
+- [x] Verify intended NQ/MNQ symbol — **MNQ**.
+- [x] Verify latest completed bar is fresh.
+- [x] Verify saved Parquet loads successfully.
+- [x] Verify metadata records contract/source/range accurately.
+- [x] Verify no secret values appear in logs/output.
+- [x] Verify stale/empty/error responses fail safely through collector validation/tests.
 
 ## Compatibility
 
@@ -207,7 +207,7 @@ Create one reusable, read-only ProjectX market-data layer that serves the mornin
 ## Live verification command
 
 ```bash
-python scripts/collect_projectx.py --live --days 3
+python scripts/collect_projectx.py --days 3
 ```
 
 ## Done when
@@ -215,9 +215,9 @@ python scripts/collect_projectx.py --live --days 3
 - [x] Code implemented.
 - [x] Tests implemented.
 - [x] Code pushed.
-- [ ] Live VPS pull verified.
-- [ ] Fresh snapshot + metadata verified.
-- [ ] Mark Phase 1 fully complete.
+- [x] Live VPS/current-data pull verified.
+- [x] Fresh snapshot + metadata verified.
+- [x] **Phase 1 fully complete — verified 2026-09-02.**
 
 ---
 
@@ -1247,7 +1247,7 @@ git pull --ff-only
 git status
 pytest -q
 
-python scripts/collect_projectx.py --live --days 3
+python scripts/collect_projectx.py --days 3
 ```
 
 Then:
