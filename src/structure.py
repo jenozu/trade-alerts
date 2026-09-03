@@ -8,6 +8,10 @@ import numpy as np
 import pandas as pd
 import yaml
 
+from displacement import enrich_displacement_components
+from structure_state import enrich_structure_state
+from swing_lifecycle import enrich_swing_lifecycle
+
 DEFAULT_STRATEGY_CONFIG = Path("config/strategy.yaml")
 REQUIRED_COLUMNS = {"timestamp", "open", "high", "low", "close"}
 DEFAULT_ATR_PERIOD = 14
@@ -702,6 +706,35 @@ def enrich_structure_features(df: pd.DataFrame, config: dict[str, Any]) -> pd.Da
     result = add_recent_structure_context(result, lookback_bars=10)
     result = add_core_sequence_flags(result, lookback_bars=10)
     result = add_fvg_structure_sequences(result)
+
+    # Preserve legacy boolean displacement behavior above, then add the
+    # dedicated explainable score as a separate production feature layer.
+    result = enrich_displacement_components(
+        result,
+        config,
+    )
+
+    production_timeframe = str(
+        config.get(
+            "swings",
+            {},
+        ).get(
+            "timeframe",
+            "1m",
+        )
+    )
+
+    result = enrich_structure_state(
+        result,
+        config,
+        timeframe=production_timeframe,
+    )
+
+    result = enrich_swing_lifecycle(
+        result,
+        config,
+    )
+
     return result
 
 

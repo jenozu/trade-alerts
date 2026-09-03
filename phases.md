@@ -379,10 +379,10 @@ Complete the deterministic facts required by market state before building narrat
 - [x] Equal-low clustering.
 - [x] Swing strength.
 - [x] Swept state.
-- [ ] Broken-with-displacement state.
-- [ ] Protected/strong swing classification.
-- [ ] Weak-liquidity classification.
-- [ ] Record reason for protected/weak status.
+- [x] Broken-with-displacement state.
+- [x] Protected/strong swing classification.
+- [x] Weak-liquidity classification.
+- [x] Record reason for protected/weak status.
 - [x] Add no-lookahead regressions.
 
 ## 3E — Liquidity Registry
@@ -459,15 +459,15 @@ Complete the deterministic facts required by market state before building narrat
 
 - [x] `src/structure.py` exists.
 - [x] BOS/MSS/CHOCH-related logic exists.
-- [ ] Explicit wick-sweep vs body-close break distinction.
-- [ ] Explicit body-close vs displacement-break distinction.
-- [ ] Continuation-break state.
-- [ ] Failed-break state.
-- [ ] Reclaim state.
-- [ ] Integrate dedicated displacement score.
-- [ ] Expose broken level/timeframe/timestamp/confirmation.
-- [ ] Expose volume/displacement context.
-- [ ] Replay/no-lookahead tests.
+- [x] Explicit wick-sweep vs body-close break distinction.
+- [x] Explicit body-close vs displacement-break distinction.
+- [x] Continuation-break state.
+- [x] Failed-break state.
+- [x] Reclaim state.
+- [x] Integrate dedicated displacement score.
+- [x] Expose broken level/timeframe/timestamp/confirmation.
+- [x] Expose volume/displacement context.
+- [x] Replay/no-lookahead tests.
 
 ## 3J — PD Arrays
 
