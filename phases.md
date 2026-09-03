@@ -532,7 +532,7 @@ Complete the deterministic facts required by market state before building narrat
 - [x] No-lookahead tests are green.
 - [x] Full suite is green.
 - [x] Feature outputs are ready for stable serialization.
-- [ ] Push checkpoint and update this file.
+- [x] Push checkpoint and update this file.
 
 ---
 
