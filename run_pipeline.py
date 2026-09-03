@@ -49,6 +49,7 @@ from sessions import (  # noqa: E402
     required_session_coverage,
     save_session_outputs,
 )
+from vwap import enrich_vwap, save_vwap_outputs  # noqa: E402
 from volume import (  # noqa: E402
     enrich_volume_features,
     volume_summary,
@@ -80,6 +81,7 @@ from structure import (  # noqa: E402
     structure_summary,
     save_structure_outputs,
 )
+from dealing_range import enrich_dealing_ranges  # noqa: E402
 from dol import (  # noqa: E402
     enrich_draw_on_liquidity,
     dol_summary,
@@ -114,6 +116,7 @@ PIPELINE_STAGES = [
     "resample",
     "bias",
     "sessions",
+    "vwap",
     "volume",
     "snr",
     "swings",
@@ -121,6 +124,7 @@ PIPELINE_STAGES = [
     "fvg",
     "pd_arrays",
     "structure",
+    "dealing_range",
     "dol",
     "scoring",
     "backtest",
@@ -327,6 +331,36 @@ def stage_sessions(
     return enriched
 
 
+def stage_vwap(
+    dataframe: pd.DataFrame,
+    *,
+    strategy_config: dict[str, Any],
+    processed_directory: Path,
+) -> pd.DataFrame:
+    enriched = enrich_vwap(
+        dataframe,
+        strategy_config,
+    )
+
+    output_path = save_vwap_outputs(
+        enriched,
+        processed_directory / "vwap",
+    )
+
+    known = int(
+        enriched["vwap"].notna().sum()
+    )
+
+    print(
+        f"VWAP available: {known:,}/{len(enriched):,} bars"
+    )
+    print(
+        f"VWAP output: {output_path}"
+    )
+
+    return enriched
+
+
 def stage_volume(
     dataframe: pd.DataFrame,
     *,
@@ -484,6 +518,104 @@ def stage_structure(
     )
     print(f"MSS: {summary.bullish_mss:,} bullish / {summary.bearish_mss:,} bearish")
     print(f"BOS: {summary.bullish_bos:,} bullish / {summary.bearish_bos:,} bearish")
+    return enriched
+
+
+def stage_dealing_range(
+    dataframe: pd.DataFrame,
+    *,
+    processed_directory: Path,
+) -> pd.DataFrame:
+    result = dataframe.copy()
+
+    mapping = {
+        "internal": (
+            "active_internal_swing_high",
+            "active_internal_swing_low",
+        ),
+        "external": (
+            "active_external_swing_high",
+            "active_external_swing_low",
+        ),
+    }
+
+    for scope, (
+        source_high,
+        source_low,
+    ) in mapping.items():
+        target_high = (
+            f"{scope}_structure_range_high"
+        )
+        target_low = (
+            f"{scope}_structure_range_low"
+        )
+
+        if source_high not in result.columns:
+            raise PipelineError(
+                f"Dealing range requires {source_high}."
+            )
+
+        if source_low not in result.columns:
+            raise PipelineError(
+                f"Dealing range requires {source_low}."
+            )
+
+        if target_high not in result.columns:
+            result[target_high] = result[
+                source_high
+            ]
+
+        if target_low not in result.columns:
+            result[target_low] = result[
+                source_low
+            ]
+
+    enriched = enrich_dealing_ranges(
+        result,
+        scopes=(
+            "internal",
+            "external",
+        ),
+    )
+
+    output_directory = (
+        processed_directory
+        / "dealing_range"
+    )
+
+    output_directory.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    output_path = (
+        output_directory
+        / "dealing_ranges.parquet"
+    )
+
+    enriched.to_parquet(
+        output_path,
+        index=False,
+    )
+
+    internal_known = int(
+        enriched[
+            "internal_dealing_valid"
+        ].sum()
+    )
+
+    external_known = int(
+        enriched[
+            "external_dealing_valid"
+        ].sum()
+    )
+
+    print(
+        "Dealing ranges available: "
+        f"{internal_known:,} internal / "
+        f"{external_known:,} external"
+    )
+
     return enriched
 
 
@@ -774,6 +906,21 @@ def run_pipeline(
             return {"data": data, "metadata": run_metadata}
 
         stage_number += 1
+        print_stage(stage_number, total_stages, "Calculate production VWAP")
+        data = stage_vwap(
+            data,
+            strategy_config=strategy_config,
+            processed_directory=processed_directory,
+        )
+        record_stage(
+            run_metadata,
+            "vwap",
+            status="passed",
+        )
+        if stop_after == "vwap":
+            return {"data": data, "metadata": run_metadata}
+
+        stage_number += 1
         print_stage(stage_number, total_stages, "Calculate volume and RVOL")
         data = stage_volume(
             data,
@@ -849,6 +996,20 @@ def run_pipeline(
         )
         record_stage(run_metadata, "structure", status="passed")
         if stop_after == "structure":
+            return {"data": data, "metadata": run_metadata}
+
+        stage_number += 1
+        print_stage(stage_number, total_stages, "Calculate structural dealing ranges")
+        data = stage_dealing_range(
+            data,
+            processed_directory=processed_directory,
+        )
+        record_stage(
+            run_metadata,
+            "dealing_range",
+            status="passed",
+        )
+        if stop_after == "dealing_range":
             return {"data": data, "metadata": run_metadata}
 
         stage_number += 1

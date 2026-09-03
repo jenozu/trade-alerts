@@ -516,14 +516,14 @@ Complete the deterministic facts required by market state before building narrat
 - [x] 0–100 deterministic score exists.
 - [x] HTF bias contribution is active.
 - [x] DOL contribution is supported.
-- [ ] Integrate production VWAP.
-- [ ] Integrate dealing range.
-- [ ] Integrate support/resistance confluence.
-- [ ] Integrate richer displacement.
-- [ ] Preserve explainable individual contributions.
-- [ ] Preserve conflict penalties.
-- [ ] Verify theoretical maximum remains 100 unless intentionally redesigned.
-- [ ] Delay calibration until the feature set is complete.
+- [x] Integrate production VWAP.
+- [x] Integrate dealing range.
+- [x] Integrate support/resistance confluence.
+- [x] Integrate richer displacement.
+- [x] Preserve explainable individual contributions.
+- [x] Preserve conflict penalties.
+- [x] Verify theoretical maximum remains 100 unless intentionally redesigned.
+- [x] Delay calibration until the feature set is complete.
 
 ## Done when
 

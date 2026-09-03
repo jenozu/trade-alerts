@@ -1295,3 +1295,307 @@ def save_confluence_outputs(
         "confluence_zones_parquet":
             parquet_path,
     }
+
+
+def directional_confluence_strength(
+    row: pd.Series,
+    config: Mapping[str, Any],
+    *,
+    direction: str,
+) -> dict[str, Any]:
+    """Return causal source-only S/R confluence for one market-state row.
+
+    This intentionally uses only source-location evidence. Reaction,
+    volume, displacement, and HTF alignment remain separate scorer
+    components and therefore are not double-counted here.
+    """
+
+    direction = str(direction).strip().lower()
+
+    if direction not in {
+        "long",
+        "short",
+    }:
+        raise ConfluenceZoneError(
+            "direction must be 'long' or 'short'."
+        )
+
+    raw_price = row.get(
+        "close",
+        np.nan,
+    )
+
+    if pd.isna(raw_price):
+        return {
+            "score": 0.0,
+            "source_score": 0.0,
+            "midpoint": None,
+            "distance_points": None,
+            "sources": [],
+            "categories": [],
+        }
+
+    price = float(
+        raw_price
+    )
+
+    section = config.get(
+        "confluence_zones",
+        {},
+    )
+
+    tolerance = float(
+        section.get(
+            "cluster_tolerance_points",
+            2.0,
+        )
+    )
+
+    pivot_tolerance = float(
+        section.get(
+            "pivot_tolerance_points",
+            0.5,
+        )
+    )
+
+    source_score_cap = float(
+        section.get(
+            "source_score_cap",
+            60.0,
+        )
+    )
+
+    weights = dict(
+        DEFAULT_WEIGHTS
+    )
+
+    weights.update(
+        {
+            str(key): float(value)
+            for key, value
+            in section.get(
+                "component_weights",
+                {},
+            ).items()
+        }
+    )
+
+    candidates: list[
+        dict[str, Any]
+    ] = []
+
+    def add(
+        column: str,
+        category: str,
+    ) -> None:
+        if column not in row.index:
+            return
+
+        value = row.get(
+            column
+        )
+
+        if pd.isna(value):
+            return
+
+        try:
+            level = float(
+                value
+            )
+        except (
+            TypeError,
+            ValueError,
+        ):
+            return
+
+        candidates.append(
+            {
+                "level": level,
+                "category": category,
+                "source": column,
+            }
+        )
+
+    for column in HTF_SWING_COLUMNS:
+        add(
+            column,
+            "htf_swing",
+        )
+
+    for column in SESSION_LEVELS:
+        add(
+            column,
+            "session_level",
+        )
+
+    for column in row.index:
+        if str(
+            column
+        ).endswith(
+            "_equal_cluster_level"
+        ):
+            add(
+                str(column),
+                "equal_liquidity",
+            )
+
+    for column in FVG_BOUNDARY_COLUMNS:
+        add(
+            column,
+            "fvg_boundary",
+        )
+
+    add(
+        "vwap",
+        "vwap",
+    )
+
+    for column in row.index:
+        if str(
+            column
+        ).endswith(
+            "_equilibrium"
+        ):
+            add(
+                str(column),
+                "equilibrium",
+            )
+
+    if not candidates:
+        return {
+            "score": 0.0,
+            "source_score": 0.0,
+            "midpoint": None,
+            "distance_points": None,
+            "sources": [],
+            "categories": [],
+        }
+
+    clusters = _cluster_candidates(
+        candidates,
+        tolerance_points=tolerance,
+    )
+
+    eligible: list[
+        dict[str, Any]
+    ] = []
+
+    for cluster in clusters:
+        midpoint = float(
+            np.mean(
+                [
+                    float(
+                        item["level"]
+                    )
+                    for item in cluster
+                ]
+            )
+        )
+
+        if direction == "long":
+            direction_ok = (
+                midpoint
+                <= price
+                + pivot_tolerance
+            )
+        else:
+            direction_ok = (
+                midpoint
+                >= price
+                - pivot_tolerance
+            )
+
+        if not direction_ok:
+            continue
+
+        categories = sorted(
+            {
+                str(
+                    item["category"]
+                )
+                for item
+                in cluster
+            }
+        )
+
+        sources = sorted(
+            {
+                str(
+                    item["source"]
+                )
+                for item
+                in cluster
+            }
+        )
+
+        source_score = min(
+            source_score_cap,
+            sum(
+                float(
+                    weights.get(
+                        category,
+                        0.0,
+                    )
+                )
+                for category
+                in categories
+            ),
+        )
+
+        normalized = (
+            source_score
+            / source_score_cap
+            * 100.0
+            if source_score_cap > 0
+            else 0.0
+        )
+
+        eligible.append(
+            {
+                "score": float(
+                    np.clip(
+                        normalized,
+                        0.0,
+                        100.0,
+                    )
+                ),
+                "source_score":
+                    source_score,
+                "midpoint":
+                    midpoint,
+                "distance_points":
+                    abs(
+                        price
+                        - midpoint
+                    ),
+                "sources":
+                    sources,
+                "categories":
+                    categories,
+            }
+        )
+
+    if not eligible:
+        return {
+            "score": 0.0,
+            "source_score": 0.0,
+            "midpoint": None,
+            "distance_points": None,
+            "sources": [],
+            "categories": [],
+        }
+
+    eligible.sort(
+        key=lambda item: (
+            -float(
+                item["score"]
+            ),
+            float(
+                item[
+                    "distance_points"
+                ]
+            ),
+        )
+    )
+
+    return eligible[0]

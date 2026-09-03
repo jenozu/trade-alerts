@@ -8,6 +8,14 @@ import numpy as np
 import pandas as pd
 import yaml
 
+from scorer_harmonization import (
+    dealing_range_alignment,
+    harmonized_key_location,
+    richer_displacement_fraction,
+    snr_quality_adjustment,
+    validate_positive_weight_total,
+)
+
 DEFAULT_STRATEGY_CONFIG = Path("config/strategy.yaml")
 REQUIRED_COLUMNS = {"timestamp", "open", "high", "low", "close"}
 
@@ -336,20 +344,62 @@ def score_setup(
     clamp = scoring.get("clamp", {})
     contributions: dict[str, float] = {}
 
+    # Production scoring weights must retain the declared 0-100 ceiling.
+    validate_positive_weight_total(config)
+
     htf_aligned = is_bullish_htf_bias(row) if direction == "long" else is_bearish_htf_bias(row)
     contributions["higher_timeframe_bias"] = float(positive_weights.get("higher_timeframe_bias", 0)) if htf_aligned else 0.0
 
     dol_ok = dol_alignment(row, direction)
     contributions["draw_on_liquidity"] = float(positive_weights.get("draw_on_liquidity", 0)) if dol_ok else 0.0
 
-    location_ok = key_location_alignment(row, direction)
-    contributions["key_location"] = float(positive_weights.get("key_location", 0)) if location_ok else 0.0
+    legacy_location_ok = key_location_alignment(row, direction)
+    location_ok, location_details = harmonized_key_location(
+        row,
+        direction,
+        config,
+        legacy_aligned=legacy_location_ok,
+    )
+    contributions["key_location"] = (
+        float(positive_weights.get("key_location", 0))
+        if location_ok
+        else 0.0
+    )
+    for detail_name, detail_value in location_details.items():
+        contributions[
+            f"detail_key_location_{detail_name}"
+        ] = float(detail_value)
 
     sweep_ok = liquidity_sweep_alignment(row, direction)
     contributions["liquidity_sweep"] = float(positive_weights.get("liquidity_sweep", 0)) if sweep_ok else 0.0
 
     displacement_ok = displacement_alignment(row, direction)
-    contributions["displacement"] = float(positive_weights.get("displacement", 0)) if displacement_ok else 0.0
+    displacement_fraction, displacement_raw_score = (
+        richer_displacement_fraction(
+            row,
+            direction,
+            legacy_aligned=displacement_ok,
+        )
+    )
+    contributions["displacement"] = (
+        float(
+            positive_weights.get(
+                "displacement",
+                0,
+            )
+        )
+        * displacement_fraction
+    )
+    contributions[
+        "detail_displacement_fraction"
+    ] = float(displacement_fraction)
+    contributions[
+        "detail_displacement_raw_score"
+    ] = (
+        float(displacement_raw_score)
+        if displacement_raw_score is not None
+        else 0.0
+    )
 
     structure_ok = structure_shift_alignment(row, direction)
     contributions["structure_shift"] = float(positive_weights.get("structure_shift", 0)) if structure_ok else 0.0
@@ -360,11 +410,94 @@ def score_setup(
     rvol_ok = relative_volume_confirmation(row, config)
     contributions["relative_volume"] = float(positive_weights.get("relative_volume", 0)) if rvol_ok else 0.0
 
-    snr_ok = snr_confirmation(row, direction, config)
-    contributions["signal_to_noise"] = float(positive_weights.get("signal_to_noise", 0)) if snr_ok else 0.0
+    (
+        snr_quality_fraction,
+        snr_quality_penalty,
+        snr_production_context,
+    ) = snr_quality_adjustment(
+        row,
+        config,
+    )
 
-    pd_ok = premium_discount_alignment(row, direction)
-    contributions["premium_discount"] = float(positive_weights.get("premium_discount", 0)) if pd_ok else 0.0
+    if snr_production_context:
+        contributions["signal_to_noise"] = (
+            float(
+                positive_weights.get(
+                    "signal_to_noise",
+                    0,
+                )
+            )
+            * snr_quality_fraction
+        )
+        contributions[
+            "detail_snr_production_context"
+        ] = 1.0
+        contributions[
+            "detail_snr_quality_fraction"
+        ] = float(
+            snr_quality_fraction
+        )
+    else:
+        # Compatibility only for older datasets that predate the
+        # production SNR quality columns.
+        snr_ok = snr_confirmation(
+            row,
+            direction,
+            config,
+        )
+        contributions["signal_to_noise"] = (
+            float(
+                positive_weights.get(
+                    "signal_to_noise",
+                    0,
+                )
+            )
+            if snr_ok
+            else 0.0
+        )
+        contributions[
+            "detail_snr_production_context"
+        ] = 0.0
+        contributions[
+            "detail_snr_quality_fraction"
+        ] = 0.0
+
+    dealing_range_ok = dealing_range_alignment(
+        row,
+        direction,
+    )
+    legacy_pd_ok = premium_discount_alignment(
+        row,
+        direction,
+    )
+    pd_ok = (
+        dealing_range_ok
+        or legacy_pd_ok
+    )
+    contributions["premium_discount"] = (
+        float(
+            positive_weights.get(
+                "premium_discount",
+                0,
+            )
+        )
+        if pd_ok
+        else 0.0
+    )
+    contributions[
+        "detail_dealing_range_alignment"
+    ] = float(
+        bool(
+            dealing_range_ok
+        )
+    )
+    contributions[
+        "detail_legacy_premium_discount_alignment"
+    ] = float(
+        bool(
+            legacy_pd_ok
+        )
+    )
 
     room_ok, _ = calculate_room_to_target(row, direction, config)
     contributions["room_to_target"] = float(positive_weights.get("room_to_target", 0)) if room_ok else 0.0
@@ -377,8 +510,29 @@ def score_setup(
     )
     contributions["penalty_htf_conflict"] = float(penalties.get("higher_timeframe_conflict", 0)) if htf_conflict else 0.0
 
-    snr_is_conflict = snr_conflict(row, direction)
-    contributions["penalty_snr_conflict"] = float(penalties.get("snr_conflict", 0)) if snr_is_conflict else 0.0
+    if snr_production_context:
+        contributions[
+            "penalty_snr_conflict"
+        ] = float(
+            snr_quality_penalty
+        )
+    else:
+        snr_is_conflict = snr_conflict(
+            row,
+            direction,
+        )
+        contributions[
+            "penalty_snr_conflict"
+        ] = (
+            float(
+                penalties.get(
+                    "snr_conflict",
+                    0,
+                )
+            )
+            if snr_is_conflict
+            else 0.0
+        )
 
     obstacle = major_obstacle_present(row, direction, config)
     contributions["penalty_major_obstacle"] = float(penalties.get("major_obstacle", 0)) if obstacle else 0.0
@@ -392,8 +546,22 @@ def score_setup(
     healthy = data_is_healthy(row)
     contributions["penalty_data_quality"] = float(penalties.get("data_quality_warning", 0)) if not healthy else 0.0
 
-    positive_points = sum(value for key, value in contributions.items() if not key.startswith("penalty_"))
-    penalty_points = sum(value for key, value in contributions.items() if key.startswith("penalty_"))
+    positive_points = sum(
+        value
+        for key, value
+        in contributions.items()
+        if not key.startswith(
+            ("penalty_", "detail_")
+        )
+    )
+    penalty_points = sum(
+        value
+        for key, value
+        in contributions.items()
+        if key.startswith(
+            "penalty_"
+        )
+    )
     raw_score = positive_points + penalty_points
     minimum_score = float(clamp.get("minimum", 0))
     maximum_score = float(clamp.get("maximum", 100))

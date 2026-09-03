@@ -374,6 +374,23 @@ scoring:
     minimum: 0
     maximum: 100
 
+  harmonization:
+    # Existing positive_weights already sum to 100.
+    # New objective features refine existing buckets rather than
+    # silently increasing the theoretical scoring ceiling.
+    required_positive_weight_total: 100
+
+    # Requires meaningful clustering rather than a single isolated level.
+    minimum_directional_confluence_score: 40.0
+
+    # SNR is quality/confidence only in production.
+    production_snr_directional_conflict: false
+
+    # Calibration begins only after the deterministic feature set is frozen.
+    calibration:
+      enabled: false
+      status: "deferred_until_feature_set_complete"
+
 score_bands:
   no_trade:
     minimum: 0
