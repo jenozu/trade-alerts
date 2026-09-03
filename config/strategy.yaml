@@ -212,6 +212,40 @@ fvg:
     causal_state_from_available_at: true
     preserve_raw_associations: true
 
+
+confluence_zones:
+  enabled: true
+
+  # Candidate prices within this distance are treated as one zone.
+  cluster_tolerance_points: 2.0
+
+  # Historical candles within this distance count as zone reactions.
+  reaction_tolerance_points: 1.0
+
+  # A zone within this distance of current price is classified as pivot.
+  pivot_tolerance_points: 0.5
+
+  # Raw source evidence is capped before reaction/context evidence is added.
+  source_score_cap: 60.0
+
+  component_weights:
+    htf_swing: 18.0
+    session_level: 14.0
+    equal_liquidity: 14.0
+    fvg_boundary: 14.0
+    vwap: 10.0
+    equilibrium: 8.0
+
+  scoring:
+    reaction_max: 10.0
+    volume_max: 8.0
+    displacement_max: 10.0
+    mitigation_max: 4.0
+    htf_alignment_max: 8.0
+
+  preserve_components: true
+  replace_snr: false
+
 pd_arrays:
   enabled: true
   recent_context_bars: 10

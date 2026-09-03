@@ -483,21 +483,21 @@ Complete the deterministic facts required by market state before building narrat
 
 ## 3K — Support / Resistance Confluence Zones
 
-- [ ] Create separate module such as `src/confluence_zones.py`.
-- [ ] Do **not** replace `src/snr.py`.
-- [ ] HTF swing component.
-- [ ] Prior-day/session-level components.
-- [ ] Equal highs/lows.
-- [ ] FVG boundaries.
-- [ ] VWAP.
-- [ ] Premium/discount midpoint.
-- [ ] Volume reaction.
-- [ ] Reaction count/recency.
-- [ ] Displacement away from zone.
-- [ ] Mitigation state.
-- [ ] HTF alignment.
-- [ ] Preserve components separately.
-- [ ] Transparent combined zone score.
+- [x] Create separate module such as `src/confluence_zones.py`.
+- [x] Do **not** replace `src/snr.py`.
+- [x] HTF swing component.
+- [x] Prior-day/session-level components.
+- [x] Equal highs/lows.
+- [x] FVG boundaries.
+- [x] VWAP.
+- [x] Premium/discount midpoint.
+- [x] Volume reaction.
+- [x] Reaction count/recency.
+- [x] Displacement away from zone.
+- [x] Mitigation state.
+- [x] HTF alignment.
+- [x] Preserve components separately.
+- [x] Transparent combined zone score.
 - [ ] Unit + no-lookahead tests.
 
 ## 3L — Signal-to-Noise
