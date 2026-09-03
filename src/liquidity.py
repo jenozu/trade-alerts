@@ -7,6 +7,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from liquidity_registry import build_liquidity_registry
+
 REQUIRED_COLUMNS = {"timestamp", "open", "high", "low", "close"}
 
 
@@ -22,8 +24,8 @@ class LiquiditySummary:
     sell_side_sweeps: int
 
 
-_BUY_STATIC = ["pdh", "pmh", "onh", "loh"]
-_SELL_STATIC = ["pdl", "pml", "onl", "lol"]
+_BUY_STATIC = ["pdh", "pmh", "onh", "loh", "ash", "week_high"]
+_SELL_STATIC = ["pdl", "pml", "onl", "lol", "asl", "week_low"]
 
 
 def _validate(df: pd.DataFrame) -> None:
@@ -188,7 +190,12 @@ def _event_table(df: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def save_liquidity_outputs(df: pd.DataFrame, output_directory: str | Path) -> dict[str, Path]:
+def save_liquidity_outputs(
+    df: pd.DataFrame,
+    output_directory: str | Path,
+    *,
+    config: dict[str, Any] | None = None,
+) -> dict[str, Path]:
     directory = Path(output_directory)
     directory.mkdir(parents=True, exist_ok=True)
     path = directory / "nq_1m_liquidity.parquet"
@@ -198,4 +205,30 @@ def save_liquidity_outputs(df: pd.DataFrame, output_directory: str | Path) -> di
     except ImportError as exc:
         raise LiquidityError("Saving Parquet requires pyarrow.") from exc
     _event_table(df).to_csv(events, index=False)
-    return {"liquidity_features": path, "liquidity_sweeps": events}
+
+    outputs = {
+        "liquidity_features": path,
+        "liquidity_sweeps": events,
+    }
+
+    if config is not None:
+        registry_path = (
+            directory
+            / "liquidity_registry.csv"
+        )
+
+        registry = build_liquidity_registry(
+            df,
+            config,
+        )
+
+        registry.to_csv(
+            registry_path,
+            index=False,
+        )
+
+        outputs[
+            "liquidity_registry"
+        ] = registry_path
+
+    return outputs

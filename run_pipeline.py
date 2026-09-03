@@ -397,7 +397,11 @@ def stage_liquidity(
 ) -> pd.DataFrame:
     enriched = enrich_liquidity_features(dataframe, strategy_config)
     summary = liquidity_summary(enriched)
-    save_liquidity_outputs(enriched, processed_directory / "liquidity")
+    save_liquidity_outputs(
+        enriched,
+        processed_directory / "liquidity",
+        config=strategy_config,
+    )
     print(f"Liquidity sweeps: {summary.sweep_events:,}")
     print(f"Buy-side: {summary.buy_side_sweeps:,}")
     print(f"Sell-side: {summary.sell_side_sweeps:,}")

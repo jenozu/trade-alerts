@@ -393,19 +393,19 @@ Complete the deterministic facts required by market state before building narrat
 - [x] PDH/PDL support exists.
 - [x] PMH/PML support exists.
 - [x] Overnight/London/swing support exists.
-- [ ] Add Asia H/L.
-- [ ] Add weekly H/L.
-- [ ] Add equal highs/lows.
-- [ ] Add explicit liquidity-pool registry/object model.
-- [ ] Add importance/components.
-- [ ] Track `untouched`.
-- [ ] Track `approached`.
+- [x] Add Asia H/L.
+- [x] Add weekly H/L.
+- [x] Add equal highs/lows.
+- [x] Add explicit liquidity-pool registry/object model.
+- [x] Add importance/components.
+- [x] Track `untouched`.
+- [x] Track `approached`.
 - [x] Track `swept`.
-- [ ] Track `broken`.
-- [ ] Track `reclaimed`.
-- [ ] Track `invalidated`.
-- [ ] Associate pool with timeframe/session metadata.
-- [ ] Prevent same-price identity collisions across sessions.
+- [x] Track `broken`.
+- [x] Track `reclaimed`.
+- [x] Track `invalidated`.
+- [x] Associate pool with timeframe/session metadata.
+- [x] Prevent same-price identity collisions across sessions.
 
 ## 3F — FVG / IFVG
 

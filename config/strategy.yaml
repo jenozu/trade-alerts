@@ -79,8 +79,39 @@ liquidity:
     - "onl"
     - "loh"
     - "lol"
+    - "ash"
+    - "asl"
+    - "week_high"
+    - "week_low"
     - "internal_swings"
     - "external_swings"
+    - "equal_highs"
+    - "equal_lows"
+  registry:
+    approach_ticks: 4
+    break_ticks: 1
+    importance:
+      pdh: 5
+      pdl: 5
+      pmh: 4
+      pml: 4
+      onh: 4
+      onl: 4
+      loh: 3
+      lol: 3
+      ash: 3
+      asl: 3
+      week_high: 5
+      week_low: 5
+      internal_swing_high: 2.5
+      internal_swing_low: 2.5
+      external_swing_high: 4
+      external_swing_low: 4
+      internal_equal_high: 4
+      internal_equal_low: 4
+      external_equal_high: 5
+      external_equal_low: 5
+
   sweep:
     minimum_penetration_ticks: 1
     require_close_back_through_level: true
