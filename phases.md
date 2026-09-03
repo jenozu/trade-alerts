@@ -234,8 +234,8 @@ Make the data pipeline production-safe so 09:00, 09:25, post-open live analysis,
 - [x] `timestamp` is timezone-aware UTC storage.
 - [x] `open`, `high`, `low`, `close`, `volume` exist.
 - [x] Source/symbol/contract metadata can be preserved.
-- [ ] Define one explicit production `as_of` contract.
-- [ ] Ensure downstream production modules honor `as_of`.
+- [x] Define one explicit production `as_of` contract.
+- [x] Ensure downstream production modules honor `as_of`.
 
 ## Validation
 
@@ -243,10 +243,10 @@ Make the data pipeline production-safe so 09:00, 09:25, post-open live analysis,
 - [x] Timestamp checks exist.
 - [x] OHLC consistency checks exist.
 - [x] Duplicate/gap/outlier diagnostics exist.
-- [ ] Add/verify live freshness rules.
-- [ ] Distinguish warnings vs fatal errors for production analysis.
-- [ ] Add degraded-analysis status for incomplete but usable history.
-- [ ] Validate session coverage required by the morning engine.
+- [x] Add/verify live freshness rules.
+- [x] Distinguish warnings vs fatal errors for production analysis.
+- [x] Add degraded-analysis status for incomplete but usable history.
+- [x] Validate session coverage required by the morning engine.
 
 ## Resampling
 
@@ -262,64 +262,64 @@ Existing:
 
 Add/verify:
 
-- [ ] 2m
-- [ ] 3m
-- [ ] Completed-bar visibility on every timeframe.
-- [ ] `available_at` semantics on every timeframe.
-- [ ] Session-aware Daily construction.
-- [ ] Daily does not accidentally use midnight UTC if futures trading date is intended.
-- [ ] Deterministic boundaries through DST.
-- [ ] Replay reproduces the same multi-timeframe bars as live mode.
+- [x] 2m
+- [x] 3m
+- [x] Completed-bar visibility on every timeframe.
+- [x] `available_at` semantics on every timeframe.
+- [x] Session-aware Daily construction.
+- [x] Daily does not accidentally use midnight UTC if futures trading date is intended.
+- [x] Deterministic boundaries through DST.
+- [x] Replay reproduces the same multi-timeframe bars as live mode.
 
 ## Sessions
 
 - [x] Session engine exists.
 - [x] ET conversion exists.
 - [x] Prior-day/premarket/overnight/London logic exists in some form.
-- [ ] Treat `config/sessions.yaml` as authoritative.
-- [ ] Verify final London definition.
-- [ ] Add/verify explicit Asia session.
-- [ ] Calculate Asia High/Low.
-- [ ] Verify London High/Low.
-- [ ] Verify overnight High/Low.
-- [ ] Verify PMH/PML.
-- [ ] Ensure developing session levels never use future bars.
-- [ ] Ensure finalized levels only appear when available.
-- [ ] Verify session identities across midnight.
-- [ ] Verify ET DST transitions.
+- [x] Treat `config/sessions.yaml` as authoritative.
+- [x] Verify final London definition.
+- [x] Add/verify explicit Asia session.
+- [x] Calculate Asia High/Low.
+- [x] Verify London High/Low.
+- [x] Verify overnight High/Low.
+- [x] Verify PMH/PML.
+- [x] Ensure developing session levels never use future bars.
+- [x] Ensure finalized levels only appear when available.
+- [x] Verify session identities across midnight.
+- [x] Verify ET DST transitions.
 
 ## Additional required levels
 
-- [ ] Previous close.
-- [ ] Prior-day midpoint / half-back.
-- [ ] Current week High/Low.
-- [ ] Cash open after 09:30.
-- [ ] OR5 High/Low.
-- [ ] OR15 High/Low.
+- [x] Previous close.
+- [x] Prior-day midpoint / half-back.
+- [x] Current week High/Low.
+- [x] Cash open after 09:30.
+- [x] OR5 High/Low.
+- [x] OR15 High/Low.
 
 ## Replay/no-lookahead checkpoints
 
-- [ ] 08:00 ET snapshot.
-- [ ] 09:00 ET snapshot.
-- [ ] 09:25 ET snapshot.
-- [ ] 09:29 ET snapshot.
-- [ ] 09:35 ET snapshot.
-- [ ] 10:00 ET snapshot.
-- [ ] No future session extrema visible.
-- [ ] No incomplete HTF bar visible.
-- [ ] PMH/PML only developed through `as_of`.
-- [ ] OR levels do not appear early.
+- [x] 08:00 ET snapshot.
+- [x] 09:00 ET snapshot.
+- [x] 09:25 ET snapshot.
+- [x] 09:29 ET snapshot.
+- [x] 09:35 ET snapshot.
+- [x] 10:00 ET snapshot.
+- [x] No future session extrema visible.
+- [x] No incomplete HTF bar visible.
+- [x] PMH/PML only developed through `as_of`.
+- [x] OR levels do not appear early.
 
 ## Done when
 
-- [ ] 2m/3m are supported.
-- [ ] Daily/session resampling is correct.
-- [ ] Asia/London/overnight/premarket levels are reliable.
-- [ ] Prior/weekly/opening-range levels are reliable.
-- [ ] `as_of` behavior is deterministic.
-- [ ] Replay/no-lookahead tests are green.
-- [ ] Full suite is green.
-- [ ] Push checkpoint and update this file.
+- [x] 2m/3m are supported.
+- [x] Daily/session resampling is correct.
+- [x] Asia/London/overnight/premarket levels are reliable.
+- [x] Prior/weekly/opening-range levels are reliable.
+- [x] `as_of` behavior is deterministic.
+- [x] Replay/no-lookahead tests are green.
+- [x] Full suite is green.
+- [x] Push checkpoint and update this file.
 
 ---
 

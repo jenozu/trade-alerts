@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Collection, Mapping
 from dataclasses import asdict, dataclass, field
 import json
 from pathlib import Path
@@ -227,6 +228,98 @@ def _add_issue(report: ValidationReport, severity: str, category: str, count: in
     report.issues.append(ValidationIssue(severity, category, int(count), message))
     if severity == "ERROR":
         report.passed = False
+
+
+# Production analysis status model (Phase 2 V2/V3). The statuses below are the
+# deterministic policy shared by every consumer: the collector's snapshot
+# metadata, the research pipeline's validate stage, and future morning-engine
+# runs. No numeric thresholds live here; severity comes from the validation
+# report and "allowed" categories come from configuration.
+STATUS_PASS = "pass"
+STATUS_DEGRADED = "degraded"
+STATUS_NO_ANALYSIS = "no_analysis"
+
+
+@dataclass(frozen=True)
+class AnalysisStatus:
+    """Deterministic production-analysis readiness of validated market data.
+
+    ``status`` is one of:
+    - "pass":        clean data; analysis may run normally.
+    - "degraded":    usable data with material warnings; analysis may run but
+                     consumers should know quality is reduced. A degraded
+                     status never excuses bars that are actually missing: any
+                     bar a requested session or HTF calculation needs remains
+                     a hard requirement enforced by coverage checks.
+    - "no_analysis": fatal validation errors; analysis must not run.
+    ``reasons`` records the issue categories (and messages) that drive the
+    state.
+    """
+
+    status: str
+    reasons: tuple[str, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"status": self.status, "reasons": list(self.reasons)}
+
+
+def classify_analysis_status(
+    report: ValidationReport,
+    *,
+    allowed_warning_categories: Collection[str] = (),
+) -> AnalysisStatus:
+    """Map a :class:`ValidationReport` to the production-analysis status.
+
+    Policy (existing severities only, no new thresholds):
+    - Any ERROR issue in the report -> "no_analysis" (report.passed is False
+      and every consumer already refuses to continue on ERROR).
+    - Otherwise, any WARNING issue whose category is not explicitly allowed
+      -> "degraded".
+    - Otherwise -> "pass".
+
+    ``allowed_warning_categories`` encodes configuration such as
+    ``validation.allow_zero_volume_bars: true``: zero-volume bars are expected
+    in index-futures data, so their warning does not by itself degrade a run.
+    """
+    if not report.passed:
+        reasons = tuple(
+            f"{issue.category}: {issue.message}"
+            for issue in report.issues
+            if issue.severity == "ERROR"
+        )
+        return AnalysisStatus(STATUS_NO_ANALYSIS, reasons)
+
+    allowed = set(allowed_warning_categories)
+    material_warnings = [
+        issue
+        for issue in report.issues
+        if issue.severity == "WARNING" and issue.category not in allowed
+    ]
+    if material_warnings:
+        reasons = tuple(
+            f"{issue.category}: {issue.message}" for issue in material_warnings
+        )
+        return AnalysisStatus(STATUS_DEGRADED, reasons)
+
+    return AnalysisStatus(STATUS_PASS, ())
+
+
+def allowed_warnings_from_validation_config(
+    config: Mapping[str, Any] | None,
+) -> frozenset[str]:
+    """Map a ``validation`` config block to allowed warning categories.
+
+    Reads the block carried by config/sessions.yaml (``validation``):
+    ``allow_zero_volume_bars: true`` maps to the ``zero_volume`` warning
+    category, which therefore never degrades a run by itself.
+    """
+    if not config:
+        return frozenset()
+    validation = config.get("validation") or {}
+    allowed: set[str] = set()
+    if validation.get("allow_zero_volume_bars"):
+        allowed.add("zero_volume")
+    return frozenset(allowed)
 
 
 def validate_market_data(

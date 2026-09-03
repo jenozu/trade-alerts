@@ -150,3 +150,77 @@ def test_resampled_results_use_explicit_available_at_and_preserve_result_type() 
     assert filtered.dataframe.loc[0, "timestamp"] == pd.Timestamp(
         "2026-09-02T12:50:00Z"
     )
+
+
+# ---------------------------------------------------------------------------
+# Canonical as_of contract boundary tests (Phase 2 C1)
+# ---------------------------------------------------------------------------
+
+
+def test_row_is_visible_when_available_at_equals_as_of() -> None:
+    dataframe = _bars("2026-09-02T12:58:00Z", 2)
+    cutoff = "2026-09-02T13:00:00Z"
+
+    at_cutoff = filter_as_of(dataframe, as_of=cutoff)
+    # One microsecond before the cutoff the 12:59 bar (available_at 13:00:00)
+    # must still be hidden.
+    just_before = filter_as_of(
+        dataframe, as_of="2026-09-02T12:59:59.999999Z"
+    )
+
+    assert at_cutoff["timestamp"].tolist() == [
+        pd.Timestamp("2026-09-02T12:58:00Z"),
+        pd.Timestamp("2026-09-02T12:59:00Z"),
+    ]
+    assert just_before["timestamp"].tolist() == [
+        pd.Timestamp("2026-09-02T12:58:00Z")
+    ]
+
+
+def test_filter_as_of_requires_an_as_of_value() -> None:
+    dataframe = _bars("2026-09-02T12:58:00Z", 2)
+
+    with pytest.raises(DataClockError, match="as_of is required"):
+        filter_as_of(dataframe, as_of=None)
+
+
+def test_filter_as_of_accepts_an_empty_dataframe() -> None:
+    empty = pd.DataFrame(
+        columns=["timestamp", "open", "high", "low", "close", "volume"]
+    )
+
+    visible = filter_as_of(empty, as_of="2026-09-02T13:00:00Z")
+
+    assert visible.empty
+
+
+def test_summarize_as_of_reports_all_rows_hidden_before_first_bar() -> None:
+    dataframe = _bars("2026-09-02T12:58:00Z", 4)
+
+    summary = summarize_as_of(dataframe, as_of="2026-09-02T12:57:00Z")
+
+    assert summary.rows_in == 4
+    assert summary.rows_visible == 0
+    assert summary.rows_hidden == 4
+    assert summary.first_visible_timestamp is None
+    assert summary.last_visible_timestamp is None
+    assert summary.last_visible_available_at is None
+
+
+def test_filtered_frame_records_canonical_utc_cutoff_in_attrs() -> None:
+    dataframe = _bars("2026-09-02T12:58:00Z", 2)
+
+    visible = filter_as_of(dataframe, as_of="2026-09-02T09:00:00-04:00")
+
+    assert visible.attrs["as_of"] == "2026-09-02T13:00:00+00:00"
+
+
+def test_normalize_as_of_honors_dst_offsets() -> None:
+    # 2026-03-08 09:30 EDT (after spring-forward) and
+    # 2026-11-01 09:30 EST (after fall-back) map to different UTC instants.
+    assert normalize_as_of("2026-03-08T09:30:00-04:00") == pd.Timestamp(
+        "2026-03-08T13:30:00Z"
+    )
+    assert normalize_as_of("2026-11-01T09:30:00-05:00") == pd.Timestamp(
+        "2026-11-01T14:30:00Z"
+    )

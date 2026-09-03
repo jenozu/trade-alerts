@@ -27,11 +27,14 @@ from projectx_client import (
     parse_datetime_utc,
 )
 from scripts.collect_projectx import (
+    build_metadata,
     build_snapshot_paths,
     collect,
     main as collector_main,
     parse_arguments,
+    validate_arguments,
 )
+from validate_data import ValidationReport
 
 
 def _bar(
@@ -399,6 +402,155 @@ def test_collector_saves_timestamped_parquet_and_metadata(tmp_path, monkeypatch)
 def test_market_data_client_contains_no_order_endpoint_constants():
     endpoints = {AUTH_ENDPOINT, CONTRACT_SEARCH_ENDPOINT, HISTORY_ENDPOINT}
     assert all("order" not in endpoint.lower() for endpoint in endpoints)
+
+
+def test_live_morning_collection_cannot_skip_freshness_check():
+    args = parse_arguments(["--live", "--skip-freshness-check", "--days", "1"])
+
+    with pytest.raises(ValueError, match="freshness"):
+        validate_arguments(args)
+
+
+def test_historical_backfill_may_skip_freshness_check():
+    args = parse_arguments(["--no-live", "--skip-freshness-check", "--days", "30"])
+    validate_arguments(args)  # must not raise
+
+
+def test_collector_marks_degraded_metadata_for_warning_bearing_snapshot(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setenv("PROJECTX_USERNAME", "user")
+    monkeypatch.setenv("PROJECTX_API_KEY", "key")
+    monkeypatch.setenv("APP_TIMEZONE", "America/New_York")
+    reference = datetime(2026, 9, 2, 12, 58, tzinfo=timezone.utc)
+    dataframe = _normalized_bars(
+        "2026-09-02T12:55:00Z",
+        "2026-09-02T12:56:00Z",
+        "2026-09-02T12:57:00Z",
+    )
+    # Off-tick price: structurally valid OHLC, but a material data-quality
+    # warning (20000.13 is not a multiple of the 0.25 NQ tick).
+    dataframe.loc[0, "open"] = 20000.13
+
+    class FakeClient:
+        def __init__(self, **kwargs):
+            assert kwargs["live"] is True
+            self.history_request_count = 1
+
+        def authenticate(self):
+            return "token"
+
+        def resolve_contract(self, **_kwargs):
+            return ContractSelection(
+                contract_id="contract-1",
+                name="MNQU6",
+                description="Micro E-mini Nasdaq-100",
+                active=True,
+                raw={},
+            )
+
+        def fetch_bars(self, **_kwargs):
+            return dataframe
+
+    args = parse_arguments(
+        [
+            "--live",
+            "--days",
+            "1",
+            "--output-directory",
+            str(tmp_path),
+        ]
+    )
+
+    artifacts = collect(
+        args,
+        client_factory=FakeClient,
+        now_func=lambda: reference,
+    )
+
+    metadata = json.loads(artifacts.metadata_path.read_text(encoding="utf-8"))
+    # Warnings do not fail the snapshot; they degrade the analysis status.
+    assert metadata["status"] == "DEGRADED"
+    assert metadata["analysis_status"] == "degraded"
+    assert any("off_tick_prices" in reason for reason in metadata["analysis_reasons"])
+
+
+def _metadata_kwargs(
+    dataframe: pd.DataFrame,
+    *,
+    collected_at: datetime,
+    last_bar: datetime,
+    freshness=None,
+) -> dict:
+    return {
+        "collected_at": collected_at,
+        "start_time": last_bar,
+        "end_time": collected_at,
+        "symbol": "MNQ",
+        "live": True,
+        "contract": ContractSelection("id", "MNQ", "test", True, {}),
+        "dataframe": dataframe,
+        "validation": ValidationReport(rows=1),
+        "freshness": freshness,
+        "freshness_check_skipped": False,
+        "history_request_count": 1,
+        "chunk_days": 1,
+        "request_delay_seconds": 0.0,
+    }
+
+
+def test_build_metadata_marks_fatal_stale_live_data_no_analysis() -> None:
+    """A fresh validation plus a stale FreshnessResult must not claim analysis
+    can run: fatal stale live data is no_analysis with a freshness reason,
+    consistent with status FAIL and the collector exception. The configured
+    freshness threshold itself is not part of this mapping."""
+    dataframe = _normalized_bars("2026-09-02T12:59:00Z")
+    now = datetime(2026, 9, 2, 13, 5, tzinfo=timezone.utc)
+    last = datetime(2026, 9, 2, 12, 59, tzinfo=timezone.utc)
+    freshness = assess_bar_freshness(
+        dataframe,
+        reference_time=now,
+        maximum_age=timedelta(minutes=5),
+    )
+    assert freshness.fresh is False
+    assert freshness.reason == "latest_bar_is_stale"
+
+    metadata = build_metadata(
+        **_metadata_kwargs(
+            dataframe,
+            collected_at=now,
+            last_bar=last,
+            freshness=freshness,
+        )
+    )
+    assert metadata["status"] == "FAIL"
+    assert metadata["analysis_status"] == "no_analysis"
+    assert any("freshness" in reason for reason in metadata["analysis_reasons"])
+    assert any("latest_bar_is_stale" in reason for reason in metadata["analysis_reasons"])
+
+
+def test_build_metadata_fresh_live_data_keeps_pass_status() -> None:
+    """A fresh snapshot with clean validation stays analysis-ready: the
+    freshness override must not fire when the data is fresh."""
+    dataframe = _normalized_bars("2026-09-02T12:59:00Z")
+    now = datetime(2026, 9, 2, 13, 1, tzinfo=timezone.utc)
+    last = datetime(2026, 9, 2, 12, 59, tzinfo=timezone.utc)
+    freshness = assess_bar_freshness(
+        dataframe,
+        reference_time=now,
+        maximum_age=timedelta(minutes=5),
+    )
+    assert freshness.fresh is True
+    metadata = build_metadata(
+        **_metadata_kwargs(
+            dataframe,
+            collected_at=now,
+            last_bar=last,
+            freshness=freshness,
+        )
+    )
+    assert metadata["status"] == "PASS"
+    assert metadata["analysis_status"] == "pass"
 
 
 def test_collector_exits_nonzero_and_emits_fail_safe_without_credentials(

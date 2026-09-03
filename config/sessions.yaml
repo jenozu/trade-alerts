@@ -1,6 +1,6 @@
 metadata:
   config_version: "0.1.0-reconstructed"
-  description: "NQ futures session definitions for historical research. Reconstructed from conversation specifications."
+  description: "NQ futures session definitions for historical research. Session windows approved 2026-09-03 for the Phase 2 session vertical slice."
 
 timezones:
   storage: "UTC"
@@ -21,11 +21,15 @@ sessions:
   overnight:
     start: "18:00"
     end: "09:30"
+    description: "Overnight Globex window 18:00-09:30 ET; contains the Asia and London sub-windows; extrema finalize at 09:30 ET."
   london:
     start: "02:00"
     end: "05:00"
-    provisional: true
-    note: "London window is intentionally provisional and must be validated before production use."
+    description: "London window 02:00-05:00 ET fixed (approved). Extrema develop causally and finalize at 05:00 ET."
+  asia:
+    start: "20:00"
+    end: "00:00"
+    description: "Asia window 20:00-00:00 ET fixed. Internal/secondary reference only; not a premarket-breakout boundary. Extrema finalize at 00:00 ET."
   strategy_window:
     start: "09:30"
     end: "10:30"
@@ -35,7 +39,8 @@ previous_day_levels:
   reference_session: "rth"
   high_name: "pdh"
   low_name: "pdl"
-  available_from: "09:30"
+  available_from: "18:00"
+  note: "PDH/PDL, previous close (pdc), and half-back are known when the next Globex session opens at 18:00 ET."
 
 opening_ranges:
   start: "09:30"
@@ -49,7 +54,16 @@ level_availability:
   pmh_pml: "09:30"
   onh_onl: "09:30"
   loh_lol: "05:00"
-  rth_open: "09:30"
+  ash_asl: "00:00"
+  rth_open: "09:31"
+  note: "rth_open (cash open) is known only after the 09:30 bar completes at 09:31 ET."
+
+week:
+  start_day: "sunday"
+  start_time: "18:00"
+  end_day: "friday"
+  end_time: "17:00"
+  description: "Futures week: Sunday 18:00 ET to Friday 17:00 ET."
 
 vwap:
   reset: "rth_open"
@@ -57,10 +71,15 @@ vwap:
 
 timeframes:
   master: "1m"
-  generated: ["5m", "15m", "30m", "1h", "4h", "1d"]
+  generated: ["2m", "3m", "5m", "15m", "30m", "1h", "4h", "1d"]
 
 validation:
   expected_base_interval_minutes: 1
   allow_zero_volume_bars: true
   treat_exchange_closures_as_expected: false
+  required_sessions:
+    - "overnight"
+    - "london"
+    - "asia"
+    - "premarket"
   note: "Session-aware gap classification is a later validation enhancement."

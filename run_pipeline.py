@@ -24,6 +24,10 @@ from data_clock import (  # noqa: E402
     summarize_as_of,
 )
 from validate_data import (  # noqa: E402
+    AnalysisStatus,
+    STATUS_NO_ANALYSIS,
+    allowed_warnings_from_validation_config,
+    classify_analysis_status,
     validate_market_data,
     print_validation_report,
     save_validation_report_json,
@@ -42,6 +46,7 @@ from bias import (  # noqa: E402
 from sessions import (  # noqa: E402
     load_sessions_config,
     enrich_with_sessions,
+    required_session_coverage,
     save_session_outputs,
 )
 from volume import (  # noqa: E402
@@ -228,6 +233,7 @@ def stage_validate(
     *,
     results_directory: Path,
     normalized_directory: Path,
+    sessions_config: dict[str, Any] | None = None,
 ) -> tuple[pd.DataFrame, Any]:
     validation_directory = results_directory / "validation"
     report = validate_market_data(
@@ -236,7 +242,16 @@ def stage_validate(
         expected_interval_minutes=1,
         large_gap_points=100.0,
     )
+    analysis_status = classify_analysis_status(
+        report,
+        allowed_warning_categories=allowed_warnings_from_validation_config(
+            sessions_config
+        ),
+    )
     print_validation_report(report)
+    print(f"Analysis status: {analysis_status.status.upper()}")
+    for reason in analysis_status.reasons:
+        print(f"  reason: {reason}")
     save_validation_report_json(report, validation_directory / "validation_report.json")
     save_coverage_reports(dataframe, validation_directory / "diagnostics")
     if not report.passed:
@@ -578,16 +593,76 @@ def run_pipeline(
             data,
             results_directory=results_directory,
             normalized_directory=normalized_directory,
+            sessions_config=sessions_config,
+        )
+        validate_analysis_status = classify_analysis_status(
+            validation_report,
+            allowed_warning_categories=allowed_warnings_from_validation_config(
+                sessions_config
+            ),
+        )
+        session_coverage = None
+        if sessions_config.get("sessions"):
+            session_coverage = required_session_coverage(
+                data,
+                sessions_config,
+                as_of=as_of_utc,
+            )
+            if session_coverage.missing:
+                print(
+                    "Required-session coverage missing: "
+                    + ", ".join(session_coverage.missing)
+                )
+                not_due = sorted(
+                    set(session_coverage.missing) - set(session_coverage.missing_due)
+                )
+                if not_due:
+                    print(
+                        "  (not yet due; window has not started: "
+                        + ", ".join(not_due)
+                        + ")"
+                    )
+            else:
+                print("Required-session coverage: all required sessions present.")
+            # Missing bars that a required session window should already have
+            # produced are a hard validation failure: the morning engine's
+            # finalized levels cannot be computed, so analysis must not run.
+            # Windows that are not yet due stay distinguished and do not block.
+            if session_coverage.missing_due:
+                validate_analysis_status = AnalysisStatus(
+                    STATUS_NO_ANALYSIS,
+                    (
+                        "required_session_coverage: missing due required "
+                        f"session(s): {', '.join(session_coverage.missing_due)}"
+                    ),
+                )
+        validate_stage_status = (
+            "no_analysis"
+            if validate_analysis_status.status == STATUS_NO_ANALYSIS
+            else "passed"
         )
         record_stage(
             run_metadata,
             "validate",
-            status="passed",
+            status=validate_stage_status,
             details={
                 "report_passed": validation_report.passed,
                 "rows": validation_report.rows,
+                "analysis_status": validate_analysis_status.status,
+                "analysis_status_reasons": list(
+                    validate_analysis_status.reasons
+                ),
+                "session_coverage": (
+                    session_coverage.to_dict() if session_coverage else None
+                ),
             },
         )
+        if validate_analysis_status.status == STATUS_NO_ANALYSIS:
+            raise PipelineError(
+                "Validation refused analysis (no_analysis): required-session "
+                "coverage missing for: "
+                + ", ".join(session_coverage.missing_due)
+            )
         if stop_after == "validate":
             return {"data": data, "metadata": run_metadata}
 

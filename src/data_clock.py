@@ -1,3 +1,28 @@
+"""Production ``as_of`` data-clock contract.
+
+Canonical semantics (Phase 2 C1; see docs/AS_OF_CONTRACT.md):
+
+- Bar timestamps are bar OPEN times. A one-minute bar opening at 09:30 ET is
+  complete and visible only at 09:31 ET.
+- A raw bar's availability is ``timestamp + bar_duration`` (1 minute for the
+  master 1m feed). Resampled and derived bars carry an explicit
+  ``available_at`` column instead.
+- A row may influence analysis at time ``as_of`` if and only if
+  ``available_at <= as_of`` AND (when a ``bar_complete`` flag is present) the
+  bar is complete. Incomplete bars are never production inputs.
+- ``as_of`` must be timezone-aware; it is normalized to UTC. Naive inputs are
+  rejected deliberately so production and replay callers state the timezone.
+- Filtering is prefix-stable: appending future rows never changes the rows
+  visible at an earlier ``as_of``, so replay outputs equal live prefixes.
+- Downstream stages consume only the already-cut completed prefix; every
+  resampled result is re-filtered with the same cutoff.
+
+The functions in this module implement that contract and expose a summary of
+what a cutoff hides. Consumers that need strategy-feature semantics beyond
+this (session windows, developing vs finalized levels) build on top of it in
+``sessions.py`` and must assume this completed-prefix input contract.
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

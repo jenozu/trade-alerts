@@ -4,6 +4,7 @@ from datetime import date
 
 import pandas as pd
 
+from data_clock import filter_as_of
 from sessions import enrich_with_sessions, load_sessions_config
 
 
@@ -94,14 +95,20 @@ def test_developing_overnight_level_uses_only_information_seen_so_far():
     assert evening["developing_onl"] == 199.0
 
 
-def test_finalized_premarket_and_overnight_levels_wait_until_0930():
+def test_finalized_premarket_and_overnight_levels_available_at_0930() -> None:
     enriched, _ = enrich_with_sessions(_two_session_fixture(), _config(), causal=True)
 
-    before = _row_at(enriched, "2026-09-01 09:29")
-    available = _row_at(enriched, "2026-09-01 09:30")
+    # Rows completing before the 09:30 ET finalization instant (the 04:59 and
+    # 05:00 bars complete at 05:00/05:01) carry no finalized PM/ON levels.
+    before_1 = _row_at(enriched, "2026-09-01 04:59")
+    before_2 = _row_at(enriched, "2026-09-01 05:00")
+    # The 09:29 bar completes at exactly 09:30 ET, so it is the first row that
+    # may carry the finalized levels.
+    available = _row_at(enriched, "2026-09-01 09:29")
 
     for column in ["pmh", "pml", "onh", "onl"]:
-        assert pd.isna(before[column]), f"{column} leaked before 09:30 ET"
+        assert pd.isna(before_1[column]), f"{column} leaked before 09:30 ET"
+        assert pd.isna(before_2[column]), f"{column} leaked before 09:30 ET"
 
     assert available["pmh"] == 220.0
     assert available["pml"] == 190.0
@@ -109,14 +116,19 @@ def test_finalized_premarket_and_overnight_levels_wait_until_0930():
     assert available["onl"] == 190.0
 
 
-def test_london_final_levels_wait_until_0500():
+def test_london_final_levels_available_at_0500() -> None:
     enriched, _ = enrich_with_sessions(_two_session_fixture(), _config(), causal=True)
 
-    before = _row_at(enriched, "2026-09-01 04:59")
-    available = _row_at(enriched, "2026-09-01 05:00")
+    # The 04:59 bar completes at exactly 05:00 ET, so it is the first row that
+    # may carry the finalized London H/L; earlier rows stay NaN.
+    before_1 = _row_at(enriched, "2026-09-01 02:00")
+    before_2 = _row_at(enriched, "2026-09-01 04:00")
+    available = _row_at(enriched, "2026-09-01 04:59")
 
-    assert pd.isna(before["loh"])
-    assert pd.isna(before["lol"])
+    assert pd.isna(before_1["loh"])
+    assert pd.isna(before_1["lol"])
+    assert pd.isna(before_2["loh"])
+    assert pd.isna(before_2["lol"])
     assert available["loh"] == 209.0
     assert available["lol"] == 196.0
 
@@ -149,16 +161,24 @@ def test_rth_open_does_not_leak_into_prior_evening():
     enriched, _ = enrich_with_sessions(_two_session_fixture(), _config(), causal=True)
 
     evening = _row_at(enriched, "2026-08-31 18:00")
-    rth_open_bar = _row_at(enriched, "2026-09-01 09:30")
+    at_0929 = _row_at(enriched, "2026-09-01 09:29")
+    at_0930 = _row_at(enriched, "2026-09-01 09:30")
+    at_0934 = _row_at(enriched, "2026-09-01 09:34")
 
     assert pd.isna(evening["rth_open"]), "Future RTH open leaked into prior evening"
-    assert rth_open_bar["rth_open"] == 215.0
+    # The 09:29 bar completes at 09:30, before the cash open is known at 09:31.
+    assert pd.isna(at_0929["rth_open"])
+    # The 09:30 bar completes at exactly 09:31 ET: the first row carrying the
+    # cash open (a completed-bar analysis at as_of 09:31 sees through 09:30).
+    assert at_0930["rth_open"] == 215.0
+    assert at_0934["rth_open"] == 215.0
 
 
 def test_opening_ranges_are_hidden_until_completion_and_never_leak_to_evening():
     enriched, _ = enrich_with_sessions(_two_session_fixture(), _config(), causal=True)
 
     evening = _row_at(enriched, "2026-08-31 18:00")
+    at_0930 = _row_at(enriched, "2026-09-01 09:30")
     at_0934 = _row_at(enriched, "2026-09-01 09:34")
     at_0935 = _row_at(enriched, "2026-09-01 09:35")
     at_0944 = _row_at(enriched, "2026-09-01 09:44")
@@ -176,18 +196,29 @@ def test_opening_ranges_are_hidden_until_completion_and_never_leak_to_evening():
     ]:
         assert pd.isna(evening[column]), f"{column} leaked into prior evening"
 
-    assert pd.isna(at_0934["or5_high"])
-    assert pd.isna(at_0934["or5_low"])
+    # OR5 [09:30,09:35) finalizes at 09:35: the 09:34 bar completes then, so it
+    # is the first row carrying the final range; the 09:30 bar (completes
+    # 09:31) still shows NaN.
+    assert pd.isna(at_0930["or5_high"])
+    assert pd.isna(at_0930["or5_low"])
+    assert at_0934["or5_high"] == 225.0
+    assert at_0934["or5_low"] == 213.0
     assert at_0935["or5_high"] == 225.0
     assert at_0935["or5_low"] == 213.0
 
-    assert pd.isna(at_0944["or15_high"])
-    assert pd.isna(at_0944["or15_low"])
+    # OR15 [09:30,09:45) finalizes at 09:45: the 09:44 bar completes then.
+    assert pd.isna(at_0935["or15_high"])
+    assert pd.isna(at_0935["or15_low"])
+    assert at_0944["or15_high"] == 230.0
+    assert at_0944["or15_low"] == 210.0
     assert at_0945["or15_high"] == 230.0
     assert at_0945["or15_low"] == 210.0
 
-    assert pd.isna(at_0959["or30_high"])
-    assert pd.isna(at_0959["or30_low"])
+    # OR30 [09:30,10:00) finalizes at 10:00: the 09:59 bar completes then.
+    assert pd.isna(at_0945["or30_high"])
+    assert pd.isna(at_0945["or30_low"])
+    assert at_0959["or30_high"] == 235.0
+    assert at_0959["or30_low"] == 205.0
     assert at_1000["or30_high"] == 235.0
     assert at_1000["or30_low"] == 205.0
 
@@ -198,3 +229,81 @@ def test_strategy_window_allows_new_entries_only_from_0930_until_before_1030():
     assert bool(_row_at(enriched, "2026-09-01 09:30")["new_entry_allowed"])
     assert bool(_row_at(enriched, "2026-09-01 10:29")["new_entry_allowed"])
     assert not bool(_row_at(enriched, "2026-09-01 10:30")["new_entry_allowed"])
+
+
+def _artifact_row_for_latest_session(
+    records: list[tuple[str, float, float, float, float]] | pd.DataFrame,
+    as_of_et: str | None = None,
+) -> tuple[pd.DataFrame, pd.Series]:
+    """Enrich ``records`` (optionally cut to the completed prefix at
+    ``as_of_et``) and return (enriched, artifact-row) for the most recent
+    session date."""
+    bars = (
+        _make_bars(records) if isinstance(records, list) else records.copy()
+    )
+    if as_of_et is not None:
+        bars = filter_as_of(bars, as_of=pd.Timestamp(as_of_et, tz=TRADING_TZ))
+    enriched, levels = enrich_with_sessions(bars, _config(), causal=True)
+    latest_session = enriched["session_date"].iloc[-1]
+    row = levels.loc[levels["session_date"] == latest_session].iloc[-1]
+    return enriched, row
+
+
+def test_levels_artifact_does_not_publish_unfinalized_values_on_prefix() -> None:
+    """A causal prefix ending at 09:00 ET -- before the PM/ON finalization at
+    09:30 ET -- must keep pmh/pml/onh/onl NaN in the artifact table exactly as
+    in the enriched frame, even when raw window bars contain extreme values.
+    Windows whose finalization is already past (London 05:00, Asia 00:00)
+    still carry their finals in the artifact."""
+    records = [
+        ("2026-08-31 18:00", 100.0, 101.0, 99.0, 100.0),   # overnight open
+        ("2026-08-31 20:00", 100.0, 102.0, 98.0, 100.0),   # asia
+        ("2026-08-31 23:59", 100.0, 103.0, 97.0, 100.0),   # asia
+        ("2026-09-01 02:00", 100.0, 104.0, 96.0, 100.0),   # london
+        ("2026-09-01 04:00", 100.0, 105.0, 95.0, 100.0),   # london + pm
+        ("2026-09-01 08:59", 100.0, 999.0, 1.0, 100.0),    # pm/on/premarket
+    ]
+    enriched, row = _artifact_row_for_latest_session(
+        records, as_of_et="2026-09-01T09:00:00-04:00"
+    )
+    last = enriched.iloc[-1]
+    assert pd.isna(last["pmh"]) and pd.isna(last["onh"])
+    for column in ("pmh", "pml", "onh", "onl", "rth_open"):
+        assert pd.isna(last[column]), f"enriched {column} leaked pre-finalization"
+        assert pd.isna(row[column]), (
+            f"artifact {column} leaked unfinalized value {row[column]}"
+        )
+    # London finalized at 05:00 ET: high/low from the 02:00 and 04:00 bars.
+    assert last["loh"] == 105.0 and row["loh"] == 105.0
+    assert last["lol"] == 95.0 and row["lol"] == 95.0
+    # Asia finalized at 00:00 ET: high/low from the 20:00 and 23:59 bars.
+    assert last["ash"] == 103.0 and row["ash"] == 103.0
+    assert last["asl"] == 97.0 and row["asl"] == 97.0
+
+
+def test_levels_artifact_carries_finalized_values_on_full_data() -> None:
+    """On the full causal dataset the artifact row of the analyzed session
+    carries every finalized level once its availability instant has passed."""
+    _, row = _artifact_row_for_latest_session(_two_session_fixture())
+    assert row["pmh"] == 220.0
+    assert row["pml"] == 190.0
+    assert row["onh"] == 220.0
+    assert row["onl"] == 190.0
+    assert row["loh"] == 209.0
+    assert row["lol"] == 196.0
+    assert row["rth_open"] == 215.0
+
+
+def test_levels_artifact_rth_open_boundary() -> None:
+    """rth_open (cash open, available 09:31 ET) must appear in the artifact
+    only once the completed prefix includes the 09:30 bar, never before."""
+    records = [
+        ("2026-09-01 09:29", 210.0, 220.0, 190.0, 215.0),
+        ("2026-09-01 09:30", 215.0, 216.0, 214.0, 215.5),
+    ]
+    # as_of 09:30: the 09:30 bar is not complete yet -> no cash open anywhere.
+    _, row = _artifact_row_for_latest_session(records, as_of_et="2026-09-01T09:30:00-04:00")
+    assert pd.isna(row["rth_open"])
+    # as_of 09:31: the 09:30 bar completed at 09:31 -> the cash open is final.
+    _, row = _artifact_row_for_latest_session(records, as_of_et="2026-09-01T09:31:00-04:00")
+    assert row["rth_open"] == 215.0

@@ -5,6 +5,8 @@ import pytest
 
 from validate_data import (
     DataValidationError,
+    allowed_warnings_from_validation_config,
+    classify_analysis_status,
     daily_coverage_summary,
     find_continuous_missing_timestamps,
     find_duplicate_timestamps,
@@ -312,3 +314,98 @@ def test_multiple_errors_are_all_reported(valid_dataframe):
     assert report.negative_volume_rows == 1
     assert report.invalid_prices >= 1
     assert report.invalid_ohlc_relationships >= 1
+
+
+# ---------------------------------------------------------------------------
+# Production analysis status model (Phase 2 V2/V3)
+# ---------------------------------------------------------------------------
+
+
+def test_clean_report_classifies_as_pass(valid_dataframe):
+    report = validate_market_data(valid_dataframe)
+
+    status = classify_analysis_status(report)
+
+    assert status.status == "pass"
+    assert status.reasons == ()
+    assert status.to_dict() == {"status": "pass", "reasons": []}
+
+
+def test_warning_report_classifies_as_degraded_with_reason(valid_dataframe):
+    df = valid_dataframe.copy()
+    df.loc[0, "volume"] = 0
+    report = validate_market_data(df)
+
+    status = classify_analysis_status(report)
+
+    assert status.status == "degraded"
+    assert any("zero_volume" in reason for reason in status.reasons)
+
+
+def test_error_report_classifies_as_no_analysis(valid_dataframe):
+    duplicate = valid_dataframe.iloc[[0]].copy()
+    df = pd.concat([valid_dataframe, duplicate], ignore_index=True)
+    report = validate_market_data(df)
+
+    status = classify_analysis_status(report)
+
+    assert status.status == "no_analysis"
+    assert any("duplicate_timestamps" in reason for reason in status.reasons)
+
+
+def test_no_analysis_dominates_warnings(valid_dataframe):
+    df = valid_dataframe.copy()
+    duplicate = valid_dataframe.iloc[[0]].copy()
+    df = pd.concat([df, duplicate], ignore_index=True)
+    df.loc[0, "volume"] = 0
+    report = validate_market_data(df)
+
+    status = classify_analysis_status(report)
+
+    assert status.status == "no_analysis"
+    assert not any("zero_volume" in reason for reason in status.reasons)
+
+
+def test_allowed_warning_category_keeps_status_pass(valid_dataframe):
+    df = valid_dataframe.copy()
+    df.loc[0, "volume"] = 0
+    report = validate_market_data(df)
+
+    status = classify_analysis_status(
+        report, allowed_warning_categories=["zero_volume"]
+    )
+
+    assert status.status == "pass"
+    assert status.reasons == ()
+
+
+def test_other_warnings_still_degrade_when_one_category_allowed(valid_dataframe):
+    df = valid_dataframe.copy()
+    df.loc[0, "volume"] = 0
+    df.loc[1, "open"] = 25000.13
+    report = validate_market_data(df, tick_size=0.25)
+
+    status = classify_analysis_status(
+        report, allowed_warning_categories=["zero_volume"]
+    )
+
+    assert status.status == "degraded"
+    assert any("off_tick_prices" in reason for reason in status.reasons)
+    assert not any("zero_volume" in reason for reason in status.reasons)
+
+
+def test_allowed_warnings_from_validation_config_mapping():
+    assert allowed_warnings_from_validation_config(None) == frozenset()
+    assert allowed_warnings_from_validation_config({}) == frozenset()
+    assert (
+        allowed_warnings_from_validation_config(
+            {"validation": {"allow_zero_volume_bars": True}}
+        )
+        == frozenset({"zero_volume"})
+    )
+    assert (
+        allowed_warnings_from_validation_config(
+            {"validation": {"allow_zero_volume_bars": False}}
+        )
+        == frozenset()
+    )
