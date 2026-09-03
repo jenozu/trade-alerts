@@ -440,20 +440,20 @@ Complete the deterministic facts required by market state before building narrat
 ## 3H — Displacement
 
 - [x] Existing structure code contains initial displacement logic.
-- [ ] Build dedicated explainable displacement component model.
-- [ ] Body / ATR.
-- [ ] Range / ATR.
-- [ ] Close location.
-- [ ] Consecutive directional candles.
-- [ ] Distance beyond broken structure.
-- [ ] RVOL/volume.
-- [ ] FVG generation.
-- [ ] Follow-through.
-- [ ] Preserve every raw component.
-- [ ] Combined score.
-- [ ] Configurable thresholds.
-- [ ] Provisional weak/moderate/strong categories.
-- [ ] Unit + causal tests.
+- [x] Build dedicated explainable displacement component model.
+- [x] Body / ATR.
+- [x] Range / ATR.
+- [x] Close location.
+- [x] Consecutive directional candles.
+- [x] Distance beyond broken structure.
+- [x] RVOL/volume.
+- [x] FVG generation.
+- [x] Follow-through.
+- [x] Preserve every raw component.
+- [x] Combined score.
+- [x] Configurable thresholds.
+- [x] Provisional weak/moderate/strong categories.
+- [x] Unit + causal tests.
 
 ## 3I — Structure
 
