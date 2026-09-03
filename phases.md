@@ -331,17 +331,17 @@ Complete the deterministic facts required by market state before building narrat
 
 ## 3A — VWAP
 
-- [ ] Create/verify `src/vwap.py`.
-- [ ] Use typical price `(high + low + close) / 3`.
-- [ ] Weight by volume.
-- [ ] Configure reset/session behavior.
-- [ ] Current VWAP.
-- [ ] Distance from VWAP.
-- [ ] Above/below VWAP.
-- [ ] Recent cross if useful.
-- [ ] Slope if useful.
-- [ ] Unit tests.
-- [ ] No-lookahead tests.
+- [x] Create/verify `src/vwap.py`.
+- [x] Use typical price `(high + low + close) / 3`.
+- [x] Weight by volume.
+- [x] Configure reset/session behavior.
+- [x] Current VWAP.
+- [x] Distance from VWAP.
+- [x] Above/below VWAP.
+- [x] Recent cross if useful.
+- [x] Slope if useful.
+- [x] Unit tests.
+- [x] No-lookahead tests.
 
 ## 3B — Volume / RVOL
 
@@ -349,12 +349,12 @@ Complete the deterministic facts required by market state before building narrat
 - [x] Rolling RVOL exists.
 - [x] Time-of-day RVOL exists.
 - [x] Current implementation is causal.
-- [ ] Expose 1m/5m current volume cleanly.
-- [ ] Expose rolling average/median.
-- [ ] Add volume percentile if useful.
-- [ ] Add breakout/rejection/pullback volume context.
-- [ ] Never mix NQ and MNQ volume baselines.
-- [ ] Verify DST/time-of-day behavior.
+- [x] Expose 1m/5m current volume cleanly.
+- [x] Expose rolling average/median.
+- [x] Add volume percentile if useful.
+- [x] Add breakout/rejection/pullback volume context.
+- [x] Never mix NQ and MNQ volume baselines.
+- [x] Verify DST/time-of-day behavior.
 
 ## 3C — HTF Bias
 

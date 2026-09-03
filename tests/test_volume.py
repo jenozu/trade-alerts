@@ -192,3 +192,336 @@ def test_unsorted_input_is_sorted_before_causal_volume_features_are_calculated()
     assert enriched["volume"].tolist() == [10.0, 20.0, 30.0]
     assert enriched.loc[2, "volume_mean_rolling"] == pytest.approx(15.0)
     assert enriched.loc[2, "rvol_rolling"] == pytest.approx(2.0)
+
+
+def test_clean_1m_volume_outputs_are_exposed():
+    timestamps = pd.date_range(
+        "2026-08-31 13:30",
+        periods=4,
+        freq="1min",
+        tz="UTC",
+    )
+
+    enriched = enrich_volume_features(
+        _bars(
+            timestamps,
+            [10.0, 20.0, 30.0, 40.0],
+        ),
+        _config(),
+    )
+
+    assert enriched.loc[
+        2,
+        "volume_1m",
+    ] == pytest.approx(30.0)
+
+    assert enriched.loc[
+        2,
+        "volume_1m_mean_rolling",
+    ] == pytest.approx(15.0)
+
+    assert enriched.loc[
+        2,
+        "volume_1m_median_rolling",
+    ] == pytest.approx(15.0)
+
+    assert enriched.loc[
+        2,
+        "volume_1m_percentile",
+    ] == pytest.approx(100.0)
+
+
+def test_volume_percentile_uses_prior_bars_only():
+    timestamps = pd.date_range(
+        "2026-08-31 13:30",
+        periods=5,
+        freq="1min",
+        tz="UTC",
+    )
+
+    original = _bars(
+        timestamps[:4],
+        [10.0, 20.0, 15.0, 30.0],
+    )
+
+    extended = _bars(
+        timestamps,
+        [10.0, 20.0, 15.0, 30.0, 999999.0],
+    )
+
+    first = enrich_volume_features(
+        original,
+        _config(),
+    )
+
+    second = enrich_volume_features(
+        extended,
+        _config(),
+    )
+
+    pd.testing.assert_series_equal(
+        first[
+            "volume_percentile_rolling"
+        ].reset_index(drop=True),
+        second[
+            "volume_percentile_rolling"
+        ].iloc[:4].reset_index(drop=True),
+        check_names=False,
+    )
+
+
+def test_volume_baseline_rejects_mixed_nq_mnq_symbols():
+    timestamps = pd.date_range(
+        "2026-08-31 13:30",
+        periods=3,
+        freq="1min",
+        tz="UTC",
+    )
+
+    dataframe = _bars(
+        timestamps,
+        [10.0, 20.0, 30.0],
+    )
+
+    dataframe["symbol"] = [
+        "NQ",
+        "MNQ",
+        "NQ",
+    ]
+
+    with pytest.raises(
+        VolumeError,
+        match="cannot mix multiple symbols",
+    ):
+        enrich_volume_features(
+            dataframe,
+            _config(),
+        )
+
+
+def test_time_of_day_rvol_tracks_et_minute_across_dst():
+    # US DST ends Nov 1, 2026.
+    # 09:30 ET is 13:30 UTC before the change and
+    # 14:30 UTC after the change.
+    timestamps = pd.to_datetime(
+        [
+            "2026-10-29 13:30:00+00:00",
+            "2026-10-30 13:30:00+00:00",
+            "2026-11-02 14:30:00+00:00",
+        ],
+        utc=True,
+    )
+
+    sessions = [
+        timestamp
+        .tz_convert("America/New_York")
+        .date()
+        for timestamp in timestamps
+    ]
+
+    dataframe = _bars(
+        timestamps,
+        [100.0, 200.0, 300.0],
+        session_dates=sessions,
+    )
+
+    enriched = enrich_volume_features(
+        dataframe,
+        _config(),
+    )
+
+    assert enriched.loc[
+        2,
+        "volume_tod_baseline",
+    ] == pytest.approx(150.0)
+
+    assert enriched.loc[
+        2,
+        "rvol_time_of_day",
+    ] == pytest.approx(2.0)
+
+
+def test_breakout_and_rejection_volume_contexts():
+    config = _config()
+    config["relative_volume"]["context"] = {
+        "lookback_bars": 2,
+        "pullback_trend_bars": 2,
+        "pullback_low_volume_ratio": 1.0,
+    }
+
+    timestamps = pd.date_range(
+        "2026-08-31 13:30",
+        periods=4,
+        freq="1min",
+        tz="UTC",
+    )
+
+    dataframe = pd.DataFrame(
+        {
+            "timestamp": timestamps,
+            "open": [
+                100.0,
+                100.0,
+                101.0,
+                103.0,
+            ],
+            "high": [
+                101.0,
+                101.5,
+                104.0,
+                105.0,
+            ],
+            "low": [
+                99.0,
+                99.5,
+                100.5,
+                102.0,
+            ],
+            "close": [
+                100.5,
+                100.5,
+                103.5,
+                103.5,
+            ],
+            "volume": [
+                10.0,
+                10.0,
+                100.0,
+                100.0,
+            ],
+        }
+    )
+
+    enriched = enrich_volume_features(
+        dataframe,
+        config,
+    )
+
+    assert bool(
+        enriched.loc[
+            2,
+            "bullish_volume_breakout",
+        ]
+    )
+
+    assert bool(
+        enriched.loc[
+            3,
+            "bearish_volume_rejection",
+        ]
+    )
+
+
+def test_low_volume_pullback_context_is_objective():
+    config = _config()
+    config["relative_volume"]["context"] = {
+        "lookback_bars": 2,
+        "pullback_trend_bars": 2,
+        "pullback_low_volume_ratio": 1.0,
+    }
+
+    timestamps = pd.date_range(
+        "2026-08-31 13:30",
+        periods=5,
+        freq="1min",
+        tz="UTC",
+    )
+
+    dataframe = _bars(
+        timestamps,
+        [
+            20.0,
+            20.0,
+            20.0,
+            20.0,
+            5.0,
+        ],
+        opens=[
+            100.0,
+            101.0,
+            102.0,
+            103.0,
+            104.0,
+        ],
+        closes=[
+            101.0,
+            102.0,
+            103.0,
+            104.0,
+            103.5,
+        ],
+    )
+
+    enriched = enrich_volume_features(
+        dataframe,
+        config,
+    )
+
+    assert bool(
+        enriched.loc[
+            4,
+            "bullish_pullback_low_volume",
+        ]
+    )
+
+
+def test_completed_5m_volume_is_not_exposed_early():
+    from volume import (
+        build_multitimeframe_volume_features,
+    )
+
+    timestamps_1m = pd.date_range(
+        "2026-08-31 13:30",
+        periods=7,
+        freq="1min",
+        tz="UTC",
+    )
+
+    one = _bars(
+        timestamps_1m,
+        [10.0] * 7,
+    )
+
+    one["available_at"] = (
+        one["timestamp"]
+        + pd.Timedelta(minutes=1)
+    )
+
+    timestamps_5m = pd.to_datetime(
+        [
+            "2026-08-31 13:30:00+00:00",
+        ],
+        utc=True,
+    )
+
+    five = _bars(
+        timestamps_5m,
+        [50.0],
+    )
+
+    five["bar_complete"] = True
+
+    five["available_at"] = (
+        five["timestamp"]
+        + pd.Timedelta(minutes=5)
+    )
+
+    merged = build_multitimeframe_volume_features(
+        one,
+        five,
+        _config(),
+    )
+
+    # 13:33 bar is only known at 13:34 -> 5m bar not closed.
+    assert pd.isna(
+        merged.loc[
+            3,
+            "volume_5m",
+        ]
+    )
+
+    # 13:34 bar is known at 13:35 -> 5m bar is now complete.
+    assert merged.loc[
+        4,
+        "volume_5m",
+    ] == pytest.approx(50.0)
