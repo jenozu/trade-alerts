@@ -363,11 +363,11 @@ Complete the deterministic facts required by market state before building narrat
 - [x] Completed HTF bars are respected.
 - [x] Bias is integrated into scoring.
 - [x] Bias tests exist.
-- [ ] Reconcile production HTF hierarchy with actual config.
-- [ ] Decide exact 1H/30m/15m vs 4H/Daily roles.
-- [ ] Fix session-aware Daily dependency if Daily remains an input.
-- [ ] Expose bias reasons/components.
-- [ ] Separate HTF/daily vs intraday bias for reporting.
+- [x] Reconcile production HTF hierarchy with actual config.
+- [x] Decide exact 1H/30m/15m vs 4H/Daily roles.
+- [x] Fix session-aware Daily dependency if Daily remains an input.
+- [x] Expose bias reasons/components.
+- [x] Separate HTF/daily vs intraday bias for reporting.
 
 ## 3D — Swings
 

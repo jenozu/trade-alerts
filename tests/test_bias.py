@@ -10,6 +10,7 @@ from bias import (
     BiasError,
     _merge_completed_bias_features,
     calculate_timeframe_bias,
+    combine_hierarchical_bias,
     combine_htf_bias,
     enrich_htf_bias,
 )
@@ -259,3 +260,127 @@ def test_enrich_htf_bias_creates_raw_bias_fields_for_scorer():
     assert "higher_timeframe_bias" in enriched.columns
     assert "htf_bias_confidence" in enriched.columns
     assert enriched["higher_timeframe_bias"].equals(enriched["htf_bias"])
+
+
+
+def _hierarchy_config() -> dict:
+    config = _config(
+        timeframes=["15m", "30m", "1h", "4h", "1d"]
+    )
+    config["higher_timeframe_bias"]["intraday"] = {
+        "timeframes": ["1h", "30m", "15m"],
+        "weights": {
+            "1h": 3,
+            "30m": 2,
+            "15m": 1,
+        },
+    }
+    config["higher_timeframe_bias"]["macro"] = {
+        "timeframes": ["4h", "1d"],
+        "weights": {
+            "4h": 2,
+            "1d": 1,
+        },
+    }
+    return config
+
+
+def test_15m_and_30m_bias_use_correct_default_availability():
+    for timeframe, freq, expected_delta in [
+        ("15m", "15min", pd.Timedelta(minutes=15)),
+        ("30m", "30min", pd.Timedelta(minutes=30)),
+    ]:
+        bars = _bars(
+            highs=[10, 12, 11, 13],
+            lows=[8, 9, 8.5, 9.5],
+            closes=[9, 11, 10, 12.5],
+            freq=freq,
+        ).drop(columns=["available_at"])
+
+        result = calculate_timeframe_bias(
+            bars,
+            timeframe=timeframe,
+            config=_config(timeframes=[timeframe]),
+        )
+
+        assert (
+            result.loc[0, "available_at"]
+            - result.loc[0, "timestamp"]
+        ) == expected_delta
+
+
+def test_daily_bias_requires_session_aware_available_at():
+    bars = _bars(
+        highs=[10, 12, 11],
+        lows=[8, 9, 8.5],
+        closes=[9, 11, 10],
+        freq="1D",
+    ).drop(columns=["available_at"])
+
+    with pytest.raises(
+        BiasError,
+        match="session-aware available_at",
+    ):
+        calculate_timeframe_bias(
+            bars,
+            timeframe="1d",
+            config=_config(timeframes=["1d"]),
+        )
+
+
+def test_hierarchical_bias_separates_intraday_from_macro_context():
+    dataframe = pd.DataFrame(
+        {
+            "bias_1h": ["bullish"],
+            "bias_30m": ["bullish"],
+            "bias_15m": ["bearish"],
+            "bias_4h": ["bearish"],
+            "bias_1d": ["bearish"],
+        }
+    )
+
+    result = combine_hierarchical_bias(
+        dataframe,
+        config=_hierarchy_config(),
+    )
+
+    assert result.loc[0, "intraday_bias"] == "bullish"
+    assert result.loc[0, "intraday_bias_score"] == pytest.approx(4.0)
+    assert result.loc[0, "intraday_bias_confidence"] == pytest.approx(4 / 6)
+    assert bool(result.loc[0, "intraday_bias_conflict"]) is True
+
+    assert result.loc[0, "macro_bias"] == "bearish"
+    assert result.loc[0, "macro_bias_score"] == pytest.approx(-3.0)
+
+    # Macro disagreement is visible but does not replace intraday bias.
+    assert bool(result.loc[0, "macro_intraday_conflict"]) is True
+    assert result.loc[0, "htf_bias"] == "bullish"
+    assert result.loc[0, "higher_timeframe_bias"] == "bullish"
+
+    assert (
+        result.loc[0, "intraday_bias_components"]
+        == "1h=bullish|30m=bullish|15m=bearish"
+    )
+
+
+def test_intraday_weighted_tie_is_neutral():
+    dataframe = pd.DataFrame(
+        {
+            "bias_1h": ["bullish"],
+            "bias_30m": ["bearish"],
+            "bias_15m": ["bearish"],
+            "bias_4h": ["neutral"],
+            "bias_1d": ["neutral"],
+        }
+    )
+
+    result = combine_hierarchical_bias(
+        dataframe,
+        config=_hierarchy_config(),
+    )
+
+    # +3 -2 -1 = 0
+    assert result.loc[0, "intraday_bias_score"] == pytest.approx(0.0)
+    assert result.loc[0, "intraday_bias"] == "neutral"
+    assert result.loc[0, "intraday_bias_confidence"] == pytest.approx(0.0)
+    assert bool(result.loc[0, "intraday_bias_conflict"]) is True

@@ -16,7 +16,27 @@ analysis_timeframes:
 
 higher_timeframe_bias:
   enabled: true
-  timeframes: ["1h", "4h", "1d"]
+
+  # All structural context frames required by production bias.
+  timeframes: ["15m", "30m", "1h", "4h", "1d"]
+
+  # Intraday bias drives the trading setup.
+  intraday:
+    timeframes: ["1h", "30m", "15m"]
+    weights:
+      1h: 3
+      30m: 2
+      15m: 1
+
+  # Macro bias is reported separately and does not independently
+  # veto an otherwise valid intraday setup.
+  macro:
+    timeframes: ["4h", "1d"]
+    weights:
+      4h: 2
+      1d: 1
+
+  daily_role: "context_only"
   output_values: ["bullish", "bearish", "neutral"]
 
 # Draw on Liquidity remains a research feature. Historical testing should

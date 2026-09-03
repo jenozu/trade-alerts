@@ -9,8 +9,10 @@ import pandas as pd
 
 
 REQUIRED_OHLC_COLUMNS = {"timestamp", "open", "high", "low", "close"}
-DEFAULT_TIMEFRAMES = ("1h", "4h", "1d")
+DEFAULT_TIMEFRAMES = ("15m", "30m", "1h", "4h", "1d")
 TIMEFRAME_DURATIONS = {
+    "15m": pd.Timedelta(minutes=15),
+    "30m": pd.Timedelta(minutes=30),
     "1h": pd.Timedelta(hours=1),
     "4h": pd.Timedelta(hours=4),
     "1d": pd.Timedelta(days=1),
@@ -128,6 +130,11 @@ def _strict_pivot_low(values: np.ndarray, index: int, left: int, right: int) -> 
 
 
 def _default_available_at(timestamps: pd.Series, timeframe: str) -> pd.Series:
+    if timeframe == "1d":
+        raise BiasError(
+            "1d bias requires explicit session-aware available_at; "
+            "calendar-day inference is not allowed."
+        )
     return timestamps + TIMEFRAME_DURATIONS[timeframe]
 
 
@@ -329,6 +336,218 @@ def _merge_completed_bias_features(
     )
 
 
+
+def _bias_layer_settings(
+    config: Mapping[str, Any],
+    name: str,
+    *,
+    default_timeframes: tuple[str, ...],
+    default_weights: Mapping[str, float],
+) -> tuple[list[str], dict[str, float]]:
+    section = _bias_config(config)
+    layer = section.get(name, {})
+
+    if not isinstance(layer, Mapping):
+        raise BiasError(f"higher_timeframe_bias.{name} must be a mapping.")
+
+    raw_timeframes = layer.get("timeframes", list(default_timeframes))
+    if isinstance(raw_timeframes, str):
+        raw_timeframes = [raw_timeframes]
+
+    timeframes = [
+        str(value).strip()
+        for value in raw_timeframes
+        if str(value).strip()
+    ]
+
+    if not timeframes:
+        raise BiasError(f"{name} bias requires at least one timeframe.")
+
+    unsupported = [
+        timeframe
+        for timeframe in timeframes
+        if timeframe not in TIMEFRAME_DURATIONS
+    ]
+    if unsupported:
+        raise BiasError(
+            f"Unsupported {name} bias timeframes: {unsupported}"
+        )
+
+    raw_weights = layer.get("weights", default_weights)
+    if not isinstance(raw_weights, Mapping):
+        raise BiasError(
+            f"higher_timeframe_bias.{name}.weights must be a mapping."
+        )
+
+    weights: dict[str, float] = {}
+    for timeframe in timeframes:
+        if timeframe not in raw_weights:
+            raise BiasError(
+                f"Missing {name} bias weight for timeframe '{timeframe}'."
+            )
+
+        weight = float(raw_weights[timeframe])
+        if weight <= 0:
+            raise BiasError(
+                f"{name} bias weight for '{timeframe}' must be > 0."
+            )
+        weights[timeframe] = weight
+
+    return timeframes, weights
+
+
+def combine_weighted_bias(
+    dataframe: pd.DataFrame,
+    *,
+    timeframes: list[str],
+    weights: Mapping[str, float],
+    prefix: str,
+) -> pd.DataFrame:
+    """Combine causal timeframe states using explicit deterministic weights."""
+
+    result = dataframe.copy()
+
+    columns = [f"bias_{timeframe}" for timeframe in timeframes]
+    missing = [column for column in columns if column not in result.columns]
+    if missing:
+        raise BiasError(
+            f"Cannot combine {prefix} bias; missing columns: {missing}"
+        )
+
+    def combine_row(row: pd.Series):
+        known_count = 0
+        total_weight = 0.0
+        net_score = 0.0
+        bullish_seen = False
+        bearish_seen = False
+        components: list[str] = []
+
+        for timeframe in timeframes:
+            column = f"bias_{timeframe}"
+            raw = row[column]
+
+            if pd.isna(raw):
+                components.append(f"{timeframe}=unknown")
+                continue
+
+            state = str(raw).strip().lower()
+            if state not in {"bullish", "bearish", "neutral"}:
+                components.append(f"{timeframe}=unknown")
+                continue
+
+            weight = float(weights[timeframe])
+
+            components.append(f"{timeframe}={state}")
+            known_count += 1
+            total_weight += weight
+
+            if state == "bullish":
+                net_score += weight
+                bullish_seen = True
+            elif state == "bearish":
+                net_score -= weight
+                bearish_seen = True
+
+        conflict = bullish_seen and bearish_seen
+
+        if net_score > 0:
+            state = "bullish"
+        elif net_score < 0:
+            state = "bearish"
+        else:
+            state = "neutral"
+
+        confidence = (
+            abs(net_score) / total_weight
+            if total_weight > 0
+            else 0.0
+        )
+
+        return (
+            state,
+            confidence,
+            known_count,
+            conflict,
+            net_score,
+            "|".join(components),
+        )
+
+    combined = result.apply(combine_row, axis=1, result_type="expand")
+    combined.columns = [
+        f"{prefix}_bias",
+        f"{prefix}_bias_confidence",
+        f"{prefix}_bias_known_count",
+        f"{prefix}_bias_conflict",
+        f"{prefix}_bias_score",
+        f"{prefix}_bias_components",
+    ]
+
+    result[combined.columns] = combined
+    return result
+
+
+def combine_hierarchical_bias(
+    dataframe: pd.DataFrame,
+    *,
+    config: Mapping[str, Any],
+) -> pd.DataFrame:
+    """Separate intraday trading bias from macro Daily/4H context."""
+
+    intraday_timeframes, intraday_weights = _bias_layer_settings(
+        config,
+        "intraday",
+        default_timeframes=("1h", "30m", "15m"),
+        default_weights={"1h": 3.0, "30m": 2.0, "15m": 1.0},
+    )
+
+    macro_timeframes, macro_weights = _bias_layer_settings(
+        config,
+        "macro",
+        default_timeframes=("4h", "1d"),
+        default_weights={"4h": 2.0, "1d": 1.0},
+    )
+
+    configured = set(configured_timeframes(config))
+    required = set(intraday_timeframes) | set(macro_timeframes)
+
+    missing_configuration = sorted(required - configured)
+    if missing_configuration:
+        raise BiasError(
+            "Bias hierarchy references timeframes not present in "
+            f"higher_timeframe_bias.timeframes: {missing_configuration}"
+        )
+
+    result = combine_weighted_bias(
+        dataframe,
+        timeframes=intraday_timeframes,
+        weights=intraday_weights,
+        prefix="intraday",
+    )
+
+    result = combine_weighted_bias(
+        result,
+        timeframes=macro_timeframes,
+        weights=macro_weights,
+        prefix="macro",
+    )
+
+    # Compatibility aliases used by the current scorer.
+    # Scorer harmonization happens later in Phase 3.
+    result["htf_bias"] = result["intraday_bias"]
+    result["higher_timeframe_bias"] = result["intraday_bias"]
+    result["htf_bias_confidence"] = result["intraday_bias_confidence"]
+    result["htf_bias_known_count"] = result["intraday_bias_known_count"]
+    result["htf_bias_conflict"] = result["intraday_bias_conflict"]
+
+    result["macro_intraday_conflict"] = (
+        result["intraday_bias"].isin({"bullish", "bearish"})
+        & result["macro_bias"].isin({"bullish", "bearish"})
+        & (result["intraday_bias"] != result["macro_bias"])
+    )
+
+    return result
+
+
 def combine_htf_bias(
     dataframe: pd.DataFrame,
     *,
@@ -392,6 +611,22 @@ def enrich_htf_bias(
 
     if not bool(section.get("enabled", True)):
         result = dataframe_1m.copy()
+        result["intraday_bias"] = "neutral"
+        result["intraday_bias_confidence"] = 0.0
+        result["intraday_bias_known_count"] = 0
+        result["intraday_bias_conflict"] = False
+        result["intraday_bias_score"] = 0.0
+        result["intraday_bias_components"] = ""
+
+        result["macro_bias"] = "neutral"
+        result["macro_bias_confidence"] = 0.0
+        result["macro_bias_known_count"] = 0
+        result["macro_bias_conflict"] = False
+        result["macro_bias_score"] = 0.0
+        result["macro_bias_components"] = ""
+
+        result["macro_intraday_conflict"] = False
+
         result["htf_bias"] = "neutral"
         result["higher_timeframe_bias"] = "neutral"
         result["htf_bias_confidence"] = 0.0
@@ -417,7 +652,19 @@ def enrich_htf_bias(
         )
         enriched = _merge_completed_bias_features(enriched, bias_frame, timeframe)
 
-    return combine_htf_bias(enriched, timeframes=timeframes)
+    # Use the production hierarchy when explicitly configured.
+    # Minimal/legacy configurations continue to combine only their
+    # requested timeframes, preserving backwards compatibility.
+    if "intraday" in section or "macro" in section:
+        return combine_hierarchical_bias(
+            enriched,
+            config=config,
+        )
+
+    return combine_htf_bias(
+        enriched,
+        timeframes=timeframes,
+    )
 
 
 def bias_summary(dataframe: pd.DataFrame) -> BiasSummary:
