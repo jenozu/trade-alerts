@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 from pathlib import Path
 from typing import Any
 
@@ -155,8 +156,413 @@ def build_multitimeframe_snr(
         axis=1,
     )
     # Research-quality metric only; no claim of probability calibration.
-    merged["snr_composite_quality"] = (magnitudes.clip(upper=3).mean(axis=1) / 3.0 + efficiencies.mean(axis=1)) / 2.0
+    merged["snr_composite_quality"] = (
+        magnitudes.clip(upper=3).mean(axis=1) / 3.0
+        + efficiencies.mean(axis=1)
+    ) / 2.0
+
+    # Production SNR is a bounded quality/confidence modifier only.
+    # It does not create a directional trading signal.
+    merged = add_snr_production_context(
+        merged,
+        config,
+    )
+
     return merged
+
+
+
+def _production_role_settings(
+    config: dict[str, Any],
+) -> dict[str, Any]:
+    section = (
+        config
+        .get("snr", {})
+        .get("production_role", {})
+    )
+
+    role = str(
+        section.get(
+            "role",
+            "confidence_quality_modifier",
+        )
+    )
+
+    standalone_direction_predictor = bool(
+        section.get(
+            "standalone_direction_predictor",
+            False,
+        )
+    )
+
+    if standalone_direction_predictor:
+        raise SNRError(
+            "Production SNR cannot be configured as a standalone "
+            "direction predictor."
+        )
+
+    morning = section.get(
+        "morning_confidence",
+        {},
+    )
+
+    enabled = bool(
+        morning.get(
+            "enabled",
+            True,
+        )
+    )
+
+    maximum_bonus = float(
+        morning.get(
+            "maximum_bonus_points",
+            5.0,
+        )
+    )
+
+    maximum_penalty = float(
+        morning.get(
+            "maximum_penalty_points",
+            5.0,
+        )
+    )
+
+    weak_maximum = float(
+        morning.get(
+            "weak_quality_maximum",
+            0.35,
+        )
+    )
+
+    strong_minimum = float(
+        morning.get(
+            "strong_quality_minimum",
+            0.70,
+        )
+    )
+
+    developing_modifier = float(
+        morning.get(
+            "developing_modifier_points",
+            0.0,
+        )
+    )
+
+    expose_raw_components = bool(
+        section.get(
+            "expose_raw_components",
+            True,
+        )
+    )
+
+    if not (
+        0.0
+        <= weak_maximum
+        < strong_minimum
+        <= 1.0
+    ):
+        raise SNRError(
+            "Production SNR quality thresholds must satisfy "
+            "0 <= weak < strong <= 1."
+        )
+
+    if (
+        maximum_bonus < 0
+        or maximum_penalty < 0
+    ):
+        raise SNRError(
+            "SNR bonus/penalty magnitudes cannot be negative."
+        )
+
+    return {
+        "role": role,
+        "enabled": enabled,
+        "maximum_bonus_points": maximum_bonus,
+        "maximum_penalty_points": maximum_penalty,
+        "weak_quality_maximum": weak_maximum,
+        "strong_quality_minimum": strong_minimum,
+        "developing_modifier_points": developing_modifier,
+        "expose_raw_components": expose_raw_components,
+    }
+
+
+def _json_number(
+    value: Any,
+) -> float | None:
+    if pd.isna(value):
+        return None
+
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def snr_market_state_snapshot(
+    row: pd.Series,
+) -> dict[str, Any]:
+    """Return explicit SNR state for later market-state serialization."""
+
+    raw_components: dict[
+        str,
+        dict[str, Any],
+    ] = {}
+
+    for timeframe in (
+        "1m",
+        "5m",
+        "15m",
+    ):
+        direction = row.get(
+            f"snr_direction_{timeframe}"
+        )
+
+        if pd.isna(direction):
+            direction = None
+
+        raw_components[
+            timeframe
+        ] = {
+            "snr": _json_number(
+                row.get(
+                    f"snr_{timeframe}"
+                )
+            ),
+            "direction": (
+                str(direction)
+                if direction is not None
+                else None
+            ),
+            "delta": _json_number(
+                row.get(
+                    f"snr_delta_{timeframe}"
+                )
+            ),
+            "slope": _json_number(
+                row.get(
+                    f"snr_slope_{timeframe}"
+                )
+            ),
+            "efficiency": _json_number(
+                row.get(
+                    f"efficiency_{timeframe}"
+                )
+            ),
+            "atr": _json_number(
+                row.get(
+                    f"atr_{timeframe}"
+                )
+            ),
+        }
+
+    alignment = row.get(
+        "snr_alignment"
+    )
+
+    if pd.isna(alignment):
+        alignment = None
+
+    quality_class = row.get(
+        "snr_quality_class"
+    )
+
+    if pd.isna(quality_class):
+        quality_class = None
+
+    return {
+        "role": row.get(
+            "snr_production_role",
+            "confidence_quality_modifier",
+        ),
+        "standalone_direction_predictor": False,
+        "alignment": (
+            str(alignment)
+            if alignment is not None
+            else None
+        ),
+        "composite_quality": _json_number(
+            row.get(
+                "snr_composite_quality"
+            )
+        ),
+        "quality_class": (
+            str(quality_class)
+            if quality_class is not None
+            else None
+        ),
+        "confidence_modifier_points": _json_number(
+            row.get(
+                "snr_confidence_modifier_points",
+                0.0,
+            )
+        ),
+        "raw_components": raw_components,
+    }
+
+
+def add_snr_production_context(
+    dataframe: pd.DataFrame,
+    config: dict[str, Any],
+) -> pd.DataFrame:
+    """Convert raw SNR into a bounded non-directional confidence modifier."""
+
+    result = dataframe.copy()
+
+    settings = (
+        _production_role_settings(
+            config
+        )
+    )
+
+    quality = pd.to_numeric(
+        result.get(
+            "snr_composite_quality",
+            pd.Series(
+                np.nan,
+                index=result.index,
+            ),
+        ),
+        errors="coerce",
+    ).clip(
+        lower=0.0,
+        upper=1.0,
+    )
+
+    available = (
+        quality.notna()
+    )
+
+    weak = (
+        available
+        & (
+            quality
+            <= settings[
+                "weak_quality_maximum"
+            ]
+        )
+    )
+
+    strong = (
+        available
+        & (
+            quality
+            >= settings[
+                "strong_quality_minimum"
+            ]
+        )
+    )
+
+    developing = (
+        available
+        & ~weak
+        & ~strong
+    )
+
+    quality_class = np.full(
+        len(result),
+        "unavailable",
+        dtype=object,
+    )
+
+    quality_class[
+        weak
+    ] = "weak"
+
+    quality_class[
+        developing
+    ] = "developing"
+
+    quality_class[
+        strong
+    ] = "strong"
+
+    modifier = np.zeros(
+        len(result),
+        dtype=float,
+    )
+
+    if settings["enabled"]:
+        modifier[
+            weak
+        ] = -float(
+            settings[
+                "maximum_penalty_points"
+            ]
+        )
+
+        modifier[
+            developing
+        ] = float(
+            settings[
+                "developing_modifier_points"
+            ]
+        )
+
+        modifier[
+            strong
+        ] = float(
+            settings[
+                "maximum_bonus_points"
+            ]
+        )
+
+    result[
+        "snr_production_role"
+    ] = settings[
+        "role"
+    ]
+
+    # This column is intentionally always false.
+    # Direction comes from structure/bias/liquidity/DOL, not SNR.
+    result[
+        "snr_standalone_direction_predictor"
+    ] = False
+
+    result[
+        "snr_quality_class"
+    ] = quality_class
+
+    result[
+        "snr_confidence_modifier_points"
+    ] = modifier
+
+    result[
+        "snr_confidence_modifier_enabled"
+    ] = bool(
+        settings[
+            "enabled"
+        ]
+    )
+
+    if settings[
+        "expose_raw_components"
+    ]:
+        snapshots = result.apply(
+            snr_market_state_snapshot,
+            axis=1,
+        )
+
+        result[
+            "snr_raw_components_json"
+        ] = snapshots.map(
+            lambda snapshot: json.dumps(
+                snapshot[
+                    "raw_components"
+                ],
+                sort_keys=True,
+            )
+        )
+
+        result[
+            "snr_market_state_json"
+        ] = snapshots.map(
+            lambda snapshot: json.dumps(
+                snapshot,
+                sort_keys=True,
+            )
+        )
+
+    return result
 
 
 def snr_summary(df: pd.DataFrame, *, timeframe: str) -> SNRSummary:

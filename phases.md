@@ -506,9 +506,9 @@ Complete the deterministic facts required by market state before building narrat
 - [x] 1m/5m/15m signal-to-noise exists.
 - [x] Completed-bar availability is protected.
 - [x] Future-mutation tests exist.
-- [ ] Decide exact production role in morning confidence.
-- [ ] Expose raw SNR components to market state.
-- [ ] Do not use SNR as a standalone direction predictor.
+- [x] Decide exact production role in morning confidence.
+- [x] Expose raw SNR components to market state.
+- [x] Do not use SNR as a standalone direction predictor.
 
 ## 3M — Scorer Harmonization
 

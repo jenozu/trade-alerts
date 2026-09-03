@@ -177,6 +177,29 @@ snr:
   causal_merge:
     higher_timeframe_values_available_only_after_bar_close: true
 
+  # Production role:
+  # SNR measures signal quality / noisiness only.
+  # It must never independently determine long vs short direction.
+  production_role:
+    role: "confidence_quality_modifier"
+    standalone_direction_predictor: false
+
+    morning_confidence:
+      enabled: true
+
+      # Bounded adjustment only. The directional thesis must come from
+      # structure, HTF bias, DOL, liquidity, etc.
+      maximum_bonus_points: 5.0
+      maximum_penalty_points: 5.0
+
+      # Composite quality is already normalized approximately 0..1.
+      weak_quality_maximum: 0.35
+      strong_quality_minimum: 0.70
+
+      developing_modifier_points: 0.0
+
+    expose_raw_components: true
+
 fvg:
   enabled: true
   detection:
