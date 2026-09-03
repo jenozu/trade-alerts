@@ -169,3 +169,539 @@ def test_input_is_sorted_before_swing_confirmation_is_calculated():
     assert bool(enriched.loc[4, "internal_swing_high_confirmed"])
     assert enriched.loc[4, "internal_swing_high_pivot_index"] == 2.0
     assert enriched.loc[4, "internal_swing_high_price"] == 105.0
+
+
+def test_confirmed_swing_records_timeframe_and_strength():
+    config = _config()
+    config["market"] = {"tick_size": 0.25}
+
+    df = _bars([100, 101, 105, 104, 103])
+
+    enriched = enrich_swings(
+        df,
+        config,
+        timeframe="5m",
+    )
+
+    assert bool(
+        enriched.loc[4, "internal_swing_high_confirmed"]
+    )
+
+    assert (
+        enriched.loc[4, "internal_swing_high_timeframe"]
+        == "5m"
+    )
+
+    assert (
+        enriched.loc[
+            4,
+            "internal_swing_high_strength_points",
+        ]
+        == pytest.approx(1.0)
+    )
+
+    assert (
+        enriched.loc[
+            4,
+            "internal_swing_high_strength_ticks",
+        ]
+        == pytest.approx(4.0)
+    )
+
+
+def test_equal_highs_cluster_only_after_second_confirmed_swing():
+    config = _config()
+    config["market"] = {"tick_size": 0.25}
+    config["swings"]["equal_levels"] = {
+        "tolerance_ticks": 2
+    }
+
+    df = _bars(
+        [100, 101, 105, 104, 103, 102, 104.75, 104, 103]
+    )
+
+    enriched = enrich_swings(df, config)
+
+    assert bool(
+        enriched.loc[4, "internal_swing_high_confirmed"]
+    )
+    assert not bool(
+        enriched.loc[4, "internal_swing_high_equal"]
+    )
+
+    assert bool(
+        enriched.loc[8, "internal_swing_high_confirmed"]
+    )
+    assert bool(
+        enriched.loc[8, "internal_swing_high_equal"]
+    )
+
+    assert (
+        enriched.loc[
+            8,
+            "internal_swing_high_equal_cluster_count",
+        ]
+        == 2
+    )
+
+
+def test_equal_lows_cluster_only_after_second_confirmed_swing():
+    config = _config()
+    config["market"] = {"tick_size": 0.25}
+    config["swings"]["equal_levels"] = {
+        "tolerance_ticks": 2
+    }
+
+    lows = [
+        100, 99, 95, 96, 97, 98, 95.25, 96, 97
+    ]
+    highs = [value + 2 for value in lows]
+
+    df = _bars(highs, lows)
+
+    enriched = enrich_swings(df, config)
+
+    assert bool(
+        enriched.loc[4, "internal_swing_low_confirmed"]
+    )
+
+    assert not bool(
+        enriched.loc[4, "internal_swing_low_equal"]
+    )
+
+    assert bool(
+        enriched.loc[8, "internal_swing_low_confirmed"]
+    )
+
+    assert bool(
+        enriched.loc[8, "internal_swing_low_equal"]
+    )
+
+    assert (
+        enriched.loc[
+            8,
+            "internal_swing_low_equal_cluster_count",
+        ]
+        == 2
+    )
+
+
+def test_confirmed_swing_high_tracks_sweep_state_causally():
+    config = _config()
+
+    config["market"] = {
+        "tick_size": 0.25
+    }
+
+    config["liquidity"] = {
+        "sweep": {
+            "minimum_penetration_ticks": 1,
+            "require_close_back_through_level": True,
+        }
+    }
+
+    df = _bars(
+        [100, 101, 105, 104, 103, 105.5, 104]
+    )
+
+    df.loc[5, "low"] = 104.0
+    df.loc[5, "open"] = 105.5
+    df.loc[5, "close"] = 104.75
+
+    enriched = enrich_swings(df, config)
+
+    assert (
+        enriched.loc[4, "active_internal_swing_high"]
+        == 105.0
+    )
+
+    assert not bool(
+        enriched.loc[
+            4,
+            "active_internal_swing_high_swept",
+        ]
+    )
+
+    assert bool(
+        enriched.loc[
+            5,
+            "internal_swing_high_sweep_event",
+        ]
+    )
+
+    assert bool(
+        enriched.loc[
+            5,
+            "active_internal_swing_high_swept",
+        ]
+    )
+
+    assert bool(
+        enriched.loc[
+            6,
+            "active_internal_swing_high_swept",
+        ]
+    )
+
+
+def test_sweep_requires_close_back_when_configured():
+    config = _config()
+
+    config["market"] = {
+        "tick_size": 0.25
+    }
+
+    config["liquidity"] = {
+        "sweep": {
+            "minimum_penetration_ticks": 1,
+            "require_close_back_through_level": True,
+        }
+    }
+
+    df = _bars(
+        [100, 101, 105, 104, 103, 105.5, 104]
+    )
+
+    df.loc[5, "low"] = 104.5
+    df.loc[5, "open"] = 105.0
+    df.loc[5, "close"] = 105.25
+
+    enriched = enrich_swings(df, config)
+
+    assert not bool(
+        enriched.loc[
+            5,
+            "internal_swing_high_sweep_event",
+        ]
+    )
+
+
+def test_future_changes_do_not_rewrite_new_swing_lifecycle_fields():
+    config = _config()
+    config["market"] = {"tick_size": 0.25}
+    config["swings"]["equal_levels"] = {
+        "tolerance_ticks": 2
+    }
+
+    highs = [
+        100, 101, 105, 104, 103,
+        102, 104.75, 104, 103,
+        102, 101, 100, 99, 98,
+    ]
+
+    original = _bars(highs)
+    changed = original.copy()
+
+    cutoff = 8
+
+    changed.loc[
+        cutoff + 1:,
+        "high",
+    ] += 500.0
+
+    changed.loc[
+        cutoff + 1:,
+        "low",
+    ] -= 500.0
+
+    changed.loc[
+        cutoff + 1:,
+        "open",
+    ] = (
+        changed.loc[cutoff + 1:, "high"]
+        + changed.loc[cutoff + 1:, "low"]
+    ) / 2.0
+
+    changed.loc[
+        cutoff + 1:,
+        "close",
+    ] = changed.loc[
+        cutoff + 1:,
+        "open",
+    ]
+
+    first = enrich_swings(original, config)
+    second = enrich_swings(changed, config)
+
+    columns = [
+        "internal_swing_high_strength_points",
+        "internal_swing_high_equal",
+        "internal_swing_high_equal_cluster_count",
+        "internal_swing_high_equal_cluster_level",
+        "active_internal_swing_high_swept",
+        "internal_swing_high_sweep_event",
+    ]
+
+    pd.testing.assert_frame_equal(
+        first.loc[:cutoff, columns].reset_index(drop=True),
+        second.loc[:cutoff, columns].reset_index(drop=True),
+        check_dtype=True,
+    )
+
+
+def test_confirmed_swing_records_timeframe_and_strength():
+    config = _config()
+    config["market"] = {"tick_size": 0.25}
+
+    df = _bars([100, 101, 105, 104, 103])
+
+    enriched = enrich_swings(
+        df,
+        config,
+        timeframe="5m",
+    )
+
+    assert bool(
+        enriched.loc[4, "internal_swing_high_confirmed"]
+    )
+
+    assert (
+        enriched.loc[4, "internal_swing_high_timeframe"]
+        == "5m"
+    )
+
+    assert (
+        enriched.loc[
+            4,
+            "internal_swing_high_strength_points",
+        ]
+        == pytest.approx(1.0)
+    )
+
+    assert (
+        enriched.loc[
+            4,
+            "internal_swing_high_strength_ticks",
+        ]
+        == pytest.approx(4.0)
+    )
+
+
+def test_equal_highs_cluster_only_after_second_confirmed_swing():
+    config = _config()
+    config["market"] = {"tick_size": 0.25}
+    config["swings"]["equal_levels"] = {
+        "tolerance_ticks": 2
+    }
+
+    df = _bars(
+        [100, 101, 105, 104, 103, 102, 104.75, 104, 103]
+    )
+
+    enriched = enrich_swings(df, config)
+
+    assert bool(
+        enriched.loc[4, "internal_swing_high_confirmed"]
+    )
+    assert not bool(
+        enriched.loc[4, "internal_swing_high_equal"]
+    )
+
+    assert bool(
+        enriched.loc[8, "internal_swing_high_confirmed"]
+    )
+    assert bool(
+        enriched.loc[8, "internal_swing_high_equal"]
+    )
+
+    assert (
+        enriched.loc[
+            8,
+            "internal_swing_high_equal_cluster_count",
+        ]
+        == 2
+    )
+
+
+def test_equal_lows_cluster_only_after_second_confirmed_swing():
+    config = _config()
+    config["market"] = {"tick_size": 0.25}
+    config["swings"]["equal_levels"] = {
+        "tolerance_ticks": 2
+    }
+
+    lows = [
+        100, 99, 95, 96, 97, 98, 95.25, 96, 97
+    ]
+    highs = [value + 2 for value in lows]
+
+    df = _bars(highs, lows)
+
+    enriched = enrich_swings(df, config)
+
+    assert bool(
+        enriched.loc[4, "internal_swing_low_confirmed"]
+    )
+
+    assert not bool(
+        enriched.loc[4, "internal_swing_low_equal"]
+    )
+
+    assert bool(
+        enriched.loc[8, "internal_swing_low_confirmed"]
+    )
+
+    assert bool(
+        enriched.loc[8, "internal_swing_low_equal"]
+    )
+
+    assert (
+        enriched.loc[
+            8,
+            "internal_swing_low_equal_cluster_count",
+        ]
+        == 2
+    )
+
+
+def test_confirmed_swing_high_tracks_sweep_state_causally():
+    config = _config()
+
+    config["market"] = {
+        "tick_size": 0.25
+    }
+
+    config["liquidity"] = {
+        "sweep": {
+            "minimum_penetration_ticks": 1,
+            "require_close_back_through_level": True,
+        }
+    }
+
+    df = _bars(
+        [100, 101, 105, 104, 103, 105.5, 104]
+    )
+
+    df.loc[5, "low"] = 104.0
+    df.loc[5, "open"] = 105.5
+    df.loc[5, "close"] = 104.75
+
+    enriched = enrich_swings(df, config)
+
+    assert (
+        enriched.loc[4, "active_internal_swing_high"]
+        == 105.0
+    )
+
+    assert not bool(
+        enriched.loc[
+            4,
+            "active_internal_swing_high_swept",
+        ]
+    )
+
+    assert bool(
+        enriched.loc[
+            5,
+            "internal_swing_high_sweep_event",
+        ]
+    )
+
+    assert bool(
+        enriched.loc[
+            5,
+            "active_internal_swing_high_swept",
+        ]
+    )
+
+    assert bool(
+        enriched.loc[
+            6,
+            "active_internal_swing_high_swept",
+        ]
+    )
+
+
+def test_sweep_requires_close_back_when_configured():
+    config = _config()
+
+    config["market"] = {
+        "tick_size": 0.25
+    }
+
+    config["liquidity"] = {
+        "sweep": {
+            "minimum_penetration_ticks": 1,
+            "require_close_back_through_level": True,
+        }
+    }
+
+    df = _bars(
+        [100, 101, 105, 104, 103, 105.5, 104]
+    )
+
+    df.loc[5, "low"] = 104.5
+    df.loc[5, "open"] = 105.0
+    df.loc[5, "close"] = 105.25
+
+    enriched = enrich_swings(df, config)
+
+    assert not bool(
+        enriched.loc[
+            5,
+            "internal_swing_high_sweep_event",
+        ]
+    )
+
+
+def test_future_changes_do_not_rewrite_new_swing_lifecycle_fields():
+    config = _config()
+    config["market"] = {"tick_size": 0.25}
+    config["swings"]["equal_levels"] = {
+        "tolerance_ticks": 2
+    }
+
+    highs = [
+        100, 101, 105, 104, 103,
+        102, 104.75, 104, 103,
+        102, 101, 100, 99, 98,
+    ]
+
+    original = _bars(highs)
+    changed = original.copy()
+
+    cutoff = 8
+
+    changed.loc[
+        cutoff + 1:,
+        "high",
+    ] += 500.0
+
+    changed.loc[
+        cutoff + 1:,
+        "low",
+    ] -= 500.0
+
+    changed.loc[
+        cutoff + 1:,
+        "open",
+    ] = (
+        changed.loc[cutoff + 1:, "high"]
+        + changed.loc[cutoff + 1:, "low"]
+    ) / 2.0
+
+    changed.loc[
+        cutoff + 1:,
+        "close",
+    ] = changed.loc[
+        cutoff + 1:,
+        "open",
+    ]
+
+    first = enrich_swings(original, config)
+    second = enrich_swings(changed, config)
+
+    columns = [
+        "internal_swing_high_strength_points",
+        "internal_swing_high_equal",
+        "internal_swing_high_equal_cluster_count",
+        "internal_swing_high_equal_cluster_level",
+        "active_internal_swing_high_swept",
+        "internal_swing_high_sweep_event",
+    ]
+
+    pd.testing.assert_frame_equal(
+        first.loc[:cutoff, columns].reset_index(drop=True),
+        second.loc[:cutoff, columns].reset_index(drop=True),
+        check_dtype=True,
+    )

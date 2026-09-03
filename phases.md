@@ -374,16 +374,16 @@ Complete the deterministic facts required by market state before building narrat
 - [x] `src/swings.py` exists.
 - [x] Internal/external swings exist.
 - [x] Confirmation delay is causal.
-- [ ] Add timeframe metadata where needed.
-- [ ] Equal-high clustering.
-- [ ] Equal-low clustering.
-- [ ] Swing strength.
-- [ ] Swept state.
+- [x] Add timeframe metadata where needed.
+- [x] Equal-high clustering.
+- [x] Equal-low clustering.
+- [x] Swing strength.
+- [x] Swept state.
 - [ ] Broken-with-displacement state.
 - [ ] Protected/strong swing classification.
 - [ ] Weak-liquidity classification.
 - [ ] Record reason for protected/weak status.
-- [ ] Add no-lookahead regressions.
+- [x] Add no-lookahead regressions.
 
 ## 3E — Liquidity Registry
 

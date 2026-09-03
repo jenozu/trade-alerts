@@ -62,6 +62,11 @@ swings:
   confirmation:
     causal_only: true
     use_pivot_only_after_right_bars_close: true
+  timeframe: "1m"
+  equal_levels:
+    tolerance_ticks: 2
+  strength:
+    definition: "confirmed_pivot_prominence"
 
 liquidity:
   enabled: true
