@@ -498,7 +498,7 @@ Complete the deterministic facts required by market state before building narrat
 - [x] HTF alignment.
 - [x] Preserve components separately.
 - [x] Transparent combined zone score.
-- [ ] Unit + no-lookahead tests.
+- [x] Unit + no-lookahead tests.
 
 ## 3L — Signal-to-Noise
 
@@ -527,11 +527,11 @@ Complete the deterministic facts required by market state before building narrat
 
 ## Done when
 
-- [ ] Every objective feature needed by market state exists.
+- [x] Every objective feature needed by market state exists.
 - [ ] Important levels/features match several manually inspected historical chart days.
-- [ ] No-lookahead tests are green.
-- [ ] Full suite is green.
-- [ ] Feature outputs are ready for stable serialization.
+- [x] No-lookahead tests are green.
+- [x] Full suite is green.
+- [x] Feature outputs are ready for stable serialization.
 - [ ] Push checkpoint and update this file.
 
 ---
