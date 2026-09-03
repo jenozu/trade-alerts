@@ -137,17 +137,17 @@ Freeze a trustworthy baseline before continuing production work.
 - [x] Confirm data directories are writable.
 - [x] Confirm `.env` is ignored by Git.
 - [x] Confirm no credentials are committed.
-- [ ] Back up current `config/strategy.yaml` before major strategy changes.
-- [ ] Back up current `config/sessions.yaml` before session changes.
+- [x] Back up current `config/strategy.yaml` before major strategy changes.
+- [x] Back up current `config/sessions.yaml` before session changes.
 
-> **Phase 0 backup blocker:** No repository or trade-brain convention defines a safe backup location, filename, retention policy, or whether backup artifacts belong in Git. No backup was created; both config backup items and the “Configs are backed up” gate remain unchecked pending that decision.
+> **Phase 0 backup evidence:** Both configs are committed in `trade-brain/90-Sources/Config-Baselines/2026-09-03/` with a verified `SHA256SUMS` manifest and documented baseline convention. Source commit: `940bd823456a6c7f0ddf12ec72a16d24d7fdee01`; trade-brain commit: `3746f39e1e00f614a58db78196bc889de1c7b800`.
 
 ## Done when
 
 - [x] Latest `main` is pulled.
 - [x] Full suite is green.
 - [x] Working tree is clean.
-- [ ] Configs are backed up.
+- [x] Configs are backed up.
 - [x] Test count and commit are recorded.
 
 **Latest verified full-suite count:** `200 passed, 25 warnings`
