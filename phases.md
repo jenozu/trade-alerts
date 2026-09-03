@@ -414,17 +414,17 @@ Complete the deterministic facts required by market state before building narrat
 - [x] Bullish/bearish FVG detection exists.
 - [x] Lifecycle/retest logic exists.
 - [x] Tests exist.
-- [ ] Expose clean active multi-timeframe FVG objects.
-- [ ] Track timeframe in production state.
-- [ ] ATR-relative size.
-- [ ] Mitigation percentage/full fill.
-- [ ] Invalidation.
-- [ ] Verify IFVG conversion state.
-- [ ] Associate important gaps with sweep/displacement/structure.
-- [ ] Nearest HTF FVG above/below.
-- [ ] Nearest 5m FVG above/below.
-- [ ] Add exact-output regression fixture.
-- [ ] Optimize FVG performance without behavior drift.
+- [x] Expose clean active multi-timeframe FVG objects.
+- [x] Track timeframe in production state.
+- [x] ATR-relative size.
+- [x] Mitigation percentage/full fill.
+- [x] Invalidation.
+- [x] Verify IFVG conversion state.
+- [x] Associate important gaps with sweep/displacement/structure.
+- [x] Nearest HTF FVG above/below.
+- [x] Nearest 5m FVG above/below.
+- [x] Add exact-output regression fixture.
+- [x] Optimize FVG performance without behavior drift.
 
 ## 3G — Dealing Range / Premium-Discount
 

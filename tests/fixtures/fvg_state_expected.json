@@ -1,0 +1,13 @@
+{
+  "direction": "bullish",
+  "timeframe": "5m",
+  "lower_bound": 100.0,
+  "upper_bound": 101.0,
+  "size_points": 1.0,
+  "size_atr": 0.5,
+  "maximum_fill_percentage": 1.0,
+  "mitigation_percentage": 100.0,
+  "fully_filled": true,
+  "inverse_fvg_created": true,
+  "invalidated": true
+}
