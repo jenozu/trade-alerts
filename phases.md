@@ -428,14 +428,14 @@ Complete the deterministic facts required by market state before building narrat
 
 ## 3G — Dealing Range / Premium-Discount
 
-- [ ] Create `src/dealing_range.py`.
-- [ ] Structural range high/low.
-- [ ] Equilibrium/midpoint.
-- [ ] Percentile within range.
-- [ ] Premium/discount/equilibrium classification.
-- [ ] Multiple relevant ranges/timeframes.
-- [ ] Avoid using premium/discount as a blind directional rule.
-- [ ] Unit + no-lookahead tests.
+- [x] Create `src/dealing_range.py`.
+- [x] Structural range high/low.
+- [x] Equilibrium/midpoint.
+- [x] Percentile within range.
+- [x] Premium/discount/equilibrium classification.
+- [x] Multiple relevant ranges/timeframes.
+- [x] Avoid using premium/discount as a blind directional rule.
+- [x] Unit + no-lookahead tests.
 
 ## 3H — Displacement
 
