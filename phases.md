@@ -471,15 +471,15 @@ Complete the deterministic facts required by market state before building narrat
 
 ## 3J — PD Arrays
 
-- [ ] Create `src/pd_arrays.py`.
-- [ ] Track bullish/bearish FVG respect/disrespect.
-- [ ] Track IFVG respect/disrespect.
-- [ ] Timestamp every state change.
-- [ ] Feed PD-array context into DOL.
-- [ ] Feed PD-array context into bias/scoring where appropriate.
-- [ ] Add supply/demand only when deterministically defined.
-- [ ] Keep automated OB secondary until reliable.
-- [ ] Tests.
+- [x] Create `src/pd_arrays.py`.
+- [x] Track bullish/bearish FVG respect/disrespect.
+- [x] Track IFVG respect/disrespect.
+- [x] Timestamp every state change.
+- [x] Feed PD-array context into DOL.
+- [x] Feed PD-array context into bias/scoring where appropriate.
+- [x] Add supply/demand only when deterministically defined.
+- [x] Keep automated OB secondary until reliable.
+- [x] Tests.
 
 ## 3K — Support / Resistance Confluence Zones
 

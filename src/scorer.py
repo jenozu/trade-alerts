@@ -199,6 +199,8 @@ def fvg_alignment(row: pd.Series, direction: str) -> bool:
             or bool_value(row, "bullish_ifvg_created")
             or bool_value(row, "bullish_core_plus_fvg")
             or bool_value(row, "bullish_core_plus_fvg_retest")
+            or bool_value(row, "bullish_pd_array_respected_recent")
+            or bool_value(row, "bullish_ifvg_respected_recent")
         )
     return (
         bool_value(row, "bearish_fvg_created")
@@ -206,6 +208,8 @@ def fvg_alignment(row: pd.Series, direction: str) -> bool:
         or bool_value(row, "bearish_ifvg_created")
         or bool_value(row, "bearish_core_plus_fvg")
         or bool_value(row, "bearish_core_plus_fvg_retest")
+        or bool_value(row, "bearish_pd_array_respected_recent")
+        or bool_value(row, "bearish_ifvg_respected_recent")
     )
 
 

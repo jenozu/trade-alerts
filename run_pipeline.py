@@ -70,6 +70,11 @@ from liquidity import (  # noqa: E402
     save_liquidity_outputs,
 )
 from fvg import enrich_fvg_features, fvg_summary, save_fvg_outputs  # noqa: E402
+from pd_arrays import (  # noqa: E402
+    enrich_pd_array_features,
+    pd_array_summary,
+    save_pd_array_outputs,
+)
 from structure import (  # noqa: E402
     enrich_structure_features,
     structure_summary,
@@ -114,6 +119,7 @@ PIPELINE_STAGES = [
     "swings",
     "liquidity",
     "fvg",
+    "pd_arrays",
     "structure",
     "dol",
     "scoring",
@@ -423,6 +429,43 @@ def stage_fvg(
         f"Retest holds: {summary.bullish_retest_holds:,} bullish / "
         f"{summary.bearish_retest_holds:,} bearish"
     )
+    return enriched
+
+
+def stage_pd_arrays(
+    dataframe: pd.DataFrame,
+    *,
+    strategy_config: dict[str, Any],
+    processed_directory: Path,
+) -> pd.DataFrame:
+    enriched, lifecycle = enrich_pd_array_features(
+        dataframe,
+        strategy_config,
+    )
+
+    summary = pd_array_summary(
+        enriched,
+        lifecycle,
+    )
+
+    save_pd_array_outputs(
+        enriched,
+        lifecycle,
+        processed_directory / "pd_arrays",
+    )
+
+    print(f"PD-array objects: {summary.objects:,}")
+    print(
+        f"Original FVG respect/disrespect: "
+        f"{summary.original_respects:,} / "
+        f"{summary.original_disrespects:,}"
+    )
+    print(
+        f"IFVG respect/disrespect: "
+        f"{summary.ifvg_respects:,} / "
+        f"{summary.ifvg_disrespects:,}"
+    )
+
     return enriched
 
 
@@ -784,6 +827,17 @@ def run_pipeline(
         )
         record_stage(run_metadata, "fvg", status="passed")
         if stop_after == "fvg":
+            return {"data": data, "metadata": run_metadata}
+
+        stage_number += 1
+        print_stage(stage_number, total_stages, "Build PD-array state")
+        data = stage_pd_arrays(
+            data,
+            strategy_config=strategy_config,
+            processed_directory=processed_directory,
+        )
+        record_stage(run_metadata, "pd_arrays", status="passed")
+        if stop_after == "pd_arrays":
             return {"data": data, "metadata": run_metadata}
 
         stage_number += 1

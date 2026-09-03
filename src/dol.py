@@ -332,7 +332,13 @@ def _directional_score(
         if _premium_discount_location(row) == "discount":
             score += settings.premium_discount_weight
             reasons.append("discount")
-        if _boolean(row, "bullish_fvg_retest_hold"):
+        if (
+            _boolean(row, "bullish_pd_array_respected_recent")
+            or _boolean(row, "bullish_ifvg_respected_recent")
+        ):
+            score += settings.fvg_context_weight
+            reasons.append("bullish_pd_array_respect")
+        elif _boolean(row, "bullish_fvg_retest_hold"):
             score += settings.fvg_context_weight
             reasons.append("bullish_fvg_retest")
     else:
@@ -342,7 +348,13 @@ def _directional_score(
         if _premium_discount_location(row) == "premium":
             score += settings.premium_discount_weight
             reasons.append("premium")
-        if _boolean(row, "bearish_fvg_retest_hold"):
+        if (
+            _boolean(row, "bearish_pd_array_respected_recent")
+            or _boolean(row, "bearish_ifvg_respected_recent")
+        ):
+            score += settings.fvg_context_weight
+            reasons.append("bearish_pd_array_respect")
+        elif _boolean(row, "bearish_fvg_retest_hold"):
             score += settings.fvg_context_weight
             reasons.append("bearish_fvg_retest")
 
@@ -451,6 +463,9 @@ def calculate_dol_row(
         "dol_bearish_distance_points": (
             bearish_target.distance_points if bearish_target else np.nan
         ),
+        "dol_pd_array_context": (
+            _string(row, "pd_array_directional_context") or None
+        ),
         "dol_reason": ",".join(chosen_reasons) if chosen_reasons else None,
     }
 
@@ -491,6 +506,7 @@ def enrich_draw_on_liquidity(
         "dol_bearish_target_type",
         "dol_bearish_target_price",
         "dol_bearish_distance_points",
+        "dol_pd_array_context",
         "dol_reason",
     ]
 

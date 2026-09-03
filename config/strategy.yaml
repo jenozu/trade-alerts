@@ -212,6 +212,33 @@ fvg:
     causal_state_from_available_at: true
     preserve_raw_associations: true
 
+pd_arrays:
+  enabled: true
+  recent_context_bars: 10
+  maximum_tracking_bars: 50
+  semantics:
+    original_fvg_respect: "zone touched and close holds on original directional side"
+    original_fvg_disrespect: "close through far side of original FVG"
+    ifvg_creation: "original FVG disrespect converts it to opposite-direction IFVG"
+    ifvg_respect: "inverse zone touched and close holds on IFVG directional side"
+    ifvg_disrespect: "close through far side against IFVG direction"
+
+  # These remain intentionally disabled until their definitions are
+  # deterministic enough to survive replay/no-lookahead tests.
+  supply_demand:
+    enabled: false
+    status: "not_yet_deterministically_defined"
+
+  order_blocks:
+    enabled: false
+    role: "secondary"
+    status: "disabled_until_reliable"
+
+  integration:
+    dol: true
+    scorer: true
+    mutate_htf_bias: false
+
 # Displacement and structure are intentionally recorded as separate features so
 # later ablation tests can measure whether each condition adds value.
 displacement:
