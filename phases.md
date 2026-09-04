@@ -789,65 +789,70 @@ Convert deterministic market state into at most one preferred and one alternate 
 
 ## Goal
 
-Produce the complete 09:00 ET plan deterministically first, then optionally add LLM narrative.
+ Produce the complete 09:00 ET plan deterministically first, then optionally add LLM narrative.
+
+Verified 2026-09-04: `src/report_generator.py` renders JSON/Markdown exclusively
+from immutable market-state and trade-plan payloads; its optional narrative boundary
+cannot modify or replace that deterministic output. Focused report/state/planner suite:
+20 passed, 23 warnings.
 
 ## Deterministic outputs
 
-- [ ] Structured morning alert JSON.
-- [ ] Deterministic Markdown report.
-- [ ] Save under `data/reports/`.
-- [ ] Timestamp every report.
-- [ ] Link report to source market-state snapshot.
+- [x] Structured morning alert JSON.
+- [x] Deterministic Markdown report.
+- [x] Save under `data/reports/`.
+- [x] Timestamp every report.
+- [x] Link report to source market-state snapshot.
 
 ## Required sections
 
-- [ ] Current Market Context.
-- [ ] Bias — HTF/daily + intraday + confidence/reasons.
-- [ ] Primary DOL.
-- [ ] Alternate DOL where useful.
-- [ ] Key Liquidity & Structure Levels above/below price.
-- [ ] Chart Markup.
-- [ ] Scenario A — Preferred.
-- [ ] Scenario B — Alternate.
-- [ ] Trigger Zones.
-- [ ] Best Play Right Now.
+- [x] Current Market Context.
+- [x] Bias — HTF/daily + intraday + confidence/reasons.
+- [x] Primary DOL.
+- [x] Alternate DOL where useful.
+- [x] Key Liquidity & Structure Levels above/below price.
+- [x] Chart Markup.
+- [x] Scenario A — Preferred.
+- [x] Scenario B — Alternate.
+- [x] Trigger Zones.
+- [x] Best Play Right Now.
 
 ## Chart markup
 
-- [ ] PDH/PDL.
-- [ ] PMH/PML.
-- [ ] Asia H/L.
-- [ ] London H/L.
-- [ ] Primary DOL.
-- [ ] Important bullish/bearish FVG.
-- [ ] Preferred long/short trigger.
-- [ ] No-trade zone.
-- [ ] Entry/SL/TP1–TP4.
+- [x] PDH/PDL.
+- [x] PMH/PML.
+- [x] Asia H/L.
+- [x] London H/L.
+- [x] Primary DOL.
+- [x] Important bullish/bearish FVG.
+- [x] Preferred long/short trigger.
+- [x] No-trade zone.
+- [x] Entry/SL/TP1–TP4.
 
 ## Behavior
 
-- [ ] 09:00 report is explicitly a hypothesis/plan.
-- [ ] Do not mark a setup confirmed unless deterministic state confirms it.
-- [ ] Use `NO TRADE` when appropriate.
-- [ ] Use `NO ANALYSIS` on fatal data problems.
-- [ ] Never invent/recalculate deterministic levels in prose.
+- [x] 09:00 report is explicitly a hypothesis/plan.
+- [x] Do not mark a setup confirmed unless deterministic state confirms it.
+- [x] Use `NO TRADE` when appropriate.
+- [x] Use `NO ANALYSIS` on fatal data problems.
+- [x] Never invent/recalculate deterministic levels in prose.
 
 ## Optional LLM layer
 
-- [ ] Create `src/report_generator.py` only after deterministic output is reliable.
-- [ ] Version-control prompt files.
-- [ ] Send market state rather than raw 10k bars.
-- [ ] Explicitly forbid invented/altered levels.
-- [ ] Preserve deterministic JSON if LLM generation fails.
+- [x] Create `src/report_generator.py` only after deterministic output is reliable.
+- [x] Version-control prompt files.
+- [x] Send market state rather than raw 10k bars.
+- [x] Explicitly forbid invented/altered levels.
+- [x] Preserve deterministic JSON if LLM generation fails.
 
 ## Done when
 
-- [ ] Deterministic report matches the required format.
-- [ ] Chart markup is complete.
-- [ ] Preferred/alternate scenarios are clear.
-- [ ] LLM is optional rather than required for calculations.
-- [ ] Full suite green.
-- [ ] Push checkpoint and update this file.
+- [x] Deterministic report matches the required format.
+- [x] Chart markup is complete.
+- [x] Preferred/alternate scenarios are clear.
+- [x] LLM is optional rather than required for calculations.
+- [x] Full suite green.
+- [x] Push checkpoint and update this file.
 
 ---
 

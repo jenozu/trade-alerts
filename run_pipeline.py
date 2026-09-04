@@ -99,6 +99,7 @@ from market_state import (  # noqa: E402
     save_market_state_snapshot,
 )
 from trade_planner import build_trade_plan  # noqa: E402
+from report_generator import build_morning_alert, save_morning_report  # noqa: E402
 from backtest import (  # noqa: E402
     run_backtest,
     calculate_backtest_metrics,
@@ -111,6 +112,7 @@ DEFAULT_RESULTS_DIRECTORY = PROJECT_ROOT / "data" / "results"
 DEFAULT_PROCESSED_DIRECTORY = PROJECT_ROOT / "data" / "processed"
 DEFAULT_NORMALIZED_DIRECTORY = PROJECT_ROOT / "data" / "normalized"
 DEFAULT_STATE_DIRECTORY = PROJECT_ROOT / "data" / "state"
+DEFAULT_REPORT_DIRECTORY = PROJECT_ROOT / "data" / "reports"
 
 
 class PipelineError(RuntimeError):
@@ -136,6 +138,7 @@ PIPELINE_STAGES = [
     "scoring",
     "market_state",
     "trade_plan",
+    "morning_report",
     "backtest",
 ]
 
@@ -701,6 +704,15 @@ def stage_trade_plan(
     return plan
 
 
+def stage_morning_report(
+    market_state: dict[str, Any], trade_plan: dict[str, Any], *, report_directory: Path
+) -> tuple[dict[str, Any], dict[str, str]]:
+    report = build_morning_alert(market_state, trade_plan)
+    paths = save_morning_report(report, report_directory)
+    print(f"Morning report: {paths['markdown']}")
+    return report, {name: str(path) for name, path in paths.items()}
+
+
 def stage_backtest(
     dataframe: pd.DataFrame,
     *,
@@ -1179,6 +1191,20 @@ def run_pipeline(
                 "trade_plan": trade_plan,
                 "metadata": run_metadata,
             }
+
+        stage_number += 1
+        print_stage(stage_number, total_stages, "Render deterministic morning report")
+        morning_report, morning_report_paths = stage_morning_report(
+            market_state, trade_plan, report_directory=DEFAULT_REPORT_DIRECTORY
+        )
+        record_stage(
+            run_metadata, "morning_report", status="passed",
+            details={"decision": morning_report["decision"], "paths": morning_report_paths},
+        )
+        if stop_after == "morning_report":
+            save_run_metadata(run_metadata, audit_file)
+            return {"data": data, "market_state": market_state, "trade_plan": trade_plan,
+                    "morning_report": morning_report, "metadata": run_metadata}
 
         stage_number += 1
         print_stage(stage_number, total_stages, "Run backtest")
