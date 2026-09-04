@@ -608,75 +608,77 @@ Build one stable, timestamped deterministic snapshot containing every fact neede
 
 ## Core module
 
-- [ ] Create `src/market_state.py`.
-- [ ] Define schema/version.
-- [ ] Include `generated_at` and mandatory `as_of`.
-- [ ] Include symbol/contract/latest price metadata.
-- [ ] Include data-quality/freshness/session-coverage state.
-- [ ] Include sessions/key levels/VWAP/timeframe summaries.
-- [ ] Include HTF/daily and intraday bias.
-- [ ] Include swings/liquidity/dealing ranges/premium-discount.
-- [ ] Include PD arrays.
-- [ ] Include FVG/IFVG.
-- [ ] Include structure/displacement.
-- [ ] Include volume/RVOL.
-- [ ] Include signal-to-noise.
-- [ ] Include support/resistance confluence zones.
-- [ ] Include Primary/Alternate DOL.
-- [ ] Include scores/components.
-- [ ] Include news/event-risk field, even if MVP is manual/unavailable.
-- [ ] Include trade-candidate section.
+- [x] Create `src/market_state.py`.
+- [x] Define schema/version.
+- [x] Include `generated_at` and mandatory `as_of`.
+- [x] Include symbol/contract/latest price metadata.
+- [x] Include data-quality/freshness/session-coverage state.
+- [x] Include sessions/key levels/VWAP/timeframe summaries.
+- [x] Include HTF/daily and intraday bias.
+- [x] Include swings/liquidity/dealing ranges/premium-discount.
+- [x] Include PD arrays.
+- [x] Include FVG/IFVG.
+- [x] Include structure/displacement.
+- [x] Include volume/RVOL.
+- [x] Include signal-to-noise.
+- [x] Include support/resistance confluence zones.
+- [x] Include Primary/Alternate DOL.
+- [x] Include scores/components.
+- [x] Include news/event-risk field, even if MVP is manual/unavailable.
+- [x] Include trade-candidate section.
 
 ## Required levels
 
-- [ ] PDH/PDL.
-- [ ] Previous close.
-- [ ] Prior-day half-back.
-- [ ] PMH/PML.
-- [ ] Asia High/Low.
-- [ ] London High/Low.
-- [ ] Overnight High/Low.
-- [ ] Week High/Low.
-- [ ] VWAP.
-- [ ] Nearest important swing high/low.
-- [ ] Nearest equal highs/lows.
-- [ ] Important HTF FVG above/below.
-- [ ] Important 5m FVG above/below.
-- [ ] Important support/resistance zone.
-- [ ] Cash open / OR5 / OR15 when available.
+- [x] PDH/PDL.
+- [x] Previous close.
+- [x] Prior-day half-back.
+- [x] PMH/PML.
+- [x] Asia High/Low.
+- [x] London High/Low.
+- [x] Overnight High/Low.
+- [x] Week High/Low.
+- [x] VWAP.
+- [x] Nearest important swing high/low.
+- [x] Nearest equal highs/lows.
+- [x] Important HTF FVG above/below.
+- [x] Important 5m FVG above/below.
+- [x] Important support/resistance zone.
+- [x] Cash open / OR5 / OR15 when available.
 
 ## Snapshot storage
 
-- [ ] Create `data/state/`.
-- [ ] Save timestamped snapshots, e.g. `YYYY-MM-DD_0900_market_state.json`.
-- [ ] Save separate 09:25 snapshot.
-- [ ] Maintain `latest.json` only as convenience copy/pointer.
-- [ ] Never overwrite the only historical state.
-- [ ] Include schema version and source snapshot references.
+- [x] Create `data/state/`.
+- [x] Save timestamped snapshots, e.g. `YYYY-MM-DD_0900_market_state.json`.
+- [x] Save separate 09:25 snapshot.
+- [x] Maintain `latest.json` only as convenience copy/pointer.
+- [x] Never overwrite the only historical state.
+- [x] Include schema version and source snapshot references.
 
 ## Safe failure states
 
-- [ ] `NO ANALYSIS — PROJECTX DATA UNAVAILABLE`.
-- [ ] `NO ANALYSIS — STALE MARKET DATA`.
-- [ ] `ANALYSIS DEGRADED — REQUIRED HISTORY INCOMPLETE`.
-- [ ] Never silently substitute an old state for a fresh one.
+- [x] `NO ANALYSIS — PROJECTX DATA UNAVAILABLE`.
+- [x] `NO ANALYSIS — STALE MARKET DATA`.
+- [x] `ANALYSIS DEGRADED — REQUIRED HISTORY INCOMPLETE`.
+- [x] Never silently substitute an old state for a fresh one.
 
 ## Tests
 
-- [ ] `tests/test_market_state.py`.
-- [ ] Schema test.
-- [ ] `as_of` test.
-- [ ] Storage test.
-- [ ] Fatal/degraded data-quality tests.
-- [ ] Historical prefix invariant with future bars appended.
+- [x] `tests/test_market_state.py`.
+- [x] Schema test.
+- [x] `as_of` test.
+- [x] Storage test.
+- [x] Fatal/degraded data-quality tests.
+- [x] Historical prefix invariant with future bars appended.
 
 ## Done when
 
-- [ ] One JSON contains every deterministic fact required for morning analysis.
-- [ ] State is versioned and snapshot-safe.
-- [ ] No-lookahead is proven.
-- [ ] Full suite is green.
-- [ ] Push checkpoint and update this file.
+- [x] One JSON contains every deterministic fact required for morning analysis.
+- [x] State is versioned and snapshot-safe.
+- [x] No-lookahead is proven.
+- [x] Full suite is green.
+- [x] Push checkpoint and update this file.
+
+> **Market-state evidence:** `src/market_state.py` builds the versioned, JSON-safe snapshot from the shared enriched dataframe after applying the canonical completed-bar `as_of` filter. `run_pipeline.py` invokes it after scoring and before backtesting. `tests/test_market_state.py` covers the schema and required levels, explicit incomplete-bar visibility, collector-shaped stale state, unavailable/degraded states, immutable 09:00/09:25 snapshots plus `latest.json`, and hostile-future append invariance. Verified with the focused Phase 2–5 dependency suite at **94 passed, 80 warnings** and the full suite at **437 passed, 281 warnings** on 2026-09-04.
 
 ---
 

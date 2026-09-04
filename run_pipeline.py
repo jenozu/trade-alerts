@@ -22,6 +22,7 @@ from data_clock import (  # noqa: E402
     filter_resampled_results_as_of,
     normalize_as_of,
     summarize_as_of,
+    visibility_times,
 )
 from validate_data import (  # noqa: E402
     AnalysisStatus,
@@ -93,6 +94,10 @@ from scorer import (  # noqa: E402
     scoring_summary,
     save_scoring_outputs,
 )
+from market_state import (  # noqa: E402
+    build_market_state,
+    save_market_state_snapshot,
+)
 from backtest import (  # noqa: E402
     run_backtest,
     calculate_backtest_metrics,
@@ -104,6 +109,7 @@ DEFAULT_STRATEGY_CONFIG = PROJECT_ROOT / "config" / "strategy.yaml"
 DEFAULT_RESULTS_DIRECTORY = PROJECT_ROOT / "data" / "results"
 DEFAULT_PROCESSED_DIRECTORY = PROJECT_ROOT / "data" / "processed"
 DEFAULT_NORMALIZED_DIRECTORY = PROJECT_ROOT / "data" / "normalized"
+DEFAULT_STATE_DIRECTORY = PROJECT_ROOT / "data" / "state"
 
 
 class PipelineError(RuntimeError):
@@ -127,6 +133,7 @@ PIPELINE_STAGES = [
     "dealing_range",
     "dol",
     "scoring",
+    "market_state",
     "backtest",
 ]
 
@@ -653,6 +660,35 @@ def stage_scoring(
     return scored
 
 
+def stage_market_state(
+    dataframe: pd.DataFrame,
+    *,
+    strategy_config: dict[str, Any],
+    state_directory: Path,
+    as_of: Any,
+    symbol: str,
+    contract: str | None,
+    data_quality: dict[str, Any],
+    source_snapshots: list[str],
+) -> tuple[dict[str, Any], dict[str, str]]:
+    state = build_market_state(
+        dataframe,
+        as_of=as_of,
+        symbol=symbol,
+        contract=contract,
+        strategy_config=strategy_config,
+        data_quality=data_quality,
+        source_snapshots=source_snapshots,
+    )
+    paths = save_market_state_snapshot(state, state_directory)
+    print(f"Market state: {state['status']['message']}")
+    print(f"Market-state snapshot: {paths.snapshot}")
+    return state, {
+        "snapshot": str(paths.snapshot),
+        "latest": str(paths.latest),
+    }
+
+
 def stage_backtest(
     dataframe: pd.DataFrame,
     *,
@@ -1047,6 +1083,50 @@ def run_pipeline(
         record_stage(run_metadata, "scoring", status="passed")
         if stop_after == "scoring":
             return {"data": data, "metadata": run_metadata}
+
+        stage_number += 1
+        print_stage(stage_number, total_stages, "Build deterministic market state")
+        state_as_of = as_of_utc
+        if state_as_of is None:
+            state_as_of = pd.Timestamp(visibility_times(data).iloc[-1])
+        market_state, market_state_paths = stage_market_state(
+            data,
+            strategy_config=strategy_config,
+            state_directory=DEFAULT_STATE_DIRECTORY,
+            as_of=state_as_of,
+            symbol=symbol,
+            contract=contract,
+            data_quality={
+                "analysis_status": validate_analysis_status.status,
+                "reasons": list(validate_analysis_status.reasons),
+                "session_coverage": (
+                    session_coverage.to_dict() if session_coverage else None
+                ),
+            },
+            source_snapshots=[str(input_file)],
+        )
+        record_stage(
+            run_metadata,
+            "market_state",
+            status=(
+                "passed"
+                if market_state["status"]["code"] in {"ready", "degraded"}
+                else "no_analysis"
+            ),
+            details={
+                "schema_version": market_state["schema_version"],
+                "as_of": market_state["as_of"],
+                "status": market_state["status"],
+                "paths": market_state_paths,
+            },
+        )
+        if stop_after == "market_state":
+            save_run_metadata(run_metadata, audit_file)
+            return {
+                "data": data,
+                "market_state": market_state,
+                "metadata": run_metadata,
+            }
 
         stage_number += 1
         print_stage(stage_number, total_stages, "Run backtest")
