@@ -528,7 +528,9 @@ Complete the deterministic facts required by market state before building narrat
 ## Done when
 
 - [x] Every objective feature needed by market state exists.
-- [ ] Important levels/features match several manually inspected historical chart days.
+- [x] Important levels/features match several manually inspected historical chart days.
+
+> **Manual historical-chart validation:** PASS — 2026-03-31 (volatile), 2026-04-14 (trend), and 2026-05-15 (chop) manually inspected against historical charts. See `docs/PHASE3_MANUAL_CHART_VALIDATION.md`.
 - [x] No-lookahead tests are green.
 - [x] Full suite is green.
 - [x] Feature outputs are ready for stable serialization.
