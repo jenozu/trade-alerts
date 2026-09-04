@@ -69,10 +69,16 @@ LEVEL_COLUMNS: dict[str, tuple[str, ...]] = {
 
 
 def _json_value(value: Any) -> Any:
-    if value is None or value is pd.NA:
+    if value is None or value is pd.NA or value is pd.NaT:
         return None
     if isinstance(value, (pd.Timestamp,)):
         if value.tzinfo is None:
+            import traceback
+            print("\n=== NAIVE TIMESTAMP DETECTED ===")
+            print("VALUE:", repr(value))
+            print("TYPE:", type(value))
+            print("CALL STACK:")
+            traceback.print_stack(limit=8)
             raise MarketStateError("Market-state timestamps must be timezone-aware.")
         return value.tz_convert("UTC").isoformat()
     if isinstance(value, datetime):

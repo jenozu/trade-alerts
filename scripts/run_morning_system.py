@@ -72,7 +72,7 @@ class MorningSystem:
         old = os.environ.copy()
         os.environ.update(self.environment)
         try:
-            args = collect_projectx.parse_arguments(["--live", "--output-directory", str(self.paths.raw)])
+            args = collect_projectx.parse_arguments(["--output-directory", str(self.paths.raw)])
             try:
                 artifact = collect_projectx.collect(args, now_func=self._now)
             except ProjectXAuthenticationError:
