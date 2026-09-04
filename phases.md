@@ -995,56 +995,71 @@ Run the complete morning workflow reliably without manual intervention.
 
 ## Health check
 
-- [ ] Create `scripts/healthcheck.py`.
-- [ ] Check credentials/auth.
-- [ ] Check current contract.
-- [ ] Check data directory write access.
-- [ ] Check latest-bar freshness.
-- [ ] Check required modules/config files.
-- [ ] Run lightweight test subset if appropriate.
-- [ ] Exit non-zero on critical failure.
+- [x] Create `scripts/healthcheck.py`.
+- [x] Check credentials/auth.
+- [x] Check current contract.
+- [x] Check data directory write access.
+- [x] Check latest-bar freshness.
+- [x] Check required modules/config files.
+- [x] Run lightweight test subset if appropriate.
+- [x] Exit non-zero on critical failure.
 
 ## Logging
 
-- [ ] Structured logs under `data/logs/`.
-- [ ] Log auth success/failure without secrets.
-- [ ] Log requests, contract, bar count, latest timestamp, validation, state-build duration, scenario scores, reports, alerts, failures.
-- [ ] Never log passwords/API keys.
+- [x] Structured logs under `data/logs/`.
+- [x] Log auth success/failure without secrets.
+- [x] Log requests, contract, bar count, latest timestamp, validation, state-build duration, scenario scores, reports, alerts, failures.
+- [x] Never log passwords/API keys.
 
 ## Orchestrator
 
-- [ ] Create one orchestrator if practical.
-- [ ] Premarket mode.
-- [ ] Refresh mode.
-- [ ] Live-monitor mode.
-- [ ] Minimize duplicated code.
+- [x] Create one orchestrator if practical.
+- [x] Premarket mode.
+- [x] Refresh mode.
+- [x] Live-monitor mode.
+- [x] Minimize duplicated code.
 
 ## Schedule
 
-- [ ] 08:55 ET — health check.
-- [ ] 08:58 ET — ProjectX collection.
-- [ ] 09:00 ET — state + morning plan.
-- [ ] 09:25 ET — refresh + thesis comparison.
-- [ ] 09:29 ET — live monitor armed.
-- [ ] 09:30–10:30 ET — monitoring.
-- [ ] 10:30 ET — close monitor + save recap.
+- [x] 08:55 ET — health check.
+- [x] 08:58 ET — ProjectX collection.
+- [x] 09:00 ET — state + morning plan.
+- [x] 09:25 ET — refresh + thesis comparison.
+- [x] 09:29 ET — live monitor armed.
+- [x] 09:30–10:30 ET — monitoring.
+- [x] 10:30 ET — close monitor + save recap.
 
 ## VPS scheduling
 
-- [ ] Check `timedatectl`.
-- [ ] Choose systemd timers vs cron.
-- [ ] Use ET-aware scheduling and automatic EST/EDT handling.
-- [ ] Verify each job manually first.
-- [ ] Verify jobs survive VPS reboot.
-- [ ] Verify logs prove execution.
+- [ ] Check `timedatectl`. **REQUIRES VPS VERIFICATION.**
+- [x] Choose systemd timers vs cron.
+- [x] Use ET-aware scheduling and automatic EST/EDT handling.
+- [ ] Verify each job manually first. **REQUIRES VPS VERIFICATION.**
+- [ ] Verify jobs survive VPS reboot. **REQUIRES VPS VERIFICATION.**
+- [ ] Verify logs prove execution. **REQUIRES VPS VERIFICATION.**
 
 ## Done when
 
-- [ ] Full weekday workflow runs automatically.
-- [ ] Logs provide audit trail.
-- [ ] Failure handling is safe.
-- [ ] Services survive restart.
-- [ ] Push checkpoint and update this file.
+- [ ] Full weekday workflow runs automatically. **REQUIRES VPS VERIFICATION.**
+- [x] Logs provide audit trail.
+- [x] Failure handling is safe.
+- [ ] Services survive restart. **REQUIRES VPS VERIFICATION.**
+- [x] Push checkpoint and update this file.
+
+## Phase 10 Work evidence
+
+- Work-side checklist: **29/35**; all six open roadmap items require Hostinger VPS execution.
+- Focused Phase 10 tests cover health PASS/failure/staleness, credential aliases,
+  secret-safe JSONL logs, all orchestrator paths, Telegram transport, artifact
+  paths, deployment safety, systemd schedules, and ProjectX Parquet ingestion.
+- The existing Phase 1–9 dependency suites remain green with the production
+  entry points; rendered unit files and every `OnCalendar` expression validate.
+- `deploy.sh` is fast-forward-only, preserves `.env`, runs the Phase 10 smoke
+  suite and health check, and fails non-zero on unsafe or unhealthy deployment.
+- VPS certification still requires real environment/authentication, contract and
+  freshness checks, filesystem permissions, Telegram delivery, systemd install
+  and manual mode execution, scheduled execution/log inspection, and reboot
+  survival. No Work-side test is represented as VPS proof.
 
 ---
 

@@ -1,0 +1,10 @@
+[Unit]
+Description=Trade Alerts morning plan at 09:00 ET
+
+[Timer]
+Unit=trade-alerts@premarket.service
+OnCalendar=Mon..Fri *-*-* 09:00:00 America/New_York
+Persistent=true
+
+[Install]
+WantedBy=timers.target

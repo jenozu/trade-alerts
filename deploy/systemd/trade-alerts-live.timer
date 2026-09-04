@@ -1,0 +1,12 @@
+[Unit]
+Description=Trade Alerts live monitor each minute from 09:30 through 10:29 ET
+
+[Timer]
+Unit=trade-alerts@live.service
+OnCalendar=Mon..Fri *-*-* 09:30..59:00 America/New_York
+OnCalendar=Mon..Fri *-*-* 10:00..29:00 America/New_York
+AccuracySec=1s
+Persistent=false
+
+[Install]
+WantedBy=timers.target

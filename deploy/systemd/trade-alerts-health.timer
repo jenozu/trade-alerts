@@ -1,0 +1,10 @@
+[Unit]
+Description=Trade Alerts health check at 08:55 ET
+
+[Timer]
+Unit=trade-alerts@health.service
+OnCalendar=Mon..Fri *-*-* 08:55:00 America/New_York
+Persistent=true
+
+[Install]
+WantedBy=timers.target

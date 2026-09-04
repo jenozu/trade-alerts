@@ -245,7 +245,17 @@ def stage_load(
         source_timezone=source_timezone,
         filename=input_file.name,
     )
-    dataframe = load_csv(input_file, metadata=metadata)
+    if input_file.suffix.lower() in {".parquet", ".pq"}:
+        dataframe = pd.read_parquet(input_file)
+        dataframe = ensure_datetime_columns(dataframe)
+        dataframe["source"] = source
+        dataframe["symbol"] = symbol
+        if contract is not None:
+            dataframe["contract"] = contract
+        dataframe.attrs["source_filename"] = input_file.name
+        dataframe.attrs["source_timezone"] = source_timezone
+    else:
+        dataframe = load_csv(input_file, metadata=metadata)
     print(f"Loaded {len(dataframe):,} raw bars.")
     return dataframe
 

@@ -1,0 +1,10 @@
+[Unit]
+Description=Trade Alerts scenario arming at 09:29 ET
+
+[Timer]
+Unit=trade-alerts@arm.service
+OnCalendar=Mon..Fri *-*-* 09:29:00 America/New_York
+Persistent=true
+
+[Install]
+WantedBy=timers.target

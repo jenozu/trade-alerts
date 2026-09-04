@@ -1,0 +1,12 @@
+[Unit]
+Description=Trade Alerts production mode %i
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=@PROJECT_ROOT@
+EnvironmentFile=-@PROJECT_ROOT@/.env
+ExecStart=@PROJECT_ROOT@/.venv/bin/python @PROJECT_ROOT@/scripts/run_morning_system.py %i
+NoNewPrivileges=true
+PrivateTmp=true

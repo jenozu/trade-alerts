@@ -1,0 +1,10 @@
+[Unit]
+Description=Trade Alerts premarket refresh at 09:25 ET
+
+[Timer]
+Unit=trade-alerts@refresh.service
+OnCalendar=Mon..Fri *-*-* 09:25:00 America/New_York
+Persistent=true
+
+[Install]
+WantedBy=timers.target
