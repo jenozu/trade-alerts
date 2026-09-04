@@ -430,6 +430,11 @@ def build_market_state(
         {
             "timestamp": state["instrument"]["latest_bar_timestamp"],
             "available_at": state["instrument"]["latest_bar_available_at"],
+            "bar_complete": (
+                bool(_first_value(row, ("bar_complete",)))
+                if _first_value(row, ("bar_complete",)) is not None
+                else True
+            ),
             "open": _first_value(row, ("open",)),
             "high": _first_value(row, ("high",)),
             "low": _first_value(row, ("low",)),
@@ -463,6 +468,7 @@ def build_market_state(
             or "reversal_sequence" in column
             or "continuation_sequence" in column
             or "core_sequence" in column
+            or "thesis_invalidated" in column
         ),
     )
     state["displacement"] = _selected(row, lambda column: "displacement" in column)

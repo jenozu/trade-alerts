@@ -907,74 +907,83 @@ leakage.
 
 Monitor 09:30–10:30 ET using deterministic setup-state machines instead of repeated vague AI analysis.
 
+Verified 2026-09-04: `src/live_setup_state.py` is the single transition core
+used by replay and live adapters. The dedicated Phase 9 suite passes 13 tests;
+the focused structure/state/planner/refresh dependency suite passes 59 tests,
+35 warnings; the full suite passes 467 tests, 281 warnings. Updates are
+completed-bar/as-of gated, advance at most one state
+per observation, persist JSON-safe state and alert keys, and stop at 10:30 ET.
+ProjectX scheduling and Telegram transport remain Phase 10 deployment concerns,
+not alternate strategy paths.
+
 ## Live loop
 
-- [ ] Poll roughly once per minute.
-- [ ] Use completed bars only.
-- [ ] Validate each update and detect stale feed.
-- [ ] Preserve state between iterations/restarts where needed.
-- [ ] End standard monitoring at 10:30 ET.
+- [x] Poll roughly once per minute.
+- [x] Use completed bars only.
+- [x] Validate each update and detect stale feed.
+- [x] Preserve state between iterations/restarts where needed.
+- [x] End standard monitoring at 10:30 ET.
 
 ## Reversal states
 
-- [ ] `ARMED`
-- [ ] `LIQUIDITY_REACHED`
-- [ ] `SWEEP_CONFIRMED`
-- [ ] `DISPLACEMENT_CONFIRMED`
-- [ ] `MSS_CONFIRMED`
-- [ ] `WAIT_RETEST`
-- [ ] `RETEST_HOLDS`
-- [ ] `ENTRY_VALID`
-- [ ] `INVALIDATED`
+- [x] `ARMED`
+- [x] `LIQUIDITY_REACHED`
+- [x] `SWEEP_CONFIRMED`
+- [x] `DISPLACEMENT_CONFIRMED`
+- [x] `MSS_CONFIRMED`
+- [x] `WAIT_RETEST`
+- [x] `RETEST_HOLDS`
+- [x] `ENTRY_VALID`
+- [x] `INVALIDATED`
 
 ## Continuation states
 
-- [ ] `ARMED`
-- [ ] `LEVEL_REACHED`
-- [ ] `DISPLACEMENT_BREAK`
-- [ ] `ACCEPTANCE`
-- [ ] `WAIT_RETEST`
-- [ ] `RETEST_HOLDS`
-- [ ] `MICRO_BOS`
-- [ ] `ENTRY_VALID`
-- [ ] `INVALIDATED`
+- [x] `ARMED`
+- [x] `LEVEL_REACHED`
+- [x] `DISPLACEMENT_BREAK`
+- [x] `ACCEPTANCE`
+- [x] `WAIT_RETEST`
+- [x] `RETEST_HOLDS`
+- [x] `MICRO_BOS`
+- [x] `ENTRY_VALID`
+- [x] `INVALIDATED`
 
 ## Alerts
 
-- [ ] PREMARKET PLAN READY.
-- [ ] BIAS CHANGED.
-- [ ] TRIGGER ZONE REACHED.
-- [ ] LIQUIDITY SWEPT.
-- [ ] DISPLACEMENT CONFIRMED.
-- [ ] MSS/CHOCH CONFIRMED.
-- [ ] RETEST IN PROGRESS.
-- [ ] ENTRY VALID.
-- [ ] SETUP INVALIDATED.
-- [ ] TP1/TP2/TP3/TP4 HIT.
+- [x] PREMARKET PLAN READY.
+- [x] BIAS CHANGED.
+- [x] TRIGGER ZONE REACHED.
+- [x] LIQUIDITY SWEPT.
+- [x] DISPLACEMENT CONFIRMED.
+- [x] MSS/CHOCH CONFIRMED.
+- [x] RETEST IN PROGRESS.
+- [x] ENTRY VALID.
+- [x] SETUP INVALIDATED.
+- [x] TP1/TP2/TP3/TP4 HIT.
 
 ## Deduplication
 
-- [ ] Persist scenario ID.
-- [ ] Persist last state/alert time.
-- [ ] Alert only on meaningful state change.
-- [ ] Do not repeat the same alert every minute.
+- [x] Persist scenario ID.
+- [x] Persist last state/alert time.
+- [x] Alert only on meaningful state change.
+- [x] Do not repeat the same alert every minute.
 
 ## Replay tests
 
-- [ ] Reversal sequence replay.
-- [ ] Continuation sequence replay.
-- [ ] Invalidation replay.
-- [ ] No-lookahead transition test.
-- [ ] No duplicate-alert test.
-- [ ] Restart/recovery test.
+- [x] Reversal sequence replay.
+- [x] Continuation sequence replay.
+- [x] Invalidation replay.
+- [x] No-lookahead transition test.
+- [x] No duplicate-alert test.
+- [x] Restart/recovery test.
 
 ## Done when
 
-- [ ] Both setup families work deterministically.
-- [ ] Alerts occur only on meaningful transitions.
-- [ ] Replay/live logic is shared.
-- [ ] Full suite green.
-- [ ] Push checkpoint and update this file.
+- [x] Both setup families work deterministically.
+- [x] Alerts occur only on meaningful transitions.
+- [x] Replay/live logic is shared.
+- [x] Full suite green.
+- [x] Push checkpoint and update this file.
 
 ---
 
