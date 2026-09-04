@@ -98,6 +98,7 @@ from market_state import (  # noqa: E402
     build_market_state,
     save_market_state_snapshot,
 )
+from trade_planner import build_trade_plan  # noqa: E402
 from backtest import (  # noqa: E402
     run_backtest,
     calculate_backtest_metrics,
@@ -134,6 +135,7 @@ PIPELINE_STAGES = [
     "dol",
     "scoring",
     "market_state",
+    "trade_plan",
     "backtest",
 ]
 
@@ -689,6 +691,16 @@ def stage_market_state(
     }
 
 
+def stage_trade_plan(
+    market_state: dict[str, Any],
+    *,
+    strategy_config: dict[str, Any],
+) -> dict[str, Any]:
+    plan = build_trade_plan(market_state, strategy_config)
+    print(f"Trade plan: {plan['decision']}")
+    return plan
+
+
 def stage_backtest(
     dataframe: pd.DataFrame,
     *,
@@ -1129,6 +1141,46 @@ def run_pipeline(
             }
 
         stage_number += 1
+        print_stage(stage_number, total_stages, "Build deterministic trade plan")
+        trade_plan = stage_trade_plan(
+            market_state,
+            strategy_config=strategy_config,
+        )
+        record_stage(
+            run_metadata,
+            "trade_plan",
+            status=(
+                "passed"
+                if trade_plan["decision"] == "TRADE PLAN"
+                else "no_trade"
+            ),
+            details={
+                "schema_version": trade_plan["schema_version"],
+                "as_of": trade_plan["as_of"],
+                "decision": trade_plan["decision"],
+                "preferred_direction": (
+                    trade_plan["preferred"]["direction"]
+                    if trade_plan["preferred"]
+                    else None
+                ),
+                "alternate_direction": (
+                    trade_plan["alternate"]["direction"]
+                    if trade_plan["alternate"]
+                    else None
+                ),
+                "rejections": trade_plan["rejections"],
+            },
+        )
+        if stop_after == "trade_plan":
+            save_run_metadata(run_metadata, audit_file)
+            return {
+                "data": data,
+                "market_state": market_state,
+                "trade_plan": trade_plan,
+                "metadata": run_metadata,
+            }
+
+        stage_number += 1
         print_stage(stage_number, total_stages, "Run backtest")
         trades = stage_backtest(
             data,
@@ -1155,6 +1207,8 @@ def run_pipeline(
         print(audit_file)
 
         artifacts["enriched_data"] = data
+        artifacts["market_state"] = market_state
+        artifacts["trade_plan"] = trade_plan
         artifacts["trades"] = trades
         artifacts["metadata"] = run_metadata
         return artifacts

@@ -690,96 +690,98 @@ Convert deterministic market state into at most one preferred and one alternate 
 
 ## Core
 
-- [ ] Create `src/trade_planner.py`.
-- [ ] Consume market state, not arbitrary raw bars.
-- [ ] Produce `preferred`.
-- [ ] Produce `alternate`.
-- [ ] Support `NO TRADE`.
+- [x] Create `src/trade_planner.py`.
+- [x] Consume market state, not arbitrary raw bars.
+- [x] Produce `preferred`.
+- [x] Produce `alternate`.
+- [x] Support `NO TRADE`.
 
 ## Each candidate must include
 
-- [ ] Direction.
-- [ ] Setup family/subtype.
-- [ ] Trigger level/zone.
-- [ ] Entry zone.
-- [ ] Structural invalidation.
-- [ ] SL and risk distance.
-- [ ] TP1/TP2/TP3/TP4.
-- [ ] Reason/source for every target.
-- [ ] Confirmation criteria.
-- [ ] Invalidation criteria.
-- [ ] Nearby obstacles.
-- [ ] Distance to first obstacle/primary target.
-- [ ] Reward/risk.
-- [ ] Raw/component scores.
-- [ ] DOL/bias alignment.
+- [x] Direction.
+- [x] Setup family/subtype.
+- [x] Trigger level/zone.
+- [x] Entry zone.
+- [x] Structural invalidation.
+- [x] SL and risk distance.
+- [x] TP1/TP2/TP3/TP4.
+- [x] Reason/source for every target.
+- [x] Confirmation criteria.
+- [x] Invalidation criteria.
+- [x] Nearby obstacles.
+- [x] Distance to first obstacle/primary target.
+- [x] Reward/risk.
+- [x] Raw/component scores.
+- [x] DOL/bias alignment.
 
 ## Reversal planner
 
-- [ ] Important liquidity.
-- [ ] Sweep.
-- [ ] Failure to accept beyond level.
-- [ ] Opposite displacement.
-- [ ] MSS/CHOCH.
-- [ ] Retest.
-- [ ] Entry confirmation.
-- [ ] 09:00 scenario remains a hypothesis unless triggers already exist.
+- [x] Important liquidity.
+- [x] Sweep.
+- [x] Failure to accept beyond level.
+- [x] Opposite displacement.
+- [x] MSS/CHOCH.
+- [x] Retest.
+- [x] Entry confirmation.
+- [x] 09:00 scenario remains a hypothesis unless triggers already exist.
 
 ## Continuation planner
 
-- [ ] Important level.
-- [ ] Displacement break.
-- [ ] Body close beyond level.
-- [ ] Acceptance/follow-through.
-- [ ] Pullback.
-- [ ] Level/FVG hold.
-- [ ] Micro BOS.
-- [ ] Entry confirmation.
+- [x] Important level.
+- [x] Displacement break.
+- [x] Body close beyond level.
+- [x] Acceptance/follow-through.
+- [x] Pullback.
+- [x] Level/FVG hold.
+- [x] Micro BOS.
+- [x] Entry confirmation.
 
 ## Stop logic
 
-- [ ] Find protected/invalidation structure.
-- [ ] Add configurable buffer.
-- [ ] Calculate actual risk.
-- [ ] Prefer ~20–25 NQ points only when structure permits.
-- [ ] Never force a stop inside structural invalidation.
-- [ ] Reject setup when valid stop is materially too large.
+- [x] Find protected/invalidation structure.
+- [x] Add configurable buffer.
+- [x] Calculate actual risk.
+- [x] Prefer ~20–25 NQ points only when structure permits.
+- [x] Never force a stop inside structural invalidation.
+- [x] Reject setup when valid stop is materially too large.
 
 ## Target logic
 
-- [ ] TP1 from nearest internal objective / ~1R where possible.
-- [ ] TP2 from next meaningful objective.
-- [ ] TP3 from Primary DOL / major objective.
-- [ ] TP4 from external-liquidity runner when room exists.
-- [ ] Record why each target was selected.
+- [x] TP1 from nearest internal objective / ~1R where possible.
+- [x] TP2 from next meaningful objective.
+- [x] TP3 from Primary DOL / major objective.
+- [x] TP4 from external-liquidity runner when room exists.
+- [x] Record why each target was selected.
 
 ## Room-to-run
 
-- [ ] Detect immediate opposing HTF obstacle.
-- [ ] Detect insufficient room to TP1/primary target.
-- [ ] Reject/downgrade poor asymmetric setups.
-- [ ] Record rejection reason.
+- [x] Detect immediate opposing HTF obstacle.
+- [x] Detect insufficient room to TP1/primary target.
+- [x] Reject/downgrade poor asymmetric setups.
+- [x] Record rejection reason.
 
 ## Tests
 
-- [ ] `tests/test_trade_planner.py`.
-- [ ] Structural stop test.
-- [ ] Oversized-risk rejection.
-- [ ] Target-priority test.
-- [ ] Room-to-run test.
-- [ ] Preferred/alternate test.
-- [ ] No-trade test.
-- [ ] No-lookahead test.
+- [x] `tests/test_trade_planner.py`.
+- [x] Structural stop test.
+- [x] Oversized-risk rejection.
+- [x] Target-priority test.
+- [x] Room-to-run test.
+- [x] Preferred/alternate test.
+- [x] No-trade test.
+- [x] No-lookahead test.
 
 ## Done when
 
-- [ ] Preferred/alternate are deterministic.
-- [ ] Stops are structural.
-- [ ] Targets are market-derived.
-- [ ] Poor setups are rejected.
-- [ ] Replay-safe.
-- [ ] Full suite green.
-- [ ] Push checkpoint and update this file.
+- [x] Preferred/alternate are deterministic.
+- [x] Stops are structural.
+- [x] Targets are market-derived.
+- [x] Poor setups are rejected.
+- [x] Replay-safe.
+- [x] Full suite green.
+- [x] Push checkpoint and update this file.
+
+> **Trade-planner evidence:** `src/trade_planner.py` consumes only the completed-bar market-state mapping and preserves the Phase 4 reversal/continuation sequence flags. It applies the configured structural buffer without forcing a 20–25 point stop, derives TP1–TP4 from state objectives and ranked DOL, and records all rejection/downgrade evidence. `tests/test_trade_planner.py` covers structural stops, oversized-risk and insufficient-room rejection, target priority, preferred/alternate ordering, `NO TRADE`, reversal confirmation, raw-data refusal, pipeline placement, and future-payload invariance. Verified with the focused dependency suite at **72 passed, 74 warnings** on 2026-09-04.
 
 ---
 
