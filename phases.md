@@ -862,35 +862,42 @@ cannot modify or replace that deterministic output. Focused report/state/planner
 
 Update the 09:00 thesis using only information available by approximately 09:25 ET.
 
+Verified 2026-09-04: focused Phase 8 suite 4 passed; full suite 454 passed,
+281 warnings. The refresh enforces an explicit 09:25 ET `as_of` guard, preserves
+separate 09:00/09:25 snapshots, deterministically classifies `UNCHANGED`,
+`STRENGTHENED`, `WEAKENED`, and `FLIPPED`, and records traceable before/after/reason
+changes. The canonical completed-bar filter plus the 09:25 guard prevents 09:30+
+leakage.
+
 ## Checklist
 
-- [ ] Pull fresh ProjectX bars.
-- [ ] Validate freshness.
-- [ ] Save new raw snapshot.
-- [ ] Rebuild market state with 09:25 `as_of`.
-- [ ] Save separate 09:25 state.
-- [ ] Recalculate PMH/PML, overnight, London, sweeps, displacement, structure, FVG/IFVG, DOL, bias, scores, planner candidates.
-- [ ] Compare 09:00 vs 09:25.
-- [ ] Classify `UNCHANGED`.
-- [ ] Classify `STRENGTHENED`.
-- [ ] Classify `WEAKENED`.
-- [ ] Classify `FLIPPED`.
-- [ ] Explain level/sweep/structure/DOL/bias/entry/invalidation/target changes.
+- [x] Pull fresh ProjectX bars.
+- [x] Validate freshness.
+- [x] Save new raw snapshot.
+- [x] Rebuild market state with 09:25 `as_of`.
+- [x] Save separate 09:25 state.
+- [x] Recalculate PMH/PML, overnight, London, sweeps, displacement, structure, FVG/IFVG, DOL, bias, scores, planner candidates.
+- [x] Compare 09:00 vs 09:25.
+- [x] Classify `UNCHANGED`.
+- [x] Classify `STRENGTHENED`.
+- [x] Classify `WEAKENED`.
+- [x] Classify `FLIPPED`.
+- [x] Explain level/sweep/structure/DOL/bias/entry/invalidation/target changes.
 
 ## Tests
 
-- [ ] Identical snapshots -> UNCHANGED.
-- [ ] Added supportive evidence -> STRENGTHENED.
-- [ ] Lost confluence -> WEAKENED.
-- [ ] Directional reversal -> FLIPPED.
-- [ ] No 09:30+ information in 09:25 state.
+- [x] Identical snapshots -> UNCHANGED.
+- [x] Added supportive evidence -> STRENGTHENED.
+- [x] Lost confluence -> WEAKENED.
+- [x] Directional reversal -> FLIPPED.
+- [x] No 09:30+ information in 09:25 state.
 
 ## Done when
 
-- [ ] Both snapshots are preserved independently.
-- [ ] Comparison is deterministic and traceable.
-- [ ] Full suite green.
-- [ ] Push checkpoint and update this file.
+- [x] Both snapshots are preserved independently.
+- [x] Comparison is deterministic and traceable.
+- [x] Full suite green.
+- [x] Push checkpoint and update this file.
 
 ---
 
