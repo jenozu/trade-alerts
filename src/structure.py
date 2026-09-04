@@ -641,6 +641,144 @@ def add_fvg_structure_sequences(df: pd.DataFrame) -> pd.DataFrame:
     return result
 
 
+def _ordered_continuation_confirmation(
+    *,
+    displacement_break: pd.Series,
+    retest_hold: pd.Series,
+    lookback_bars: int,
+) -> tuple[pd.Series, pd.Series]:
+    """Require a displacement break before a later directional retest hold."""
+    n = len(displacement_break)
+    active = np.zeros(n, dtype=bool)
+    completed = np.zeros(n, dtype=bool)
+    break_index: int | None = None
+    completion_index: int | None = None
+
+    for i in range(n):
+        if bool(displacement_break.iloc[i]):
+            break_index = i
+            completion_index = None
+
+        if break_index is not None and i - break_index >= lookback_bars:
+            break_index = None
+            completion_index = None
+
+        if (
+            break_index is not None
+            and i > break_index
+            and completion_index is None
+            and bool(retest_hold.iloc[i])
+        ):
+            completion_index = i
+            completed[i] = True
+
+        if break_index is not None and completion_index is not None:
+            active[i] = True
+
+    return (
+        pd.Series(active, index=displacement_break.index, dtype=bool),
+        pd.Series(completed, index=displacement_break.index, dtype=bool),
+    )
+
+
+def add_production_setup_sequences(
+    df: pd.DataFrame,
+    *,
+    lookback_bars: int = 10,
+) -> pd.DataFrame:
+    """Expose conservative entry-valid reversal and continuation sequences.
+
+    Reversals inherit the already-ordered sweep -> displacement -> MSS -> FVG
+    -> retest contract. Continuations require a strong displacement-confirmed
+    structural break followed by a later FVG retest hold. Body-close-only
+    breaks never become entry-valid through this production contract.
+    """
+    if lookback_bars <= 0:
+        raise ValueError("lookback_bars must be > 0.")
+
+    result = df.copy()
+    bullish_reversal = result.get(
+        "bullish_core_plus_fvg_retest",
+        pd.Series(False, index=result.index),
+    ).fillna(False).astype(bool)
+    bearish_reversal = result.get(
+        "bearish_core_plus_fvg_retest",
+        pd.Series(False, index=result.index),
+    ).fillna(False).astype(bool)
+
+    bullish_continuation, bullish_continuation_completed = (
+        _ordered_continuation_confirmation(
+            displacement_break=result.get(
+                "bullish_displacement_structure_break_event",
+                pd.Series(False, index=result.index),
+            ).fillna(False).astype(bool),
+            retest_hold=result.get(
+                "bullish_fvg_retest_hold",
+                pd.Series(False, index=result.index),
+            ).fillna(False).astype(bool),
+            lookback_bars=lookback_bars,
+        )
+    )
+    bearish_continuation, bearish_continuation_completed = (
+        _ordered_continuation_confirmation(
+            displacement_break=result.get(
+                "bearish_displacement_structure_break_event",
+                pd.Series(False, index=result.index),
+            ).fillna(False).astype(bool),
+            retest_hold=result.get(
+                "bearish_fvg_retest_hold",
+                pd.Series(False, index=result.index),
+            ).fillna(False).astype(bool),
+            lookback_bars=lookback_bars,
+        )
+    )
+
+    result["bullish_reversal_sequence"] = bullish_reversal
+    result["bearish_reversal_sequence"] = bearish_reversal
+    result["bullish_reversal_entry_valid_event"] = (
+        bullish_reversal & ~bullish_reversal.shift(1, fill_value=False)
+    )
+    result["bearish_reversal_entry_valid_event"] = (
+        bearish_reversal & ~bearish_reversal.shift(1, fill_value=False)
+    )
+    result["bullish_continuation_sequence"] = bullish_continuation
+    result["bearish_continuation_sequence"] = bearish_continuation
+    result["bullish_continuation_entry_valid_event"] = (
+        bullish_continuation_completed
+    )
+    result["bearish_continuation_entry_valid_event"] = (
+        bearish_continuation_completed
+    )
+    result["bullish_entry_valid_event"] = (
+        result["bullish_reversal_entry_valid_event"]
+        | result["bullish_continuation_entry_valid_event"]
+    )
+    result["bearish_entry_valid_event"] = (
+        result["bearish_reversal_entry_valid_event"]
+        | result["bearish_continuation_entry_valid_event"]
+    )
+
+    entry_direction = np.full(len(result), "none", dtype=object)
+    bullish_only = (
+        result["bullish_entry_valid_event"]
+        & ~result["bearish_entry_valid_event"]
+    )
+    bearish_only = (
+        result["bearish_entry_valid_event"]
+        & ~result["bullish_entry_valid_event"]
+    )
+    entry_direction[bullish_only.to_numpy()] = "bullish"
+    entry_direction[bearish_only.to_numpy()] = "bearish"
+    entry_direction[
+        (
+            result["bullish_entry_valid_event"]
+            & result["bearish_entry_valid_event"]
+        ).to_numpy()
+    ] = "conflict"
+    result["entry_valid_direction"] = entry_direction
+    return result
+
+
 def build_structure_event_table(df: pd.DataFrame) -> pd.DataFrame:
     event_definitions = {
         "bullish_displacement": ("displacement", "bullish"),
@@ -733,6 +871,11 @@ def enrich_structure_features(df: pd.DataFrame, config: dict[str, Any]) -> pd.Da
     result = enrich_swing_lifecycle(
         result,
         config,
+    )
+
+    result = add_production_setup_sequences(
+        result,
+        lookback_bars=10,
     )
 
     return result

@@ -11,6 +11,7 @@ from structure import (
     add_core_sequence_flags,
     add_displacement,
     add_fvg_structure_sequences,
+    add_production_setup_sequences,
     add_recent_structure_context,
     classify_structure_events,
     deduplicate_breaks,
@@ -198,6 +199,109 @@ def test_fvg_that_happened_before_core_sequence_does_not_complete_core_plus_fvg(
     assert not result["bullish_core_plus_fvg"].any(), (
         "An FVG created before the core sequence was incorrectly treated as a "
         "post-structure confirmation"
+    )
+
+
+def test_reversal_entry_valid_only_after_full_ordered_confirmation():
+    df = _bars(6)
+    df["bullish_core_plus_fvg_retest"] = [False, False, False, False, True, True]
+    df["bearish_core_plus_fvg_retest"] = False
+
+    result = add_production_setup_sequences(df)
+
+    assert result.index[result["bullish_reversal_entry_valid_event"]].tolist() == [4]
+    assert result.loc[4:, "bullish_reversal_sequence"].all()
+    assert result.loc[4, "entry_valid_direction"] == "bullish"
+
+
+def test_continuation_requires_displacement_break_then_later_retest_hold():
+    df = _bars(5)
+    df["bullish_displacement_structure_break_event"] = [False, True, False, False, False]
+    df["bearish_displacement_structure_break_event"] = False
+    df["bullish_body_close_break_event"] = [False, True, False, False, False]
+    df["bullish_fvg_retest_hold"] = [False, False, True, False, False]
+    df["bearish_fvg_retest_hold"] = False
+
+    result = add_production_setup_sequences(df)
+
+    assert result.index[result["bullish_continuation_entry_valid_event"]].tolist() == [2]
+    assert result.loc[2:, "bullish_continuation_sequence"].all()
+    assert result.loc[2, "entry_valid_direction"] == "bullish"
+
+
+def test_bearish_continuation_uses_the_symmetric_sequence():
+    df = _bars(5)
+    df["bullish_displacement_structure_break_event"] = False
+    df["bearish_displacement_structure_break_event"] = [False, True, False, False, False]
+    df["bullish_fvg_retest_hold"] = False
+    df["bearish_fvg_retest_hold"] = [False, False, True, False, False]
+
+    result = add_production_setup_sequences(df)
+
+    assert result.index[result["bearish_continuation_entry_valid_event"]].tolist() == [2]
+    assert result.loc[2, "entry_valid_direction"] == "bearish"
+
+
+def test_body_close_only_break_never_becomes_continuation_entry_valid():
+    df = _bars(4)
+    df["bullish_body_close_break_event"] = [False, True, False, False]
+    df["bullish_displacement_structure_break_event"] = False
+    df["bearish_displacement_structure_break_event"] = False
+    df["bullish_fvg_retest_hold"] = [False, False, True, False]
+    df["bearish_fvg_retest_hold"] = False
+
+    result = add_production_setup_sequences(df)
+
+    assert not result["bullish_continuation_sequence"].any()
+    assert not result["bullish_continuation_entry_valid_event"].any()
+    assert (result["entry_valid_direction"] == "none").all()
+
+
+def test_same_bar_break_and_retest_is_not_assigned_an_intrabar_order():
+    df = _bars(3)
+    df["bullish_displacement_structure_break_event"] = [False, True, False]
+    df["bearish_displacement_structure_break_event"] = False
+    df["bullish_fvg_retest_hold"] = [False, True, False]
+    df["bearish_fvg_retest_hold"] = False
+
+    result = add_production_setup_sequences(df)
+
+    assert not result["bullish_continuation_entry_valid_event"].any()
+
+
+def test_future_rows_do_not_rewrite_production_setup_sequences():
+    prefix = _bars(4)
+    prefix["bullish_displacement_structure_break_event"] = [False, True, False, False]
+    prefix["bearish_displacement_structure_break_event"] = False
+    prefix["bullish_fvg_retest_hold"] = [False, False, True, False]
+    prefix["bearish_fvg_retest_hold"] = False
+    before = add_production_setup_sequences(prefix)
+
+    future = _bars(2)
+    future["timestamp"] = pd.date_range(
+        prefix["timestamp"].iloc[-1] + pd.Timedelta(minutes=1),
+        periods=2,
+        freq="1min",
+        tz="UTC",
+    )
+    future["bullish_displacement_structure_break_event"] = [True, False]
+    future["bearish_displacement_structure_break_event"] = [False, True]
+    future["bullish_fvg_retest_hold"] = [False, True]
+    future["bearish_fvg_retest_hold"] = [False, False]
+    after = add_production_setup_sequences(
+        pd.concat([prefix, future], ignore_index=True)
+    )
+
+    columns = [
+        "bullish_continuation_sequence",
+        "bullish_continuation_entry_valid_event",
+        "bearish_continuation_sequence",
+        "bearish_continuation_entry_valid_event",
+        "entry_valid_direction",
+    ]
+    pd.testing.assert_frame_equal(
+        before[columns],
+        after.loc[: len(prefix) - 1, columns].reset_index(drop=True),
     )
 
 

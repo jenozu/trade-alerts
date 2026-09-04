@@ -580,19 +580,19 @@ Reliably distinguish reversal vs continuation context and rank the market's most
 
 ## Sweep vs break classification
 
-- [ ] Formalize reversal sequence.
-- [ ] Formalize continuation sequence.
-- [ ] Require displacement for valid structural break.
-- [ ] Require full confirmation sequence before entry-valid state.
+- [x] Formalize reversal sequence.
+- [x] Formalize continuation sequence.
+- [x] Require displacement for valid structural break.
+- [x] Require full confirmation sequence before entry-valid state.
 
 ## Done when
 
-- [ ] Sweep vs displacement break is reliable.
+- [x] Sweep vs displacement break is reliable.
 - [x] DOL emits primary + alternate targets.
 - [x] DOL is explainable and causal.
 - [ ] Replay/live behavior is consistent.
-- [ ] Full suite is green.
-- [ ] Push checkpoint and update this file.
+- [x] Full suite is green.
+- [x] Push checkpoint and update this file.
 
 ---
 
