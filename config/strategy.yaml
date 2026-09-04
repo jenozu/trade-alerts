@@ -47,9 +47,23 @@ draw_on_liquidity:
     - "external_swings"
     - "pdh_pdl"
     - "pmh_pml"
+    - "asia_high_low"
     - "onh_onl"
     - "loh_lol"
+    - "weekly_high_low"
+    - "equal_highs_lows"
     - "fair_value_gaps"
+  minimum_target_distance_points: 25.0
+  decision_threshold: 3.0
+  minimum_score_edge: 1.0
+  evidence_weights:
+    target_available: 1.0
+    higher_timeframe_bias: 2.0
+    opposing_liquidity_sweep: 1.5
+    premium_discount: 1.0
+    fvg_context: 0.5
+    structure_context: 1.0
+    displacement: 1.0
 
 swings:
   enabled: true

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -256,3 +258,171 @@ def test_scorer_awards_dol_points_only_to_aligned_direction():
     assert short_score.contributions["draw_on_liquidity"] == pytest.approx(0.0)
     assert long_score.raw_score == pytest.approx(10.0)
     assert short_score.raw_score == pytest.approx(0.0)
+
+
+def test_dol_v2_ranks_multiple_targets_and_exposes_primary_alternate():
+    config = _config()
+    config["draw_on_liquidity"]["candidate_sources"] = [
+        "pdh_pdl",
+        "pmh_pml",
+        "asia_high_low",
+        "loh_lol",
+        "weekly_high_low",
+        "external_swings",
+        "equal_highs_lows",
+        "fair_value_gaps",
+    ]
+    row = _row(
+        htf_bias="bullish",
+        recent_sell_side_sweep=True,
+        external_premium_discount="discount",
+        pdh=130.0,
+        pdl=70.0,
+        pmh=140.0,
+        pml=60.0,
+        ash=150.0,
+        asl=50.0,
+        loh=160.0,
+        lol=40.0,
+        week_high=170.0,
+        week_low=30.0,
+        external_swing_high_confirmed=True,
+        external_swing_high_price=180.0,
+        external_swing_high_timeframe="1h",
+        external_swing_high_pivot_time=pd.Timestamp("2026-08-31 13:00:00", tz="UTC"),
+        external_swing_high_equal=True,
+        external_swing_high_equal_cluster_level=190.0,
+        external_swing_high_equal_cluster_id="eqh-1",
+        external_swing_high_equal_cluster_count=3,
+        nearest_htf_fvg_above=200.0,
+        distance_to_nearest_htf_fvg_above=100.0,
+    )
+
+    result = enrich_draw_on_liquidity(_frame(row), config).iloc[0]
+    ranked = json.loads(result["dol_ranked_candidates"])
+
+    assert result["dol_primary_direction"] == "bullish"
+    assert result["dol_primary_target_type"] == "pdh"
+    assert result["dol_primary_target_price"] == pytest.approx(130.0)
+    assert result["dol_alternate_direction"] == "bearish"
+    assert result["dol_alternate_target_type"] == "pdl"
+    assert result["dol_alternate_target_price"] == pytest.approx(70.0)
+    assert [candidate["distance_points"] for candidate in ranked[:7]] == sorted(
+        candidate["distance_points"] for candidate in ranked[:7]
+    )
+    assert {
+        candidate["category"] for candidate in ranked
+    } >= {
+        "pdh_pdl",
+        "pmh_pml",
+        "asia_high_low",
+        "loh_lol",
+        "weekly_high_low",
+        "external_swings",
+        "equal_highs_lows",
+        "fair_value_gaps",
+    }
+
+
+def test_dol_v2_excludes_pool_after_causal_sweep():
+    config = _config()
+    config["draw_on_liquidity"]["candidate_sources"] = ["pdh_pdl", "pmh_pml"]
+    first = _row(
+        timestamp=pd.Timestamp("2026-08-31 14:00:00", tz="UTC"),
+        pdh=130.0,
+        pmh=140.0,
+        nearest_unswept_liquidity_above=130.0,
+        htf_bias="bullish",
+        recent_sell_side_sweep=True,
+        external_premium_discount="discount",
+    )
+    second = _row(
+        timestamp=pd.Timestamp("2026-08-31 14:01:00", tz="UTC"),
+        high=131.0,
+        close=120.0,
+        pdh=130.0,
+        pmh=150.0,
+        nearest_unswept_liquidity_above=150.0,
+        nearest_unswept_liquidity_below=70.0,
+        distance_to_unswept_liquidity_above=30.0,
+        distance_to_unswept_liquidity_below=50.0,
+        htf_bias="bullish",
+        recent_sell_side_sweep=True,
+        external_premium_discount="discount",
+    )
+
+    result = enrich_draw_on_liquidity(_frame(first, second), config)
+
+    assert result.loc[0, "dol_primary_target_type"] == "pdh"
+    assert result.loc[1, "dol_primary_target_type"] == "pmh"
+    assert result.loc[1, "dol_primary_target_price"] == pytest.approx(150.0)
+
+
+def test_dol_v2_structure_and_displacement_are_explainable_evidence():
+    config = _config()
+    row = _row(
+        htf_bias="bullish",
+        active_internal_swing_high_weak_liquidity=True,
+        displacement_direction="bullish",
+        displacement_category="strong",
+    )
+
+    result = enrich_draw_on_liquidity(_frame(row), config).iloc[0]
+    components = json.loads(result["dol_primary_components"])
+
+    assert result["dol_bullish_score"] == pytest.approx(5.0)
+    assert "bullish_protected_weak_structure" in components["reasons"]
+    assert "bullish_displacement" in components["reasons"]
+
+
+def test_neutral_dol_does_not_publish_primary_or_alternate_targets():
+    result = enrich_draw_on_liquidity(
+        _frame(
+            _row(
+                htf_bias="bullish",
+                recent_buy_side_sweep=True,
+                external_premium_discount="premium",
+            )
+        ),
+        _config(),
+    ).iloc[0]
+
+    assert result["dol_direction"] == "neutral"
+    assert pd.isna(result["dol_primary_target_price"])
+    assert pd.isna(result["dol_alternate_target_price"])
+    assert json.loads(result["dol_ranked_candidates"]) == []
+
+
+def test_future_pool_creation_does_not_rewrite_ranked_prefix():
+    first = _row(
+        timestamp=pd.Timestamp("2026-08-31 14:00:00", tz="UTC"),
+        htf_bias="bullish",
+        recent_sell_side_sweep=True,
+        external_premium_discount="discount",
+    )
+    future = _row(
+        timestamp=pd.Timestamp("2026-08-31 14:01:00", tz="UTC"),
+        pdh=135.0,
+        pmh=125.0,
+        nearest_unswept_liquidity_above=125.0,
+        distance_to_unswept_liquidity_above=25.0,
+        htf_bias="bullish",
+        recent_sell_side_sweep=True,
+        external_premium_discount="discount",
+    )
+
+    before = enrich_draw_on_liquidity(_frame(first), _config())
+    after = enrich_draw_on_liquidity(_frame(first, future), _config())
+
+    columns = [
+        "dol_primary_target_type",
+        "dol_primary_target_price",
+        "dol_primary_components",
+        "dol_alternate_target_type",
+        "dol_alternate_target_price",
+        "dol_ranked_candidates",
+    ]
+    pd.testing.assert_frame_equal(
+        before[columns],
+        after.loc[:0, columns].reset_index(drop=True),
+    )

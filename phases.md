@@ -553,30 +553,30 @@ Reliably distinguish reversal vs continuation context and rank the market's most
 
 ## DOL v2 — production requirements
 
-- [ ] Extend existing DOL; do not replace it.
-- [ ] Rank multiple candidate targets.
-- [ ] Produce **Primary DOL**.
-- [ ] Produce **Alternate DOL**.
-- [ ] Candidate PDH/PDL.
-- [ ] Candidate PMH/PML.
-- [ ] Candidate Asia H/L.
-- [ ] Candidate London H/L.
-- [ ] Candidate weekly H/L.
-- [ ] Candidate equal highs/lows.
-- [ ] Candidate external swings.
-- [ ] Candidate important untested HTF FVGs when safely represented.
-- [ ] Consider HTF structure/bias.
-- [ ] Consider premium/discount.
-- [ ] Consider protected/weak swings.
-- [ ] Consider recent sweeps.
-- [ ] Consider PD-array state.
-- [ ] Consider displacement.
-- [ ] Consider target distance.
-- [ ] Consider obstacles/room-to-run.
-- [ ] Preserve component scores/reasons.
-- [ ] Preserve source/price/distance/confidence.
-- [ ] Return neutral when evidence is insufficient/conflicting.
-- [ ] Add future-mutation invariance tests.
+- [x] Extend existing DOL; do not replace it.
+- [x] Rank multiple candidate targets.
+- [x] Produce **Primary DOL**.
+- [x] Produce **Alternate DOL**.
+- [x] Candidate PDH/PDL.
+- [x] Candidate PMH/PML.
+- [x] Candidate Asia H/L.
+- [x] Candidate London H/L.
+- [x] Candidate weekly H/L.
+- [x] Candidate equal highs/lows.
+- [x] Candidate external swings.
+- [x] Candidate important untested HTF FVGs when safely represented.
+- [x] Consider HTF structure/bias.
+- [x] Consider premium/discount.
+- [x] Consider protected/weak swings.
+- [x] Consider recent sweeps.
+- [x] Consider PD-array state.
+- [x] Consider displacement.
+- [x] Consider target distance.
+- [x] Consider obstacles/room-to-run.
+- [x] Preserve component scores/reasons.
+- [x] Preserve source/price/distance/confidence.
+- [x] Return neutral when evidence is insufficient/conflicting.
+- [x] Add future-mutation invariance tests.
 
 ## Sweep vs break classification
 
@@ -588,8 +588,8 @@ Reliably distinguish reversal vs continuation context and rank the market's most
 ## Done when
 
 - [ ] Sweep vs displacement break is reliable.
-- [ ] DOL emits primary + alternate targets.
-- [ ] DOL is explainable and causal.
+- [x] DOL emits primary + alternate targets.
+- [x] DOL is explainable and causal.
 - [ ] Replay/live behavior is consistent.
 - [ ] Full suite is green.
 - [ ] Push checkpoint and update this file.
