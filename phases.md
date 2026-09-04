@@ -3,7 +3,7 @@
 **Repository:** `jenozu/trade-alerts`  
 **Branch:** `main`  
 **Purpose:** Canonical implementation checklist for coordinating work across ChatGPT conversations, coding agents, and LLMs.  
-**Last organized:** 2026-09-02
+**Last organized:** 2026-09-04
 
 > Before doing any work, inspect the current repository and this checklist. Do not recreate working modules simply because an older roadmap lists them as future work.
 
@@ -592,9 +592,11 @@ Reliably distinguish reversal vs continuation context and rank the market's most
 - [x] Sweep vs displacement break is reliable.
 - [x] DOL emits primary + alternate targets.
 - [x] DOL is explainable and causal.
-- [ ] Replay/live behavior is consistent.
+- [x] Replay/live behavior is consistent.
 - [x] Full suite is green.
 - [x] Push checkpoint and update this file.
+
+> **Replay/live parity evidence:** `tests/test_replay_parity.py::test_phase4_replay_matches_live_completed_prefix_at_as_of` runs the shared production structure/sequence and DOL logic on both an explicit-`as_of` completed prefix and a causally processed full replay. It verifies identical Phase 4 outputs, hides an explicitly incomplete bar, and proves hostile future sweep/reversal bars cannot rewrite the visible result. Verified with the full suite at **430 passed, 263 warnings** on 2026-09-04.
 
 ---
 
