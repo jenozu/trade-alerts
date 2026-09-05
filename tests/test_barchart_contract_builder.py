@@ -64,6 +64,32 @@ def test_manifest_ownership_assigns_prior_day_1700_ct_to_next_trading_date():
     assert audit["rows_loaded"] == 3
     assert audit["rows_owned"] == 2
     assert audit["rows_trimmed_outside_manifest_window"] == 1
+    assert audit["empty_after_ownership_trim"] is False
+
+
+def test_manifest_ownership_allows_empty_weekend_edge_chunk():
+    frame = _frame(
+        [
+            ("2026-06-28 22:00", 100, 101, 99, 100.5, 10, "old.csv", "old.parquet"),
+            ("2026-06-29 04:59", 100, 101, 99, 100.5, 10, "old.csv", "old.parquet"),
+        ],
+        contract="NMU26",
+    )
+
+    owned, audit = _trim_chunk_to_manifest_window(
+        frame,
+        start_date=date(2026, 6, 28),
+        end_date=date(2026, 6, 28),
+        chunk_file="old.parquet",
+    )
+
+    assert owned.empty
+    assert audit["rows_loaded"] == 2
+    assert audit["rows_owned"] == 0
+    assert audit["rows_trimmed_outside_manifest_window"] == 2
+    assert audit["empty_after_ownership_trim"] is True
+    assert audit["first_owned_timestamp_utc"] is None
+    assert audit["last_owned_timestamp_utc"] is None
 
 
 def test_manifest_ownership_prevents_adjacent_chunk_conflict_from_overlapping_session():
@@ -98,8 +124,14 @@ def test_manifest_ownership_prevents_adjacent_chunk_conflict_from_overlapping_se
 
     result, audit = build_contract_frame([old_owned, new_owned], contract="NMU26")
 
+    assert old_owned.empty
     assert not result["timestamp"].duplicated().any()
-    assert pd.Timestamp("2026-06-29 04:59", tz="UTC") in result["timestamp"].tolist()
+    assert result["timestamp"].tolist() == [
+        pd.Timestamp("2026-06-28 22:00", tz="UTC"),
+        pd.Timestamp("2026-06-29 04:59", tz="UTC"),
+        pd.Timestamp("2026-06-29 05:00", tz="UTC"),
+    ]
+    assert audit["empty_chunks"] == 1
     assert audit["duplicate_rows_removed"] == 0
 
 
@@ -134,14 +166,10 @@ def test_build_contract_frame_removes_identical_chunk_overlap():
 
 def test_build_contract_frame_rejects_conflicting_duplicate_timestamp():
     chunk_a = _frame(
-        [
-            ("2022-01-03 00:00", 100, 102, 99, 101, 10, "a.csv", "a.parquet"),
-        ]
+        [("2022-01-03 00:00", 100, 102, 99, 101, 10, "a.csv", "a.parquet")]
     )
     chunk_b = _frame(
-        [
-            ("2022-01-03 00:00", 100, 102, 99, 101.25, 10, "b.csv", "b.parquet"),
-        ]
+        [("2022-01-03 00:00", 100, 102, 99, 101.25, 10, "b.csv", "b.parquet")]
     )
 
     with pytest.raises(ContractBuildError, match="conflicting duplicate timestamps"):
