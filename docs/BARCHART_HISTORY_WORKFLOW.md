@@ -1,6 +1,6 @@
 # Barchart Historical MNQ Workflow
 
-This document records the Windows-side historical data acquisition workflow used to expand Phase 12 backtesting beyond the history available from ProjectX.
+This document records the historical data acquisition and engineering workflow used to expand Phase 12 backtesting beyond the history available from ProjectX.
 
 ## Why Barchart is being used
 
@@ -25,14 +25,14 @@ Time,Open,High,Low,Latest,Change,%Change,Volume
 Normalization mapping:
 
 ```text
-Time    -> timestamp (America/Chicago -> UTC)
-Open    -> open
-High    -> high
-Low     -> low
-Latest  -> close
-Volume  -> volume
-source  -> BARCHART
-symbol  -> MNQ
+Time     -> timestamp (America/Chicago -> UTC)
+Open     -> open
+High     -> high
+Low      -> low
+Latest   -> close
+Volume   -> volume
+source   -> BARCHART
+symbol   -> MNQ
 contract -> manifest contract
 ```
 
@@ -44,11 +44,11 @@ Downloaded from Barchart.com as of ... CDT
 
 That row has no OHLCV values and is removed only in the derived normalized copy.
 
-Barchart also commonly returns the prior calendar day's 17:00 Chicago bar when a requested trading date begins at the CME Globex session open. The audit showed a systematic -420 minute offset for 112 files, consistent with the prior-day 17:00 CT session start. Two holiday-start cases began at 17:00 on the requested calendar date. These were treated as expected futures-session behavior rather than corruption.
+Barchart also commonly returns the prior calendar day's 17:00 Chicago bar when a requested trading date begins at the CME Globex session open. The workflow therefore assigns bars by CME-style trading date before merging adjacent download chunks.
 
-## Initial five-year archive
+## Historical contract archive
 
-The initial manifest covers quarterly MNQ contracts from late 2021 through 2026-09-04:
+The archive used for the certified series contains:
 
 ```text
 2022: NMH22 NMM22 NMU22 NMZ22
@@ -58,7 +58,9 @@ The initial manifest covers quarterly MNQ contracts from late 2021 through 2026-
 2026: NMH26 NMM26 NMU26
 ```
 
-Contract windows intentionally overlap by five calendar days near quarterly roll periods. The overlap is retained so the eventual continuous series can choose explicit rollover boundaries rather than blindly concatenating files.
+This produces coverage beginning in late December 2021 because the first contract window starts before calendar 2022.
+
+The result is approximately **4 years 8.5 months** of continuous coverage through 2026-09-04. It should not be described as a literal trailing five-year dataset unless older 2021 contracts are added later.
 
 The download manifest contains 133 jobs, split into approximately 14-calendar-day chunks to remain comfortably below Barchart's 20,000-record-per-request limit.
 
@@ -80,7 +82,7 @@ Raw audit results:
 - no critical file errors
 - 1,819,656 one-minute intervals observed during the raw-file audit
 - 376 two-minute intervals observed
-- 1,341 gaps greater than two minutes observed; these include expected session/weekend/holiday closures and must remain subject to session-aware validation before final research certification
+- 1,341 gaps greater than two minutes observed; these include expected session/weekend/holiday closures
 - largest observed raw gap: 4,381 minutes
 - every file contained one Barchart footer/non-market row
 
@@ -100,6 +102,95 @@ NORMALIZATION PASSED
 
 The original Barchart CSV files were not modified.
 
+## Proven contract-build result — 2026-09-05
+
+The normalized chunk Parquets were merged into one Parquet per quarterly contract using manifest-window ownership based on CME trading date.
+
+Certified result:
+
+```text
+Successful contracts: 19 / 19
+Failed contracts: 0
+Rows across outputs: 1,774,466
+Rows ownership-trimmed: 47,040
+Empty owned chunks: 0
+Duplicates removed after trim: 0
+CONTRACT BUILD PASSED
+```
+
+Audit:
+
+```text
+data/raw/barchart/contract_parquets_audit.json
+```
+
+## Proven rollover-analysis result — 2026-09-05
+
+Adjacent quarterly contracts were compared using daily trading volume in their overlap windows.
+
+Deterministic rule:
+
+> Roll at the CME session open preceding the first trading date where the new contract has higher daily volume than the old contract for two consecutive overlapping trading days.
+
+Certified result:
+
+```text
+Contracts: 19
+Expected rollovers: 18
+Succeeded: 18
+Failed: 0
+```
+
+All 18 selected boundaries used:
+
+```text
+confirmed_volume_crossover
+```
+
+No fallback/unconfirmed rollover was used.
+
+Audit:
+
+```text
+data/raw/barchart/rollover_analysis.json
+```
+
+## Proven continuous-series result — 2026-09-05
+
+The 19 quarterly contracts were stitched into one non-back-adjusted continuous MNQ 1-minute research series.
+
+Certified result:
+
+```text
+Contracts: 19
+Rollover boundaries: 18
+Rows: 1,663,671
+UTC coverage: 2021-12-20T06:00:00+00:00 -> 2026-09-04T20:59:00+00:00
+Duplicate timestamps: 0
+Null OHLCV: 0
+Price adjustment: none
+```
+
+Final dataset:
+
+```text
+data/raw/barchart/mnq_continuous_1m.parquet
+```
+
+Stitch audit:
+
+```text
+data/raw/barchart/mnq_continuous_1m.audit.json
+```
+
+Final dataset SHA-256:
+
+```text
+fa8b33621d74a4016c35f0fa19df75f1d6adc864f71f794c391bbe4e4620cf8a
+```
+
+The continuous dataset is now certified for Phase 12 baseline research. It is not committed to Git.
+
 ## Repository tooling
 
 The reproducible tooling lives under:
@@ -108,64 +199,39 @@ The reproducible tooling lives under:
 tools/barchart/
 ```
 
-Current scripts:
+Current scripts include:
 
-- `generate_manifest.py` — generates the 133-job quarterly-contract manifest.
+- `generate_manifest.py` — generates the quarterly-contract download manifest.
 - `download_barchart_history.py` — resumable Playwright downloader using a persistent authenticated Barchart browser profile.
 - `audit_manifest.py` — checks manifest continuity, order, overlap, duplicate filenames, and status.
 - `audit_barchart_history.py` — validates raw downloaded CSV presence, headers, OHLCV integrity, timestamps, duplicates, and gap statistics.
 - `inspect_barchart_warnings.py` — explains systematic footer rows and requested-date/session offsets.
-- `normalize_barchart_history.py` — writes separate standardized Parquet copies and a normalization audit.
-- `build_contract_parquets.py` — merges normalized chunks into one audited Parquet per quarterly contract, rejects conflicting duplicate timestamps, removes identical chunk-overlap duplicates, preserves raw prices, hashes inputs/outputs, and reports continuity/gap statistics.
+- `normalize_barchart_history.py` — writes standardized Parquet copies and a normalization audit.
+- `build_contract_parquets.py` — assigns chunk ownership by CME trading date and produces one audited Parquet per quarterly contract.
+- `analyze_barchart_rollovers.py` — determines explicit rollovers from confirmed daily-volume crossover.
+- `stitch_barchart_history.py` — creates the final non-back-adjusted continuous research series and stitch audit.
 
-Local browser profiles, manifests, raw market data, normalized Parquet files, contract-level Parquets, and generated audits are intentionally Git-ignored.
+Local browser profiles, manifests, raw market data, normalized Parquet files, contract-level Parquets, continuous datasets, and generated audits are intentionally Git-ignored.
 
-## Windows setup
+## Current Phase 12 handoff
 
-Use a dedicated virtual environment. The local workflow was developed with:
+The Barchart data-engineering stage is complete enough for serious backtesting.
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-python -m pip install playwright pandas pyarrow
-python -m playwright install chromium
-```
+Do **not** immediately optimize strategy parameters.
 
-The downloader uses a persistent Playwright profile so the user can log into Barchart Premier manually once and reuse the authenticated session. Do not commit that browser profile.
+The required next sequence is maintained in `docs/PHASE12_BACKTESTING_PLAN.md`:
 
-## Contract-level merge stage
-
-After normalization succeeds, build one contract-level Parquet per quarterly contract before choosing rollover boundaries:
-
-```powershell
-python tools\barchart\build_contract_parquets.py `
-  --manifest manifest.csv `
-  --input-dir normalized-barchart `
-  --output-dir contract-parquets `
-  --audit-output contract_parquets_audit.json
-```
-
-If the Barchart tools are being run from the standalone Windows downloader directory rather than a local clone of this repository, copy or invoke the committed script from `tools/barchart/` and point the arguments at the local manifest/normalized directories.
-
-The builder deliberately does not fill session/weekend/holiday gaps and does not back-adjust prices. Duplicate timestamps created by adjacent download chunks are allowed only when the market values are identical; conflicting duplicates fail the build. Every output contract Parquet receives SHA-256 evidence in the audit.
-
-The contract build is a prerequisite for rollover selection. Do not stitch the five-year continuous series if any contract fails.
-
-## Next stage
-
-Do not run a five-year backtest directly against the 133 chunk files.
-
-The next research-data stages are:
-
-1. Run `build_contract_parquets.py` and certify all quarterly contract files.
-2. Review per-contract timestamp order, duplicate-removal counts, session gaps, coverage, and hashes in `contract_parquets_audit.json`.
-3. Determine and document explicit quarterly rollover timestamps using the overlap windows and a reproducible rule.
-4. Stitch the quarterly contracts into one non-back-adjusted continuous MNQ research series.
-5. Write a stitch audit containing contract order, rollover timestamps, row counts, overlaps/gaps, and source metadata.
-6. Run staged Phase 12 baselines against the resulting historical series.
-7. Archive run metadata/results while keeping market data outside Git.
+1. implement automatic research-run archiving
+2. run untouched 6-month baseline
+3. run untouched 12-month baseline
+4. run year-by-year baselines
+5. run the full certified multi-year baseline
+6. perform segmentation analysis
+7. test exit models as a controlled experiment family
+8. change one parameter family at a time
+9. validate candidates on held-out / walk-forward periods
+10. only then reconcile with Phase 11 live/shadow observations and update production configuration
 
 ## Research discipline
 
-Do not tune the strategy against the short 2026 ProjectX sample before establishing the Barchart multi-year baseline. Preserve the current strategy/config as the baseline, run longer horizons first, and evaluate changes with held-out / walk-forward testing as required by `PHASE12_BACKTESTING_PLAN.md`.
+Preserve the current strategy/config as the baseline. Establish broad historical behavior before tuning. Keep every meaningful research run reproducible and archived with the input hash, Git SHA, config snapshots, metrics, trade ledger, and rollover references.
