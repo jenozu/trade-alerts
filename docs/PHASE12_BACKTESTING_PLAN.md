@@ -324,3 +324,27 @@ Required before completion:
 - accepted parameter changes are stable across regimes
 - final configs and evidence committed/documented
 - `phases.md` updated with final Phase 12 evidence
+
+---
+
+# Historical-source update — Barchart multi-year archive
+
+ProjectX remains the live/production data source, but the current ProjectX account/API path did not provide usable expired-contract history for older MNQ contracts. Phase 12 historical research therefore now has a separate Barchart acquisition path documented in `docs/BARCHART_HISTORY_WORKFLOW.md`.
+
+As of 2026-09-05, the Barchart workflow has proven:
+
+- 133 / 133 requested 1-minute quarterly-contract CSV chunks downloaded successfully
+- 0 download errors and 0 timeouts
+- 0 missing files and 0 critical raw-file audit errors
+- 1,821,506 normalized rows across the 133 files
+- 133 Barchart footer rows removed only from derived normalized copies
+- 0 numeric rows removed
+- 0 duplicates removed
+- raw Barchart CSV files preserved untouched
+- Barchart `Time` interpreted as `America/Chicago` and converted to UTC
+- Barchart `Latest` mapped to normalized `close`
+- quarterly contract windows intentionally overlap around rollover periods
+
+This is **not yet a completed five-year research dataset**. The remaining data-engineering work is to merge normalized chunks per contract, determine explicit rollover timestamps, stitch the quarterly contracts into one audited non-back-adjusted MNQ series, and then run staged Phase 12 baselines and held-out/walk-forward validation.
+
+Do not mark Phase 12 complete based on data acquisition alone.
