@@ -116,8 +116,9 @@ Current scripts:
 - `audit_barchart_history.py` — validates raw downloaded CSV presence, headers, OHLCV integrity, timestamps, duplicates, and gap statistics.
 - `inspect_barchart_warnings.py` — explains systematic footer rows and requested-date/session offsets.
 - `normalize_barchart_history.py` — writes separate standardized Parquet copies and a normalization audit.
+- `build_contract_parquets.py` — merges normalized chunks into one audited Parquet per quarterly contract, rejects conflicting duplicate timestamps, removes identical chunk-overlap duplicates, preserves raw prices, hashes inputs/outputs, and reports continuity/gap statistics.
 
-Local browser profiles, manifests, raw market data, normalized Parquet files, and generated audits are intentionally Git-ignored.
+Local browser profiles, manifests, raw market data, normalized Parquet files, contract-level Parquets, and generated audits are intentionally Git-ignored.
 
 ## Windows setup
 
@@ -133,14 +134,32 @@ python -m playwright install chromium
 
 The downloader uses a persistent Playwright profile so the user can log into Barchart Premier manually once and reuse the authenticated session. Do not commit that browser profile.
 
+## Contract-level merge stage
+
+After normalization succeeds, build one contract-level Parquet per quarterly contract before choosing rollover boundaries:
+
+```powershell
+python tools\barchart\build_contract_parquets.py `
+  --manifest manifest.csv `
+  --input-dir normalized-barchart `
+  --output-dir contract-parquets `
+  --audit-output contract_parquets_audit.json
+```
+
+If the Barchart tools are being run from the standalone Windows downloader directory rather than a local clone of this repository, copy or invoke the committed script from `tools/barchart/` and point the arguments at the local manifest/normalized directories.
+
+The builder deliberately does not fill session/weekend/holiday gaps and does not back-adjust prices. Duplicate timestamps created by adjacent download chunks are allowed only when the market values are identical; conflicting duplicates fail the build. Every output contract Parquet receives SHA-256 evidence in the audit.
+
+The contract build is a prerequisite for rollover selection. Do not stitch the five-year continuous series if any contract fails.
+
 ## Next stage
 
 Do not run a five-year backtest directly against the 133 chunk files.
 
 The next research-data stages are:
 
-1. Merge normalized chunks into one clean Parquet file per quarterly contract.
-2. Re-audit per-contract timestamp order, duplicates, session gaps, and coverage.
+1. Run `build_contract_parquets.py` and certify all quarterly contract files.
+2. Review per-contract timestamp order, duplicate-removal counts, session gaps, coverage, and hashes in `contract_parquets_audit.json`.
 3. Determine and document explicit quarterly rollover timestamps using the overlap windows and a reproducible rule.
 4. Stitch the quarterly contracts into one non-back-adjusted continuous MNQ research series.
 5. Write a stitch audit containing contract order, rollover timestamps, row counts, overlaps/gaps, and source metadata.
