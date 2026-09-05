@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-from datetime import datetime, timezone
+from datetime import datetime, time, timezone
 from pathlib import Path
 
 import pandas as pd
@@ -20,6 +20,8 @@ REQUIRED_COLUMNS = {
     "contract",
 }
 VALUE_COLUMNS = ["open", "high", "low", "close", "volume", "source", "symbol", "contract"]
+CHICAGO_TZ = "America/Chicago"
+SESSION_OPEN_LOCAL = time(17, 0)
 
 
 class ContractBuildError(RuntimeError):
@@ -72,15 +74,26 @@ def _load_manifest(path: Path) -> pd.DataFrame:
     if not path.exists():
         raise FileNotFoundError(path)
     manifest = pd.read_csv(path)
-    required = {"contract", "filename"}
+    required = {"contract", "filename", "start_date", "end_date"}
     missing = required - set(manifest.columns)
     if missing:
         raise ContractBuildError(f"Manifest missing required columns: {sorted(missing)}")
     if manifest.empty:
         raise ContractBuildError("Manifest is empty.")
+
     manifest["contract"] = manifest["contract"].astype(str).str.upper().str.strip()
     if manifest["contract"].eq("").any():
         raise ContractBuildError("Manifest contains a blank contract value.")
+
+    for column in ["start_date", "end_date"]:
+        parsed = pd.to_datetime(manifest[column], errors="coerce")
+        if parsed.isna().any():
+            raise ContractBuildError(f"Manifest contains invalid {column} values.")
+        manifest[column] = parsed.dt.date
+
+    if (manifest["start_date"] > manifest["end_date"]).any():
+        raise ContractBuildError("Manifest contains start_date after end_date.")
+
     return manifest
 
 
@@ -158,6 +171,52 @@ def _load_chunk(path: Path, *, expected_contract: str) -> pd.DataFrame:
     return result.sort_values("timestamp", kind="stable").reset_index(drop=True)
 
 
+def _trading_date_chicago(timestamps: pd.Series) -> pd.Series:
+    """Map UTC timestamps to CME-style trading dates using the 17:00 CT session open."""
+
+    local = timestamps.dt.tz_convert(CHICAGO_TZ)
+    local_dates = pd.Series(local.dt.date, index=timestamps.index, dtype="object")
+    after_open = local.dt.time >= SESSION_OPEN_LOCAL
+    return local_dates.where(~after_open, local_dates + pd.to_timedelta(1, unit="D"))
+
+
+def _trim_chunk_to_manifest_window(
+    frame: pd.DataFrame,
+    *,
+    start_date,
+    end_date,
+    chunk_file: str,
+) -> tuple[pd.DataFrame, dict]:
+    """Keep only rows whose CME trading date belongs to this manifest job.
+
+    Barchart date-range exports can include prior-calendar-day 17:00 CT bars for the
+    requested trading date. Adjacent requests can therefore overlap physically in
+    timestamp space. Assigning each bar to its CME trading date before concatenation
+    gives every bar exactly one manifest owner and prevents arbitrary conflict picks.
+    """
+
+    trading_dates = _trading_date_chicago(frame["timestamp"])
+    mask = (trading_dates >= start_date) & (trading_dates <= end_date)
+    trimmed = frame.loc[mask].copy().reset_index(drop=True)
+
+    if trimmed.empty:
+        raise ContractBuildError(
+            f"{chunk_file}: no rows remain after trading-date ownership trim "
+            f"({start_date} -> {end_date})"
+        )
+
+    audit = {
+        "rows_loaded": int(len(frame)),
+        "rows_owned": int(len(trimmed)),
+        "rows_trimmed_outside_manifest_window": int(len(frame) - len(trimmed)),
+        "requested_start_date": str(start_date),
+        "requested_end_date": str(end_date),
+        "first_owned_timestamp_utc": trimmed["timestamp"].min().isoformat(),
+        "last_owned_timestamp_utc": trimmed["timestamp"].max().isoformat(),
+    }
+    return trimmed, audit
+
+
 def _duplicate_conflicts(frame: pd.DataFrame) -> list[str]:
     conflicts: list[str] = []
     duplicate_rows = frame.loc[frame["timestamp"].duplicated(keep=False)]
@@ -184,7 +243,8 @@ def build_contract_frame(chunks: list[pd.DataFrame], *, contract: str) -> tuple[
     conflicts = _duplicate_conflicts(combined)
     if conflicts:
         raise ContractBuildError(
-            f"{contract}: conflicting duplicate timestamps detected; first conflict: {conflicts[0]}"
+            f"{contract}: conflicting duplicate timestamps remain after manifest ownership trim; "
+            f"first conflict: {conflicts[0]}"
         )
 
     duplicate_rows = int(combined["timestamp"].duplicated(keep="first").sum())
@@ -201,6 +261,10 @@ def build_contract_frame(chunks: list[pd.DataFrame], *, contract: str) -> tuple[
     chunk_sources = sorted(combined["chunk_file"].dropna().astype(str).unique().tolist())
     combined = combined.drop(columns=["chunk_file"])
 
+    largest_gap_minutes = (
+        float(gaps.max().total_seconds() / 60.0) if not gaps.empty else 0.0
+    )
+
     audit = {
         "contract": contract,
         "chunks": len(chunks),
@@ -213,9 +277,7 @@ def build_contract_frame(chunks: list[pd.DataFrame], *, contract: str) -> tuple[
         "one_minute_intervals": one_minute,
         "two_minute_intervals": two_minute,
         "gaps_over_two_minutes": int(len(gaps)),
-        "largest_gap_minutes": (
-            float(gaps.max() / pd.Timedelta(minutes=1)) if not gaps.empty else 0.0
-        ),
+        "largest_gap_minutes": largest_gap_minutes,
     }
     return combined, audit
 
@@ -244,28 +306,40 @@ def main() -> None:
         try:
             chunks: list[pd.DataFrame] = []
             input_files: list[dict] = []
-            for filename in jobs["filename"].tolist():
+            total_trimmed = 0
+
+            for job in jobs.to_dict("records"):
+                filename = job["filename"]
                 chunk_path = args.input_dir / _normalized_name(filename)
-                chunk = _load_chunk(chunk_path, expected_contract=contract)
+                loaded = _load_chunk(chunk_path, expected_contract=contract)
+                chunk, ownership_audit = _trim_chunk_to_manifest_window(
+                    loaded,
+                    start_date=job["start_date"],
+                    end_date=job["end_date"],
+                    chunk_file=chunk_path.name,
+                )
                 chunks.append(chunk)
+                total_trimmed += ownership_audit["rows_trimmed_outside_manifest_window"]
                 input_files.append(
                     {
                         "file": str(chunk_path),
-                        "rows": int(len(chunk)),
                         "sha256": _sha256(chunk_path),
+                        **ownership_audit,
                     }
                 )
 
             contract_frame, audit = build_contract_frame(chunks, contract=contract)
             output_path = args.output_dir / f"{contract}_1m.parquet"
             contract_frame.to_parquet(output_path, index=False)
+            audit["rows_trimmed_outside_manifest_windows"] = int(total_trimmed)
             audit["output_file"] = str(output_path)
             audit["output_sha256"] = _sha256(output_path)
             audit["inputs"] = input_files
             file_audits.append(audit)
 
             print(f"  rows: {audit['rows_output']:,}")
-            print(f"  duplicates removed: {audit['duplicate_rows_removed']:,}")
+            print(f"  rows trimmed outside manifest ownership: {total_trimmed:,}")
+            print(f"  duplicates removed after trim: {audit['duplicate_rows_removed']:,}")
             print(f"  UTC: {audit['first_timestamp_utc']} -> {audit['last_timestamp_utc']}")
             print(f"  gaps >2m: {audit['gaps_over_two_minutes']:,}")
             print(f"  output: {output_path}")
@@ -279,6 +353,10 @@ def main() -> None:
         "source": "BARCHART",
         "symbol": "MNQ",
         "price_adjustment": "none",
+        "chunk_ownership_rule": (
+            "CME trading date in America/Chicago; session timestamps at/after 17:00 CT "
+            "belong to the next calendar trading date"
+        ),
         "manifest": str(args.manifest),
         "input_directory": str(args.input_dir),
         "output_directory": str(args.output_dir),
@@ -287,6 +365,9 @@ def main() -> None:
         "contracts_failed": len(failures),
         "total_output_rows_across_contract_files": int(
             sum(item["rows_output"] for item in file_audits)
+        ),
+        "total_rows_trimmed_outside_manifest_windows": int(
+            sum(item.get("rows_trimmed_outside_manifest_windows", 0) for item in file_audits)
         ),
         "total_duplicate_rows_removed": int(
             sum(item["duplicate_rows_removed"] for item in file_audits)
@@ -303,6 +384,10 @@ def main() -> None:
     print(f"Successful contracts: {len(file_audits)} / {len(contracts)}")
     print(f"Failed contracts:     {len(failures)}")
     print(f"Rows across outputs:  {report['total_output_rows_across_contract_files']:,}")
+    print(
+        "Rows ownership-trimmed: "
+        f"{report['total_rows_trimmed_outside_manifest_windows']:,}"
+    )
     print(f"Duplicates removed:   {report['total_duplicate_rows_removed']:,}")
     print(f"Audit:                {args.audit_output}")
 
