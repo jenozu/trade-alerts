@@ -384,3 +384,30 @@ def test_intraday_weighted_tie_is_neutral():
     assert result.loc[0, "intraday_bias"] == "neutral"
     assert result.loc[0, "intraday_bias_confidence"] == pytest.approx(0.0)
     assert bool(result.loc[0, "intraday_bias_conflict"]) is True
+
+
+def test_bias_merge_accepts_mixed_datetime_precision():
+    base = _base_at(
+        "2026-03-05 14:30:00+00:00",
+        "2026-03-05 14:31:00+00:00",
+    )
+    base["timestamp"] = base["timestamp"].astype("datetime64[us, UTC]")
+
+    higher = pd.DataFrame(
+        {
+            "available_at": pd.to_datetime(
+                ["2026-03-05 14:30:00+00:00"], utc=True
+            ).astype("datetime64[ns, UTC]"),
+            "bias_1h": ["bullish"],
+            "bias_event_1h": ["none"],
+            "confirmed_swing_high_1h": [100.0],
+            "confirmed_swing_low_1h": [90.0],
+            "bar_complete": [True],
+        }
+    )
+
+    result = _merge_completed_bias_features(base, higher, "1h")
+
+    assert len(result) == 2
+    assert result["bias_1h"].tolist() == ["bullish", "bullish"]
+    assert str(result["timestamp"].dtype) == "datetime64[ns, UTC]"

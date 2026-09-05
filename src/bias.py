@@ -296,7 +296,10 @@ def _merge_completed_bias_features(
     columns = [column for column in columns if column in right.columns]
 
     right = right[columns].copy()
-    right["available_at"] = pd.to_datetime(right["available_at"], utc=True)
+    right["available_at"] = (
+        pd.to_datetime(right["available_at"], utc=True)
+        .astype("datetime64[ns, UTC]")
+    )
     right = (
         right.dropna(subset=["available_at"])
         .sort_values("available_at", kind="stable")
@@ -304,6 +307,10 @@ def _merge_completed_bias_features(
     )
 
     left = base.copy()
+    left["timestamp"] = (
+        pd.to_datetime(left["timestamp"], utc=True)
+        .astype("datetime64[ns, UTC]")
+    )
     left["_bias_original_order"] = np.arange(len(left))
     left = left.sort_values("timestamp", kind="stable")
 
