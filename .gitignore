@@ -55,11 +55,13 @@ data/production/**
 barchart-profile/
 barchart-history/
 normalized-barchart/
+contract-parquets/
 manifest.csv
 manifest-full.csv
 barchart_history_audit.csv
 barchart_history_audit.json
 normalized_barchart_audit.json
+contract_parquets_audit.json
 
 # Generated backtest/research outputs
 backtest_results/
