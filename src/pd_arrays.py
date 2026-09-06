@@ -811,7 +811,11 @@ def attach_pd_array_context(
 
     result[
         "pd_array_last_event_at"
-    ] = pd.NaT
+    ] = pd.Series(
+        pd.NaT,
+        index=result.index,
+        dtype="datetime64[ns, UTC]",
+    )
 
     result[
         "pd_array_last_evidence_direction"
