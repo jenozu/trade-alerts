@@ -43,6 +43,7 @@ data/reports/**
 data/live-state/**
 data/recaps/**
 data/production/**
+data/cache/**
 !data/raw/.gitkeep
 !data/normalized/.gitkeep
 !data/processed/.gitkeep
