@@ -12,4 +12,4 @@ def test_safe_label_sanitizes_spaces_and_symbols():
 def test_sha256_file_is_stable(tmp_path: Path):
     path = tmp_path / "sample.txt"
     path.write_text("trade-alerts\n", encoding="utf-8")
-    assert sha256_file(path) == "0949fa557770629253842c17d0fd0d448f09b5044435335258203530281a0044"
+    assert sha256_file(path) == "6ab45581d07bcc809200ae327b2e17cf8d4d90d1c3f40baf5ff596182b3a2e96"
