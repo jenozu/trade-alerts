@@ -162,3 +162,32 @@ When rules conflict, use this priority:
 4. preserve validated behavior and test contracts;
 5. make the smallest correct engineering change;
 6. optimize runtime and AI/API cost.
+
+## 16. Permanent Experiment Archive
+
+Every research experiment must preserve its durable evidence in GitHub, not only on a VPS.
+
+Working outputs may remain under gitignored locations such as `data/reports/`, but before an experiment is marked complete, all reasonably sized research artifacts must be copied into `research-archive/EXP-XXX/` and committed.
+
+Archive, when produced:
+
+- Markdown reports;
+- JSON metrics/results;
+- CSV segmentations/tables;
+- config snapshots;
+- manifests and hashes;
+- experiment metadata and other small text evidence.
+
+Do not commit large market-data binaries, caches, Parquet/Arrow/Feather datasets, logs, secrets, credentials, or tokens to normal Git.
+
+Use `scripts/archive_experiment.py` to create/update the tracked archive and `ARCHIVE_MANIFEST.json` with SHA-256 hashes.
+
+A research experiment is not complete until:
+
+1. authoritative results have been generated;
+2. durable evidence is present under `research-archive/EXP-XXX/`;
+3. the archive manifest exists;
+4. the matching trade-brain experiment/findings notes are updated;
+5. the refinement roadmap records proven completion evidence;
+6. relevant tests pass;
+7. all code, tests, reports, trade-brain notes, and roadmap changes are committed and pushed.
