@@ -259,6 +259,12 @@ The confluence score is **not a probability**.
 
 A score of 80 must never be presented as "80% chance of winning" unless an explicit probability-calibration model is built and independently validated later.
 
+### Implementation status (2026-09-10)
+
+- [x] Ledger-only EXP-001 analyzer added: `scripts/run_exp001_score_bands.py`.
+- [x] Analyzer produces fixed score-bucket metrics, annual and long/short segmentation, a monotonicity check, JSON, and Markdown outputs without rerunning the pipeline.
+- [ ] Execute against the three archived baseline ledgers and record the observed conclusions here. The ledgers are intentionally not stored in Git.
+
 The current score should be treated as a deterministic setup-quality rank.
 
 ---
