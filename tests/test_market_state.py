@@ -9,6 +9,7 @@ import pandas as pd
 import run_pipeline as pipeline
 from market_state import (
     SCHEMA_VERSION,
+    STATUS_DEGRADED_DATA_QUALITY,
     STATUS_DEGRADED_HISTORY,
     STATUS_PROJECTX_UNAVAILABLE,
     STATUS_READY,
@@ -237,15 +238,25 @@ def test_market_state_safe_failure_and_degraded_statuses() -> None:
     )
     assert stale["status"]["message"] == STATUS_STALE
 
-    degraded = _state(
+    degraded_history = _state(
         data_quality={
             "analysis_status": "degraded",
             "reasons": ["Required history incomplete."],
             "session_coverage": {"all_due_covered": False},
         }
     )
-    assert degraded["status"]["message"] == STATUS_DEGRADED_HISTORY
-    assert degraded["instrument"]["latest_price"] == 100.75
+    assert degraded_history["status"]["message"] == STATUS_DEGRADED_HISTORY
+    assert degraded_history["instrument"]["latest_price"] == 100.75
+
+    degraded_quality = _state(
+        data_quality={
+            "analysis_status": "degraded",
+            "reasons": ["timestamp_gaps: warning"],
+            "session_coverage": {"all_due_covered": True},
+        }
+    )
+    assert degraded_quality["status"]["message"] == STATUS_DEGRADED_DATA_QUALITY
+    assert degraded_quality["status"]["reasons"] == ["timestamp_gaps: warning"]
 
 
 def test_market_state_storage_is_versioned_and_latest_never_substitutes_old_state(
