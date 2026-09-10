@@ -464,6 +464,73 @@ Questions:
 
 A proposed refinement that "fixes" 2024 but destroys 2023/2025 should normally be rejected.
 
+### EXP-004 completed evidence — 2026-09-10
+
+- [x] Ledger-only analyzer implemented in `src/year_regime_research.py`.
+- [x] Runner implemented in `scripts/run_exp004_year_regime.py`.
+- [x] Targeted analyzer tests passed on the VPS: 2 passed.
+- [x] Existing completed 2023, 2024, and 2025 ledgers analyzed without rerunning historical pipelines.
+- [x] Markdown, JSON, and CSV outputs generated and archived under `research-archive/EXP-004/` with a SHA-256 manifest.
+- [x] Trade Brain experiment/findings documentation updated.
+
+Observed year-level performance:
+
+| Year | Trades | Win rate | Expectancy pts | Expectancy R | PF | Net pts |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 2023 | 344 | 32.3% | +2.92 | +0.117R | 1.17 | +1003.00 |
+| 2024 | 388 | 27.3% | +0.17 | +0.007R | 1.01 | +66.25 |
+| 2025 | 486 | 24.9% | +2.27 | +0.090R | 1.12 | +1103.25 |
+
+2024 was approximately **2.42 expectancy points/trade below** the mean of 2023 and 2025.
+
+Concentration of weakness:
+
+- 2024 reversal: 328 trades, -1.61 pts expectancy, PF 0.91, -526.50 points.
+- 2024 continuation: 60 trades, +9.88 pts expectancy, PF 1.63, +592.75 points.
+- 2024 long: +1.50 pts expectancy, PF 1.09.
+- 2024 short: -1.59 pts expectancy, PF 0.91.
+- 2024 70–79: -0.24 pts expectancy, PF 0.99.
+- 2024 80–89: +3.41 pts expectancy, PF 1.18.
+
+The weak 2024 baseline was therefore concentrated primarily in reversal-classified trades, shorts, and the dominant 70–79 score band rather than representing broad failure across the strategy.
+
+Target capture and excursion evidence:
+
+- 2024 TP1/TP2/TP3/TP4 hit rates were 44.3% / 30.9% / 20.9% / 12.6%, all below the mean of 2023 and 2025.
+- Average MFE fell to 36.95 points versus a peer-year mean of 40.51.
+- Median MFE fell to 20.50 versus 25.06.
+- Average and median MAE were not worse than peer years.
+
+This indicates reduced favorable extension/target capture in 2024 rather than an unusual increase in adverse excursion.
+
+Cross-year component stability:
+
+- Displacement-present trades were profitable in all three years: +4.07 / +2.41 / +3.58 pts expectancy for 2023/2024/2025.
+- Displacement-absent trades were negative in all three years: -0.34 / -6.46 / -0.97.
+- FVG-context trades were strongly positive in all three years: +11.21 / +6.56 / +6.54 with PF 1.71 / 1.40 / 1.37.
+- HTF-aligned trades remained positive in all three years, but the magnitude weakened materially in 2024.
+- Structure-shift behavior was regime-dependent rather than uniformly stable.
+
+Score-band stability:
+
+- 70–79: +3.62 in 2023, -0.24 in 2024, -0.28 in 2025.
+- 80–89: -0.67 in 2023, +3.41 in 2024, +10.00 in 2025.
+- 90–100 remains too sample-limited for reliable year-level conclusions (3 / 5 / 13 trades).
+
+SNR/RVOL averages did not show a simple broad deterioration in 2024, so EXP-004 does not support blaming the weak year on lower unconditional SNR or RVOL alone.
+
+Limitations:
+
+- explicit volatility regime is not derivable from the archived ledger;
+- all trades map to the available `10:30+` time bucket, so no valid time-of-day conclusion can be drawn;
+- EXP-004 is diagnostic decomposition only and does not establish causal component lift or validate a changed rule.
+
+EXP-004 decision: **INVESTIGATE — no strategy change**.
+
+No score weights, entries, stops, targets, filters, or setup logic were changed.
+
+Next required experiment: **EXP-005 — Important liquidity level / level-specific performance**.
+
 ---
 
 # 6. Phase R2 — Component contribution / ablation
@@ -1368,21 +1435,17 @@ R12  Production acceptance
 
 # 19. Immediate next steps from the current checkpoint
 
-The infrastructure/data work has progressed far enough to begin actual strategy research.
-
-Do not change the strategy yet.
+The baseline decomposition experiments EXP-001 through EXP-004 are complete. Do not change the strategy yet.
 
 Next actions:
 
-1. Freeze and archive the corrected three-year baseline.
-2. Run **EXP-001 — Score-band baseline analysis** against the existing 2023 / 2024 / 2025 trade ledgers.
-3. Confirm whether higher scores currently correspond to better expectancy / PF / TP reach.
-4. Run EXP-002 through EXP-004 to locate broad weaknesses before touching weights.
-5. Begin component contribution analysis.
-6. Only after evidence exists, propose the first scoring-weight or strategy-rule change.
-7. Keep exit-model research separate until the baseline component analysis is complete.
+1. Preserve the completed R1 evidence and untouched baseline.
+2. Begin **EXP-005 — Important liquidity level / level-specific performance**.
+3. Continue R2 component contribution analysis one component family at a time.
+4. Only after evidence exists, propose the first scoring-weight or strategy-rule change.
+5. Keep exit-model research separate until the baseline component analysis is complete.
 
-The first objective is diagnosis, not optimization.
+The objective remains diagnosis before optimization.
 
 ---
 
