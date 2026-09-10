@@ -368,6 +368,83 @@ Required segmentation:
 
 Determine whether these should eventually have separate score models or thresholds.
 
+### EXP-003 completed evidence — 2026-09-10
+
+- [x] Ledger-only analyzer implemented in `src/setup_family_research.py`.
+- [x] Runner implemented in `scripts/run_exp003_setup_family.py`.
+- [x] Existing completed 2023, 2024, and 2025 ledgers analyzed without rerunning the historical pipeline.
+- [x] Markdown, JSON, and CSV outputs generated.
+- [x] Durable experiment evidence archived under `research-archive/EXP-003/`.
+- [x] Trade Brain experiment and findings updated.
+
+Aggregate performance:
+
+| Family | Trades | Win rate | Expectancy pts | Expectancy R | PF | Net pts |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Reversal | 1,033 | 27.2% | +1.04 | +0.042R | 1.06 | +1,076.25 |
+| Continuation | 185 | 30.8% | +5.93 | +0.234R | 1.34 | +1,096.25 |
+
+Continuation outperformed reversal by approximately **+4.89 points/trade**.
+
+Year stability:
+
+- 2023 reversal +2.79 / PF 1.17; continuation +3.76 / PF 1.22.
+- 2024 reversal -1.61 / PF 0.91; continuation +9.88 / PF 1.63.
+- 2025 reversal +1.90 / PF 1.10; continuation +4.18 / PF 1.22.
+
+Continuation therefore had higher expectancy and profit factor in all three baseline years, although the size of the advantage was regime-dependent.
+
+Direction interaction:
+
+- LONG reversal: +3.12 pts / PF 1.18.
+- LONG continuation: +1.51 pts / PF 1.09.
+- SHORT reversal: -1.60 pts / PF 0.91.
+- SHORT continuation: +8.94 pts / PF 1.52.
+
+The aggregate continuation advantage is therefore strongly influenced by short-side behavior and does not justify simply eliminating reversals.
+
+Score calibration:
+
+- Reversal mean score 76.22 / median 74.58.
+- Continuation mean score 73.24 / median 71.82.
+- 70–79 reversal: +0.11 / PF 1.01.
+- 70–79 continuation: +4.36 / PF 1.25.
+- 80–89 reversal: +3.26 / PF 1.18.
+- 80–89 continuation: +15.96 / PF 1.99, but only 25 trades.
+
+The current shared score is not equally calibrated by setup family. Family-specific thresholds or scoring are legitimate later research candidates, but no production split is authorized by EXP-003.
+
+Reversal confirmation context:
+
+- Without displacement: -3.43 / PF 0.82.
+- With displacement: +2.85 / PF 1.16.
+- Without FVG context: -0.19 / PF 0.99.
+- With FVG context: +7.63 / PF 1.46.
+
+2024 diagnosis:
+
+- Reversal: 328 trades, -526.50 net points.
+- Continuation: 60 trades, +592.75 net points.
+
+The weak 2024 aggregate was therefore concentrated heavily in reversal-classified trades rather than representing broad failure across both setup families.
+
+Limitations:
+
+- archived ledgers do not separately expose level type;
+- explicit volatility regime is unavailable;
+- acceptance detail is unavailable;
+- retest-quality detail is unavailable;
+- BOS is not separately persisted;
+- MSS versus CHOCH is not separately persisted;
+- the available timestamp representation does not support a valid time-of-day conclusion;
+- the continuation bucket is the deterministic planner non-reversal family projection, not proof that every trade completed every production continuation state-machine step.
+
+EXP-003 decision: **INVESTIGATE — no strategy change**.
+
+No score weights, thresholds, entries, stops, targets, or production configs were changed.
+
+Next required experiment: **EXP-004 — Year and regime stability**.
+
 ---
 
 ## EXP-004 — Year and regime stability

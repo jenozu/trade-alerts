@@ -1,0 +1,25 @@
+{
+  "archived_file_count": 3,
+  "destination": "research-archive/EXP-003",
+  "experiment": "EXP-003",
+  "files": [
+    {
+      "bytes": 7212,
+      "path": "EXP-003-Setup-Family-Comparison.md",
+      "sha256": "7c809dbd255841f7b3832886494a478b87aaae22b65f19e4d71370a20d8c2c8a"
+    },
+    {
+      "bytes": 76528,
+      "path": "exp003_setup_family_results.json",
+      "sha256": "5e98d30075ad934251ec3743d04780871ea2580ec54e3237aad4be8581b9ed73"
+    },
+    {
+      "bytes": 14153,
+      "path": "setup_family_metrics.csv",
+      "sha256": "ae567352c8e7eb0faec65e6937e2b3fb9b7131aa0ca7df0ca879af20c62975a0"
+    }
+  ],
+  "max_file_bytes": 10485760,
+  "skipped": [],
+  "source": "/docker/trade-alerts/data/reports/EXP-003_setup-family-comparison"
+}
