@@ -1,0 +1,25 @@
+{
+  "archived_file_count": 3,
+  "destination": "research-archive/EXP-004",
+  "experiment": "EXP-004",
+  "files": [
+    {
+      "bytes": 9296,
+      "path": "EXP-004-Year-and-Regime-Stability.md",
+      "sha256": "2def189661aa4581d24b7488379df201de764976b5cd31955a218266b81e4470"
+    },
+    {
+      "bytes": 78197,
+      "path": "exp004_year_regime_results.json",
+      "sha256": "ee424e55765ca90ae399d0dccff59a2371834ff3563bff0e64ed435adf055ada"
+    },
+    {
+      "bytes": 26527,
+      "path": "year_regime_metrics.csv",
+      "sha256": "f7a9227602248432c3b00d75acf7f51db1b7aa94b3b9b71661534e4276426ac3"
+    }
+  ],
+  "max_file_bytes": 10485760,
+  "skipped": [],
+  "source": "/docker/trade-alerts/data/reports/EXP-004_year-regime-stability"
+}
