@@ -27,6 +27,7 @@ STATUS_READY = "ANALYSIS READY"
 STATUS_PROJECTX_UNAVAILABLE = "NO ANALYSIS — PROJECTX DATA UNAVAILABLE"
 STATUS_STALE = "NO ANALYSIS — STALE MARKET DATA"
 STATUS_DEGRADED_HISTORY = "ANALYSIS DEGRADED — REQUIRED HISTORY INCOMPLETE"
+STATUS_DEGRADED_DATA_QUALITY = "ANALYSIS DEGRADED — DATA QUALITY WARNINGS"
 STATUS_DATA_QUALITY_FAILURE = "NO ANALYSIS — DATA QUALITY FAILURE"
 
 
@@ -257,9 +258,12 @@ def _status(
     incomplete_coverage = isinstance(coverage, Mapping) and not bool(
         coverage.get("all_due_covered", True)
     )
-    if quality_status == "degraded" or incomplete_coverage:
+    if incomplete_coverage:
         reasons = quality_reasons or ["Required historical/session coverage is incomplete."]
         return "degraded", STATUS_DEGRADED_HISTORY, reasons
+    if quality_status == "degraded":
+        reasons = quality_reasons or ["Market-data quality warnings require review."]
+        return "degraded", STATUS_DEGRADED_DATA_QUALITY, reasons
     if quality_status in {"no_analysis", "failed", "error"}:
         reasons = quality_reasons or ["Market-data quality validation failed."]
         return "no_analysis", STATUS_DATA_QUALITY_FAILURE, reasons
