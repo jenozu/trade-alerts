@@ -295,6 +295,57 @@ Questions:
 
 Do not split the strategy into separate long/short configs unless evidence is stable.
 
+### EXP-002 completed evidence — 2026-09-10
+
+- [x] Ledger-only analyzer implemented in `src/directional_research.py`.
+- [x] Runner implemented in `scripts/run_exp002_long_vs_short.py`.
+- [x] Existing completed 2023, 2024, and 2025 ledgers analyzed without rerunning the 20-stage pipelines.
+- [x] Markdown, JSON, and CSV outputs generated.
+- [x] Trade Brain experiment/findings documentation updated.
+
+Observed aggregate directional performance:
+
+| Direction | Trades | Win rate | Expectancy pts | Expectancy R | PF | Net pts |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| LONG | 653 | 29.9% | +2.94 | +0.118R | 1.17 | +1917.50 |
+| SHORT | 565 | 25.3% | +0.45 | +0.017R | 1.02 | +255.00 |
+
+Long-minus-short expectancy gap: **+2.49 points/trade**.
+
+Year stability:
+
+- 2023: LONG +2.33 / PF 1.14; SHORT +3.56 / PF 1.21.
+- 2024: LONG +1.50 / PF 1.09; SHORT -1.59 / PF 0.91.
+- 2025: LONG +4.63 / PF 1.26; SHORT -0.25 / PF 0.99.
+
+Therefore, the aggregate long advantage is meaningful but **not stable in sign across all years**.
+
+Score calibration evidence:
+
+- 70–79: LONG +1.67 / PF 1.10 versus SHORT -0.14 / PF 0.99.
+- 80–89: LONG +7.52 / PF 1.43 versus SHORT +1.04 / PF 1.05.
+- 90–100 contains only 21 total trades; the eight short trades are too small a sample for a directional conclusion.
+- LONG mean score 76.11 / median 74.42.
+- SHORT mean score 75.36 / median 73.59.
+
+The score distributions are similar despite materially different realized expectancy, supporting the conclusion that the current single score is not equally calibrated for both directions.
+
+Context observations:
+
+- HTF-aligned trades were positive in both directions, but aligned longs remained materially stronger.
+- Displacement-present trades outperformed displacement-absent trades in both directions.
+- Structure-shift-present trades outperformed trades without structure shift in both directions.
+- FVG-present shorts were +8.48 expectancy / PF 1.50 versus -0.91 / PF 0.95 without FVG context.
+- Sweep-present shorts were -1.60 expectancy / PF 0.91 versus +8.94 / PF 1.52 without the sweep flag. This is preliminary and requires dedicated EXP-007 analysis.
+- Unconditional SNR and RVOL averages were broadly similar across directions and do not obviously explain the aggregate directional gap.
+- The available time-bucket representation placed all trades into `10:30+`, so EXP-002 makes no valid time-of-day conclusion. Timestamp semantics must be verified before EXP-020.
+
+EXP-002 decision: **INVESTIGATE — no strategy change**.
+
+Separate long/short scoring is now a legitimate later research candidate, but EXP-002 does not authorize separate production weights/configs because the directional advantage is not stable across every year.
+
+Next required experiment: **EXP-003 — Setup-family comparison (Reversal vs Continuation)**.
+
 ---
 
 ## EXP-003 — Setup-family comparison
