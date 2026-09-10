@@ -51,13 +51,33 @@ Every durable finding should record:
 
 Do not convert an observation into a validated finding without sufficient evidence. Preserve sample-size limitations and year/regime instability explicitly. Never present the confluence score as a probability unless it has been separately calibrated and validated as one.
 
+## Permanent evidence archive
+
+`trade-brain/` stores human-readable research knowledge. The underlying durable experiment outputs are preserved separately under:
+
+```text
+research-archive/EXP-XXX/
+```
+
+Working VPS outputs may remain under gitignored paths such as `data/reports/`, but every completed experiment must copy all reasonably sized research evidence into `research-archive/EXP-XXX/` and commit it to GitHub.
+
+Expected archived evidence includes Markdown, JSON, CSV, config snapshots, manifests, hashes, and other small text artifacts. Large Parquet/Arrow/Feather files, raw market data, processed caches, logs, secrets, tokens, and credentials remain outside normal Git.
+
+Every archived experiment must contain `ARCHIVE_MANIFEST.json` with SHA-256 hashes and sizes for the copied artifacts. Use `scripts/archive_experiment.py` for this step.
+
 ## Workflow rule
 
 When an experiment is completed:
 
-1. Update its experiment note.
-2. Create or update finding notes supported by its results.
-3. Update `FINDINGS-INDEX.md` and `Research-Index.md`.
-4. Update `refine-roadmap.md` only with proven completion evidence.
-5. Record any accepted strategy/configuration change under `30-Decisions/`.
-6. Keep large generated CSV/JSON/Parquet artifacts out of Git; reference their immutable paths/hashes instead.
+1. Run the experiment against the authoritative dataset/ledger.
+2. Preserve the working outputs under the appropriate VPS run/report directory.
+3. Run `scripts/archive_experiment.py` to copy durable evidence into `research-archive/EXP-XXX/` and create `ARCHIVE_MANIFEST.json`.
+4. Update the matching trade-brain experiment note.
+5. Create or update finding notes supported by its results.
+6. Update `FINDINGS-INDEX.md` and `Research-Index.md`.
+7. Update `refine-roadmap.md` only with proven completion evidence.
+8. Record any accepted strategy/configuration change under `30-Decisions/`.
+9. Run relevant tests.
+10. Commit and push the archive, code, tests, trade-brain notes, and roadmap changes to GitHub.
+
+An experiment must not be marked complete before the tracked research archive and manifest have been pushed.
