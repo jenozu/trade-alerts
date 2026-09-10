@@ -23,6 +23,7 @@
 - [[F007-Short-Liquidity-Sweep-Weakness]] — EXP-003 strengthens the short-side asymmetry: short reversals were negative while short continuations were strongly positive.
 - [[F010-Shared-Score-Miscalibrated-By-Setup-Family]] — continuations scored lower on average than reversals while producing materially higher expectancy, including within the 70–79 band.
 - [[F011-Reversal-Quality-Depends-On-Confirmation-Context]] — reversal performance is materially stronger when displacement and FVG context are present.
+- [[F012-Continuation-Outperforms-Reversal-Across-Years]] — continuation has higher expectancy/PF in all three baseline years, but its aggregate advantage is strongly direction-dependent.
 
 ## Status convention
 
