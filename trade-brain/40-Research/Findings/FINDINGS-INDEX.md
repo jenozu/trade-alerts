@@ -6,7 +6,7 @@
 - [[F002-80-89-Outperforms-70-79]] — 80–89 materially outperforms 70–79 on expectancy and profit factor.
 - [[F003-90-100-Sample-Too-Small]] — 90–100 is promising but statistically thin with 21 trades.
 - [[F004-Long-Short-Score-Asymmetry]] — score quality is materially stronger for longs than shorts in aggregate, but the direction gap is not stable across every year.
-- [[F005-Year-Regime-Dependence]] — score-band, direction, and setup-family behavior varies materially by year/regime.
+- [[F005-Year-Regime-Dependence]] — score-band, direction, setup-family, and several context relationships vary materially by year/regime.
 - [[F006-Score-Is-Ordinal-Not-Probability]] — current score should remain an ordinal confluence score, not a probability.
 
 ## EXP-002 findings
@@ -24,6 +24,12 @@
 - [[F010-Shared-Score-Miscalibrated-By-Setup-Family]] — continuations scored lower on average than reversals while producing materially higher expectancy, including within the 70–79 band.
 - [[F011-Reversal-Quality-Depends-On-Confirmation-Context]] — reversal performance is materially stronger when displacement and FVG context are present.
 - [[F012-Continuation-Outperforms-Reversal-Across-Years]] — continuation has higher expectancy/PF in all three baseline years, but its aggregate advantage is strongly direction-dependent.
+
+## EXP-004 findings
+
+- [[F005-Year-Regime-Dependence]] — EXP-004 confirms 2024 weakness was concentrated rather than universal and that score-band behavior changes materially by year.
+- [[F013-Displacement-and-FVG-Are-Cross-Year-Stable-Confirmations]] — displacement-present and FVG-present trades were profitable in all three baseline years; displacement-absent trades were negative in all three.
+- [[F014-2024-Weakness-Was-Lower-Favorable-Excursion-Not-Higher-Adverse-Excursion]] — 2024 had lower MFE and target reach than peer years without higher MAE.
 
 ## Status convention
 
