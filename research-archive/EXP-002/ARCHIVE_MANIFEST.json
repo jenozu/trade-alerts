@@ -1,0 +1,25 @@
+{
+  "archived_file_count": 3,
+  "destination": "research-archive/EXP-002",
+  "experiment": "EXP-002",
+  "files": [
+    {
+      "bytes": 5734,
+      "path": "EXP-002_long-vs-short.md",
+      "sha256": "5eea0d770681dd18f2b1e779918bbdd535d54fe9ba0717ce894f0e3aecd9766b"
+    },
+    {
+      "bytes": 13812,
+      "path": "directional_metrics.csv",
+      "sha256": "a76ee0fa678b5cd88b3bfdcb3468520a70913a90a482b0c332f63130425e9469"
+    },
+    {
+      "bytes": 107012,
+      "path": "exp002_long_vs_short_results.json",
+      "sha256": "87642671ea8e272f9710888ba83e31b33f00ce4a524aeb1e27c76f70ad5c320f"
+    }
+  ],
+  "max_file_bytes": 10485760,
+  "skipped": [],
+  "source": "data/reports/EXP-002_long-vs-short"
+}

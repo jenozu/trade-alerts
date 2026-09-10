@@ -1,0 +1,20 @@
+{
+  "archived_file_count": 2,
+  "destination": "research-archive/EXP-001",
+  "experiment": "EXP-001",
+  "files": [
+    {
+      "bytes": 4384,
+      "path": "EXP-001_score-band-baseline.md",
+      "sha256": "fb71c9587c61e606a25626aa81d6a9d48de4937b7b7d2aaa9417f29bf4631cba"
+    },
+    {
+      "bytes": 12400,
+      "path": "exp001_score_band_results.json",
+      "sha256": "dd1ca435f7e90837546c7f379c775b854c109e9d378bc53b24ceb7fb82bcbd58"
+    }
+  ],
+  "max_file_bytes": 10485760,
+  "skipped": [],
+  "source": "data/reports/EXP-001_score-bands-baseline"
+}
