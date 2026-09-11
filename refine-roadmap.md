@@ -564,6 +564,68 @@ Questions:
 - Does distance between PMH and PML affect setup quality?
 - Does multi-level confluence materially improve expectancy?
 
+### EXP-005 completed evidence — 2026-09-10
+
+- [x] Existing 2023, 2024, and 2025 baseline trade ledgers joined to existing scored feature artifacts at exact signal time.
+- [x] No historical pipeline rerun.
+- [x] Targeted EXP-005 tests passed before the archived run.
+- [x] Markdown, JSON, level-metrics CSV, and classified-trades CSV archived under `research-archive/EXP-005/` with a SHA-256 manifest.
+- [x] Trade Brain experiment/findings documentation updated.
+
+Classification coverage:
+
+- 1,096 / 1,218 baseline trades classified by level (90.0%).
+- Reversal coverage: 1,033 / 1,033.
+- Continuation coverage: 63 / 185; 122 unmatched continuations were deliberately left unclassified rather than assigned by nearest-price heuristics.
+
+Aggregate level groups:
+
+| Level group | Trades | Expectancy pts | PF | Net pts |
+| --- | ---: | ---: | ---: | ---: |
+| Asia high/low | 12 | +8.08 | 1.56 | +97.00 |
+| London high/low | 32 | -5.90 | 0.70 | -188.75 |
+| PDH/PDL | 13 | -9.85 | 0.54 | -128.00 |
+| PMH/PML | 109 | -4.07 | 0.79 | -443.75 |
+| External swing | 314 | +2.34 | 1.13 | +734.25 |
+| Internal swing | 572 | +2.89 | 1.16 | +1,655.75 |
+| Overnight high/low | 44 | +2.64 | 1.15 | +116.00 |
+
+Exact internal-swing source asymmetry:
+
+- Active internal swing low: 296 trades, +7.56 pts expectancy, PF 1.46, +2,236.75 points.
+- Active internal swing high: 276 trades, -2.11 pts expectancy, PF 0.89, -581.00 points.
+
+Setup-family interaction:
+
+- Exactly classified internal-swing continuation: 61 trades, +13.39 pts expectancy, PF 1.87.
+- Internal-swing reversal: 511 trades, +1.64 pts expectancy, PF 1.09.
+- PMH/PML reversal: 107 trades, -3.68 pts expectancy, PF 0.81.
+- Only 2 PMH/PML continuations were exactly classified, so no continuation conclusion is supported there.
+
+Cross-year level behavior is regime-dependent:
+
+- PMH/PML: -8.06 in 2023, +2.90 in 2024, -4.95 in 2025.
+- Internal swing: +5.93 in 2023, -2.14 in 2024, +5.01 in 2025.
+- External swing: +6.91 in 2023, -1.40 in 2024, +2.24 in 2025.
+- Overnight high/low: -5.48 in 2023, +6.08 in 2024, +6.00 in 2025.
+
+PMH–PML range-width quartiles were strongly non-monotonic:
+
+- Q1 13.75–82.50: -0.04 pts expectancy / PF 1.00.
+- Q2 82.75–114.75: +7.63 / PF 1.47.
+- Q3 115.25–157.00: -4.10 / PF 0.79.
+- Q4 157.75–839.25: +3.87 / PF 1.21.
+
+Therefore a simple “wide PMH/PML is bad” rule is not supported.
+
+Multi-level confluence was +2.79 expectancy / PF 1.16 versus +1.66 / PF 1.09 without it, but only 25 trades qualified, so this remains exploratory.
+
+EXP-005 decision: **INVESTIGATE — no strategy change**.
+
+No level filter, scoring weight, entry rule, stop, target, or PMH/PML-width threshold was changed.
+
+Next required experiment: **EXP-006 — HTF bias**.
+
 ---
 
 ## EXP-006 — HTF bias
@@ -1435,15 +1497,15 @@ R12  Production acceptance
 
 # 19. Immediate next steps from the current checkpoint
 
-The baseline decomposition experiments EXP-001 through EXP-004 are complete. Do not change the strategy yet.
+EXP-001 through EXP-005 are complete. Do not change the strategy yet.
 
 Next actions:
 
-1. Preserve the completed R1 evidence and untouched baseline.
-2. Begin **EXP-005 — Important liquidity level / level-specific performance**.
+1. Preserve the completed baseline decomposition and EXP-005 level evidence.
+2. Begin **EXP-006 — HTF bias**.
 3. Continue R2 component contribution analysis one component family at a time.
-4. Only after evidence exists, propose the first scoring-weight or strategy-rule change.
-5. Keep exit-model research separate until the baseline component analysis is complete.
+4. Only after component evidence exists, propose the first scoring-weight or strategy-rule change.
+5. Keep exit-model research separate until baseline component analysis is complete.
 
 The objective remains diagnosis before optimization.
 
