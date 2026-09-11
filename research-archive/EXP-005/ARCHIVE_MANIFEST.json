@@ -1,0 +1,30 @@
+{
+  "archived_file_count": 4,
+  "destination": "research-archive/EXP-005",
+  "experiment": "EXP-005",
+  "files": [
+    {
+      "bytes": 12418,
+      "path": "EXP-005-Important-Liquidity-Level.md",
+      "sha256": "944d71545b318e80a6b4df667887bfa8dd60898cec1cadbeca0438b2d63bc5eb"
+    },
+    {
+      "bytes": 751714,
+      "path": "classified_trades.csv",
+      "sha256": "fda922f63470259f45a0694a06d53065ad1d7b4476921c60f335578d049c1d5f"
+    },
+    {
+      "bytes": 84143,
+      "path": "exp005_level_results.json",
+      "sha256": "943fa7871d2d3645d41f7c991d6a7b31d72d9a52976bd752bdfef92088a6c473"
+    },
+    {
+      "bytes": 29768,
+      "path": "level_metrics.csv",
+      "sha256": "4f820e302ae7f662244dbdd5bb2785281232ff05983ca1c0746d1597ec7203ae"
+    }
+  ],
+  "max_file_bytes": 10485760,
+  "skipped": [],
+  "source": "/docker/trade-alerts/data/reports/EXP-005_level-specific-performance"
+}
