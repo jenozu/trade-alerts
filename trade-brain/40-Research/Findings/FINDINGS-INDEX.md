@@ -6,7 +6,7 @@
 - [[F002-80-89-Outperforms-70-79]] — 80–89 materially outperforms 70–79 on expectancy and profit factor.
 - [[F003-90-100-Sample-Too-Small]] — 90–100 is promising but statistically thin with 21 trades.
 - [[F004-Long-Short-Score-Asymmetry]] — score quality is materially stronger for longs than shorts in aggregate, but the direction gap is not stable across every year.
-- [[F005-Year-Regime-Dependence]] — score-band, direction, setup-family, and several context relationships vary materially by year/regime.
+- [[F005-Year-Regime-Dependence]] — score-band, direction, setup-family, level identity, and several context relationships vary materially by year/regime.
 - [[F006-Score-Is-Ordinal-Not-Probability]] — current score should remain an ordinal confluence score, not a probability.
 
 ## EXP-002 findings
@@ -30,6 +30,14 @@
 - [[F005-Year-Regime-Dependence]] — EXP-004 confirms 2024 weakness was concentrated rather than universal and that score-band behavior changes materially by year.
 - [[F013-Displacement-and-FVG-Are-Cross-Year-Stable-Confirmations]] — displacement-present and FVG-present trades were profitable in all three baseline years; displacement-absent trades were negative in all three.
 - [[F014-2024-Weakness-Was-Lower-Favorable-Excursion-Not-Higher-Adverse-Excursion]] — 2024 had lower MFE and target reach than peer years without higher MAE.
+
+## EXP-005 findings
+
+- [[F005-Year-Regime-Dependence]] — EXP-005 adds level-specific evidence: PMH/PML, internal swings, external swings, and overnight levels change relative quality materially by year.
+- [[F007-Short-Liquidity-Sweep-Weakness]] — exact internal-swing source results further strengthen the short-side/sweep asymmetry.
+- [[F015-PMH-PML-Aggregate-Weakness]] — PMH/PML was negative in aggregate across 109 classified trades, primarily reversal setups, but 2024 was a positive counterexample.
+- [[F016-Premarket-Range-Width-Is-Non-Monotonic]] — PMH–PML width separates performance materially, but not in a simple wider-is-worse or narrower-is-better relationship.
+- [[F017-Continuation-Internal-Swing-Edge]] — preliminary: exactly classified internal-swing continuations were very strong, but continuation level coverage was only 63/185 trades.
 
 ## Status convention
 
