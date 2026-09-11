@@ -652,6 +652,70 @@ Questions:
 - Can reversal trades profitably run countertrend toward nearby liquidity?
 - Are multiple bias inputs redundant and being double-counted?
 
+### EXP-006 completed evidence — 2026-09-11
+
+- [x] Ledger + scored-feature analyzer implemented in `src/htf_bias_research.py`.
+- [x] Runner implemented in `scripts/run_exp006_htf_bias.py`.
+- [x] Targeted tests passed: 2 passed.
+- [x] Existing 2023, 2024, and 2025 baseline artifacts used without rerunning historical pipelines.
+- [x] Exact signal-time feature coverage: 1,218 / 1,218 trades (100%).
+- [x] Markdown, JSON, and CSV results archived under `research-archive/EXP-006/`.
+- [x] Trade Brain experiment and findings updated.
+
+Headline production HTF context:
+
+- Aligned: 803 trades, +1.86 pts expectancy, PF 1.10, +1,491.75 points.
+- Conflicting: 415 trades, +1.64 pts expectancy, PF 1.09, +680.75 points.
+
+The aggregate difference is small. HTF component conflict is therefore not supported as a universal no-trade filter.
+
+Cross-year behavior:
+
+- 2023 aligned +2.23 / PF 1.13; conflicting +3.90 / PF 1.23.
+- 2024 aligned -0.81 / PF 0.96; conflicting +2.29 / PF 1.13.
+- 2025 aligned +3.74 / PF 1.21; conflicting -1.00 / PF 0.95.
+
+HTF behavior is strongly regime-dependent.
+
+Individual timeframe aligned-minus-known-non-aligned expectancy lift:
+
+- 1H: +5.18 pts/trade.
+- 15m: +2.52.
+- 4H: +1.94.
+- 1D: +1.14.
+- 30m: -5.56.
+
+Important individual cells:
+
+- 1H aligned: 1,169 trades, +1.99 expectancy, PF 1.11.
+- 1H opposed: 49 trades, -3.18, PF 0.84.
+- 15m aligned: 917 trades, +2.41, PF 1.14.
+- 15m opposed: 301 trades, -0.12, PF 0.99.
+- 30m aligned: 1,103 trades, +1.26, PF 1.07.
+- 30m opposed: 115 trades, +6.82, PF 1.42.
+
+The 30m result is observational and does not authorize inversion or removal of 30m bias.
+
+Redundancy diagnostics:
+
+- 1H vs 30m directional-state agreement: 86.5%.
+- 30m vs 15m: 74.1%.
+- 1H vs 15m: 71.3%.
+
+This raises a legitimate later redundancy/ablation question.
+
+Scoring-selection limitation:
+
+- Current HTF scoring gives +10 points for alignment and -20 points for opposition.
+- The surviving baseline contained 1,119 pure intraday-aligned trades, 99 neutral, and 0 pure opposed trades.
+- Therefore score-band comparisons are conditioned on the existing HTF scoring rules and cannot by themselves prove whether those weights are too high or too low.
+
+EXP-006 decision: **INVESTIGATE — no strategy change**.
+
+No HTF weights, score penalties, entries, stops, targets, filters, or setup logic were changed.
+
+Next required experiment: **EXP-007 — Liquidity sweep contribution**.
+
 ---
 
 ## EXP-007 — Liquidity sweep contribution
@@ -1497,12 +1561,12 @@ R12  Production acceptance
 
 # 19. Immediate next steps from the current checkpoint
 
-EXP-001 through EXP-005 are complete. Do not change the strategy yet.
+EXP-001 through EXP-006 are complete. Do not change the strategy yet.
 
 Next actions:
 
-1. Preserve the completed baseline decomposition and EXP-005 level evidence.
-2. Begin **EXP-006 — HTF bias**.
+1. Preserve the completed baseline decomposition and EXP-005/EXP-006 component evidence.
+2. Begin **EXP-007 — Liquidity sweep contribution**.
 3. Continue R2 component contribution analysis one component family at a time.
 4. Only after component evidence exists, propose the first scoring-weight or strategy-rule change.
 5. Keep exit-model research separate until baseline component analysis is complete.
