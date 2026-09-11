@@ -1,0 +1,30 @@
+{
+  "archived_file_count": 4,
+  "destination": "research-archive/EXP-007",
+  "experiment": "EXP-007",
+  "files": [
+    {
+      "bytes": 9940,
+      "path": "EXP-007-Liquidity-Sweep-Contribution.md",
+      "sha256": "af485e98ee6d3d53108aaef7bd6c6e460376067c8452d23391c0f91a59f1e3d1"
+    },
+    {
+      "bytes": 715499,
+      "path": "classified_sweep_trades.csv",
+      "sha256": "3c2eb4d24083086e60377b1fd47d01864d6a607f53873dbc5e68949c8ae29b00"
+    },
+    {
+      "bytes": 39936,
+      "path": "exp007_liquidity_sweep_results.json",
+      "sha256": "1d7c2ad6f92ab60a4b59c5b6d0040baf0f656a061258fb03a29a2e06442c1544"
+    },
+    {
+      "bytes": 15648,
+      "path": "liquidity_sweep_metrics.csv",
+      "sha256": "e7f8918deea849a65a73b3b61c2ce441498dddba45b43131cd1fbbae1facdaf7"
+    }
+  ],
+  "max_file_bytes": 10485760,
+  "skipped": [],
+  "source": "/docker/trade-alerts/data/reports/EXP-007_liquidity-sweep"
+}
