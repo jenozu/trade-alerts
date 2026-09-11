@@ -1,0 +1,25 @@
+{
+  "archived_file_count": 3,
+  "destination": "research-archive/EXP-006",
+  "experiment": "EXP-006",
+  "files": [
+    {
+      "bytes": 16147,
+      "path": "EXP-006-HTF-Bias.md",
+      "sha256": "89d059f638c8708d7086feb1683703f1681aae52fe2d03e021903e1c0e7d2606"
+    },
+    {
+      "bytes": 149957,
+      "path": "exp006_htf_bias_results.json",
+      "sha256": "e3d19d4dc2bd06f7e35bf0c625c432591cd9e171b265c33e93bf15cf3b8e6ee7"
+    },
+    {
+      "bytes": 23947,
+      "path": "htf_bias_metrics.csv",
+      "sha256": "feba906caa1ffad8dda31ae4c8a40cf8e49ee1e228478f964224066ac9c856bf"
+    }
+  ],
+  "max_file_bytes": 10485760,
+  "skipped": [],
+  "source": "/docker/trade-alerts/data/reports/EXP-006_htf-bias"
+}
