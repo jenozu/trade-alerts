@@ -6,7 +6,7 @@
 - [[F002-80-89-Outperforms-70-79]] — 80–89 materially outperforms 70–79 on expectancy and profit factor.
 - [[F003-90-100-Sample-Too-Small]] — 90–100 is promising but statistically thin with 21 trades.
 - [[F004-Long-Short-Score-Asymmetry]] — score quality is materially stronger for longs than shorts in aggregate, but the direction gap is not stable across every year.
-- [[F005-Year-Regime-Dependence]] — score-band, direction, setup-family, level identity, and several context relationships vary materially by year/regime.
+- [[F005-Year-Regime-Dependence]] — score-band, direction, setup-family, level identity, HTF context, and several other relationships vary materially by year/regime.
 - [[F006-Score-Is-Ordinal-Not-Probability]] — current score should remain an ordinal confluence score, not a probability.
 
 ## EXP-002 findings
@@ -38,6 +38,13 @@
 - [[F015-PMH-PML-Aggregate-Weakness]] — PMH/PML was negative in aggregate across 109 classified trades, primarily reversal setups, but 2024 was a positive counterexample.
 - [[F016-Premarket-Range-Width-Is-Non-Monotonic]] — PMH–PML width separates performance materially, but not in a simple wider-is-worse or narrower-is-better relationship.
 - [[F017-Continuation-Internal-Swing-Edge]] — preliminary: exactly classified internal-swing continuations were very strong, but continuation level coverage was only 63/185 trades.
+
+## EXP-006 findings
+
+- [[F005-Year-Regime-Dependence]] — headline HTF alignment/conflict behavior reversed across years, adding another regime-dependent relationship.
+- [[F018-HTF-Composite-Conflict-Is-Not-A-Universal-Filter]] — aggregate aligned and conflicting HTF-component states performed similarly, and the relative winner changed by year.
+- [[F019-1H-and-15M-Bias-Carry-More-Useful-Directional-Signal-Than-30M]] — 1H and 15m alignment showed positive discrimination while 30m moved oppositely in the selected baseline; 1H/30m also showed high state redundancy.
+- [[F020-HTF-Scoring-Is-Selection-Confounded-In-Baseline-Trades]] — the baseline sample was already selected using +10 aligned / -20 opposed HTF scoring, so observational score-band comparisons cannot justify reweighting without controlled ablation.
 
 ## Status convention
 
