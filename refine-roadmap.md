@@ -1050,25 +1050,43 @@ Next required experiment: **EXP-015 — Volume / RVOL**.
 Compare:
 
 - rolling RVOL;
-- time-of-day normalized RVOL;
+- time-of-day-normalized RVOL;
 - breakout volume;
-- retest volume;
 - rejection volume;
-- declining pullback volume;
-- volume spike / no spike.
+- pullback volume;
+- spikes;
+- displacement RVOL;
+- structure-break RVOL.
 
-Test thresholds rather than assuming a specific RVOL cutoff.
+### EXP-015 completed evidence — 2026-09-13
 
-Potential threshold sweep examples:
+- [x] Existing 2023–2025 baseline ledgers joined to existing scored feature artifacts.
+- [x] Exact feature coverage: 1,218 / 1,218.
+- [x] No historical pipeline rerun.
+- [x] EXP-015 artifacts archived under `research-archive/EXP-015/`.
 
-```text
-RVOL >= 1.0
-RVOL >= 1.2
-RVOL >= 1.5
-RVOL >= 2.0
-```
+Headline evidence:
 
-Only promote a threshold if performance improvement is stable and sample size remains useful.
+- rolling RVOL >=1.50: +2.47 expectancy / PF 1.14;
+- rolling RVOL <1.50: +0.83 / PF 1.05;
+- time-of-day RVOL highest quartile: -1.08 / PF 0.94;
+- time-of-day RVOL >=2.00: -3.69 / PF 0.81;
+- time-of-day RVOL <2.00: +2.28 / PF 1.13.
+
+Structure-break RVOL was highly discriminating:
+
+- lowest quartile: -5.82 / PF 0.70;
+- remaining quartiles: +4.91 to +6.69 expectancy / PF 1.28 to 1.41.
+
+Volume percentile was strongly non-monotonic:
+
+- 65–85 percentile: +3.45 / PF 1.20;
+- 85–95: -2.33 / PF 0.88;
+- 95–100: +6.81 / PF 1.40.
+
+EXP-015 decision: **INVESTIGATE — no strategy change**.
+
+Next required experiment: **EXP-016 — SNR / efficiency**.
 
 ---
 

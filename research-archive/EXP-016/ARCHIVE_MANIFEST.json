@@ -1,0 +1,30 @@
+{
+  "archived_file_count": 4,
+  "destination": "research-archive/EXP-016",
+  "experiment": "EXP-016",
+  "files": [
+    {
+      "bytes": 27859,
+      "path": "EXP-016-SNR-Efficiency.md",
+      "sha256": "c1a053a96ca65bf2d9eaccb986a48726c851df750004a88930711e71b37e62d1"
+    },
+    {
+      "bytes": 1020794,
+      "path": "classified_snr_trades.csv",
+      "sha256": "85ca3da176c381f6f823ed634aa81723199751086cd77f7db94c0d9ed815904a"
+    },
+    {
+      "bytes": 169693,
+      "path": "exp016_snr_efficiency_results.json",
+      "sha256": "688bf5b86b3820ccd733eb5c6fe3d00ccadf9cf3787d96da9549fc3737813b43"
+    },
+    {
+      "bytes": 68675,
+      "path": "snr_efficiency_metrics.csv",
+      "sha256": "ef31d44ecee2468ff8196592d3df1f69e101815553a2d714b909bb69f6248295"
+    }
+  ],
+  "max_file_bytes": 10485760,
+  "skipped": [],
+  "source": "/docker/trade-alerts/data/reports/EXP-016_snr-efficiency"
+}
