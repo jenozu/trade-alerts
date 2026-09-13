@@ -1,0 +1,30 @@
+{
+  "archived_file_count": 4,
+  "destination": "research-archive/EXP-014",
+  "experiment": "EXP-014",
+  "files": [
+    {
+      "bytes": 8121,
+      "path": "EXP-014-Draw-on-Liquidity.md",
+      "sha256": "3a3f6ce64f350a461ee3d3da6868c276469ab655da6abeaf9682d3fb6ee9c4fa"
+    },
+    {
+      "bytes": 686952,
+      "path": "classified_dol_trades.csv",
+      "sha256": "20ac7e52a79883ff9808c6541ad6359a9e910fe9ff8e97ba562665e8fb02779b"
+    },
+    {
+      "bytes": 31589,
+      "path": "dol_metrics.csv",
+      "sha256": "cd4491be541e5aa86f35538ef5e4c54e0187a716e5895b1038788fce691f6b7b"
+    },
+    {
+      "bytes": 85672,
+      "path": "exp014_dol_results.json",
+      "sha256": "afce51bdf12362140985f1f9d1845a129a39881361c1bcfe843b087e9147b2ee"
+    }
+  ],
+  "max_file_bytes": 10485760,
+  "skipped": [],
+  "source": "/docker/trade-alerts/data/reports/EXP-014_dol"
+}

@@ -965,6 +965,35 @@ Compare:
 
 Then control for DOL and HTF bias to determine whether premium / discount contributes unique information.
 
+### EXP-013 completed evidence — 2026-09-13
+
+- [x] Existing 2023–2025 baseline ledgers joined to scored features.
+- [x] Exact feature coverage: 1,218 / 1,218.
+- [x] No historical pipeline rerun.
+- [x] Markdown/JSON/CSV/classified-trade artifacts archived under `research-archive/EXP-013/`.
+
+Headline result:
+
+Internal directional P/D:
+- favorable: -0.64 expectancy / PF 0.97;
+- unfavorable: +3.79 / PF 1.22.
+
+External directional P/D:
+- favorable: +0.17 / PF 1.01;
+- unfavorable: +4.44 / PF 1.26.
+
+The conventional premium/discount directional rule did not outperform in the archived baseline.
+
+Internal/external agreement also did not materially improve expectancy.
+
+DOL control was limited because 1,189 of 1,218 surviving baseline trades were already DOL-aligned and only one was opposed.
+
+EXP-013 decision: **INVESTIGATE — no strategy change**.
+
+Premium/discount remains contextual rather than a hard directional rule.
+
+Next required experiment: **EXP-014 — Draw on Liquidity**.
+
 ---
 
 ## EXP-014 — Draw on Liquidity
