@@ -1,0 +1,30 @@
+{
+  "archived_file_count": 4,
+  "destination": "research-archive/EXP-013",
+  "experiment": "EXP-013",
+  "files": [
+    {
+      "bytes": 16042,
+      "path": "EXP-013-Premium-Discount.md",
+      "sha256": "30811636eb255928911b649c31fa918a7dd9d246d572976fc63aa7edbea07667"
+    },
+    {
+      "bytes": 763144,
+      "path": "classified_premium_discount_trades.csv",
+      "sha256": "66afa932407021794d13bc2ffe147f566c9495501945cd3e768a5c663806304b"
+    },
+    {
+      "bytes": 73854,
+      "path": "exp013_premium_discount_results.json",
+      "sha256": "955f59cd16057e5033523df140c905cbecbfb242c44e8dbc2f13158c7f0fb5e0"
+    },
+    {
+      "bytes": 27803,
+      "path": "premium_discount_metrics.csv",
+      "sha256": "60965a7c9a2ca1c6c52e9883c8c732ecfddb14fc372669f96c4dc151aa323f2b"
+    }
+  ],
+  "max_file_bytes": 10485760,
+  "skipped": [],
+  "source": "/docker/trade-alerts/data/reports/EXP-013_premium-discount"
+}
