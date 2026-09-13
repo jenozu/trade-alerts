@@ -58,6 +58,12 @@
 - [[F026-Displacement-Value-Is-Setup-Family-Dependent]] — directional displacement showed a large positive association with continuation quality but little benefit for reversals.
 - [[F027-BOS-Is-A-Promising-Structure-Signal]] — same-direction BOS produced unusually strong expectancy, requiring dedicated EXP-010 redundancy analysis.
 
+
+## EXP-010 findings
+
+- [[F028-Structure-Confirmation-Separates-Trade-Quality]] — trades with directional structure confirmation materially outperformed trades without it.
+- [[F029-MSS-And-CHOCH-Are-Historically-Redundant]] — MSS and CHOCH produced identical historical segmentation and should not be treated as independent evidence without implementation review.
+
 ## Status convention
 
 - Preliminary — interesting but sample/evidence is insufficient.

@@ -1,0 +1,30 @@
+{
+  "archived_file_count": 4,
+  "destination": "research-archive/EXP-011",
+  "experiment": "EXP-011",
+  "files": [
+    {
+      "bytes": 11722,
+      "path": "EXP-011-FVG-IFVG.md",
+      "sha256": "d3bd7488786ae54c6699fcb33475ee38a27bf21cb7d0812f6a9aabe0b38d1351"
+    },
+    {
+      "bytes": 692490,
+      "path": "classified_fvg_trades.csv",
+      "sha256": "b9fc53363fe1974577e4810bf2bdb5184e911c9f6f57108738ae68027f84ff32"
+    },
+    {
+      "bytes": 56691,
+      "path": "exp011_fvg_ifvg_results.json",
+      "sha256": "11b159005c72d7ad464cd411dbd26f964c185f0c6ba378e1fc9d3b743d33468b"
+    },
+    {
+      "bytes": 22067,
+      "path": "fvg_ifvg_metrics.csv",
+      "sha256": "fc26db17442a77655c4a81d3871deb58dc78c9371e45eedc699c09d77e34e063"
+    }
+  ],
+  "max_file_bytes": 10485760,
+  "skipped": [],
+  "source": "/docker/trade-alerts/data/reports/EXP-011_fvg-ifvg"
+}

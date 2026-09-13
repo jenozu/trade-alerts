@@ -853,6 +853,50 @@ Questions:
 - Are multiple structure confirmations redundant?
 - Does waiting for structure confirmation worsen entry price too much?
 
+### EXP-010 completed evidence — 2026-09-13
+
+- [x] Existing 2023–2025 baseline ledgers joined to scored features.
+- [x] Exact feature coverage: 1,218 / 1,218.
+- [x] No historical pipeline rerun.
+- [x] EXP-010 artifacts archived under `research-archive/EXP-010/`.
+- [x] Trade Brain documentation updated.
+
+Core evidence:
+
+- no recent structure confirmation: -1.33 expectancy / PF 0.93;
+- recent structure confirmation: +3.20 / PF 1.18;
+- current same-direction structure break absent: +0.15 / PF 1.01;
+- present: +3.99 / PF 1.23.
+
+MSS / CHOCH:
+
+- absent: +0.10 / PF 1.01;
+- present: +4.33 / PF 1.25.
+
+MSS and CHOCH produced identical historical segmentation and should be treated as redundant until implementation semantics are reviewed.
+
+Reversal:
+
+- MSS/CHOCH absent: -0.96 / PF 0.95;
+- MSS/CHOCH present: +3.70 / PF 1.21;
+- BOS present did not improve reversal quality.
+
+Continuation:
+
+- MSS/CHOCH absent: +4.46 / PF 1.25;
+- MSS/CHOCH present: +10.93 / PF 1.67, n=42;
+- BOS absent: +5.47 / PF 1.31;
+- BOS present: +6.04 / PF 1.35.
+
+Sequence:
+
+- sweep + displacement + MSS/CHOCH present: +5.70 / PF 1.33;
+- continuation + displacement + BOS present: +6.70 / PF 1.39.
+
+EXP-010 decision: **INVESTIGATE — no strategy change**.
+
+Next required experiment: **EXP-011 — FVG / IFVG**.
+
 ---
 
 ## EXP-011 — FVG / IFVG
