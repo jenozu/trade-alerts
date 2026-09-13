@@ -1,0 +1,30 @@
+{
+  "archived_file_count": 4,
+  "destination": "research-archive/EXP-009",
+  "experiment": "EXP-009",
+  "files": [
+    {
+      "bytes": 12876,
+      "path": "EXP-009-Displacement.md",
+      "sha256": "d4c0315f92a56214f328a2e51b09fa82d37692763860438194fdd2cf4abf1537"
+    },
+    {
+      "bytes": 827236,
+      "path": "classified_displacement_trades.csv",
+      "sha256": "a666ec4f66a761bfd054fe650ab89ca90af79b502bbd471908bff877ebad9363"
+    },
+    {
+      "bytes": 31574,
+      "path": "displacement_metrics.csv",
+      "sha256": "20d4d88afd2aeb5bb578363d3b34eee0e0e5b0475c4219a792ceb76d23507652"
+    },
+    {
+      "bytes": 90960,
+      "path": "exp009_displacement_results.json",
+      "sha256": "b5df0105d7f303617c3c3146734673a45ffb61ae15aeba8c4174c1cb420e52a6"
+    }
+  ],
+  "max_file_bytes": 10485760,
+  "skipped": [],
+  "source": "/docker/trade-alerts/data/reports/EXP-009_displacement"
+}
