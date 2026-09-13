@@ -753,6 +753,30 @@ Important question:
 
 > Does waiting for confirmation improve expectancy enough to justify missed trades and later entries?
 
+### EXP-008 completed evidence — 2026-09-13
+
+- [x] Existing continuation trades analyzed from archived 2023–2025 ledgers/features.
+- [x] 185 / 185 continuation trades feature-matched.
+- [x] No historical pipeline rerun.
+- [x] Markdown/JSON/CSV/classified-trade artifacts archived under `research-archive/EXP-008/`.
+- [x] Trade Brain documentation updated.
+
+Key evidence:
+
+- 1m directional close-break present: +6.38 expectancy / PF 1.37 versus +4.60 / PF 1.26 absent.
+- This 1m relationship was not stable year by year, so no mandatory 1m-close rule is justified.
+- Completed 5m close beyond level: +15.17 / PF 1.94 across 22 trades versus +4.68 / PF 1.27 otherwise.
+- The completed-5m subset was profitable in all three years but remains sample-limited.
+- `body_close` confirmation: +29.13 / PF 3.29 across only 17 trades.
+- No baseline continuation completed a qualifying retest before signal, so retest value cannot be determined observationally.
+- Lowest stored breakout-RVOL quartile was negative while higher quartiles were strongly profitable, but only 68 trades had this field.
+
+EXP-008 decision: **INVESTIGATE — no strategy change**.
+
+A proper wait-for-confirmation or retest experiment must simulate alternative entries and opportunity cost rather than filtering only surviving baseline trades.
+
+Next required experiment: **EXP-009 — Displacement**.
+
 ---
 
 ## EXP-009 — Displacement

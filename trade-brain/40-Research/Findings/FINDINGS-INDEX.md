@@ -46,6 +46,12 @@
 - [[F019-1H-and-15M-Bias-Carry-More-Useful-Directional-Signal-Than-30M]] — 1H and 15m alignment showed positive discrimination while 30m moved oppositely in the selected baseline; 1H/30m also showed high state redundancy.
 - [[F020-HTF-Scoring-Is-Selection-Confounded-In-Baseline-Trades]] — the baseline sample was already selected using +10 aligned / -20 opposed HTF scoring, so observational score-band comparisons cannot justify reweighting without controlled ablation.
 
+
+## EXP-008 findings
+
+- [[F024-Five-Minute-Acceptance-Is-Promising-But-Thin]] — completed 5m acceptance showed substantially stronger continuation expectancy across all three years, but only 22 trades qualified.
+- [[F025-Baseline-Continuations-Did-Not-Wait-For-Retest]] — no archived continuation signal waited for a completed retest, so retest value requires later alternative-entry simulation.
+
 ## Status convention
 
 - Preliminary — interesting but sample/evidence is insufficient.
