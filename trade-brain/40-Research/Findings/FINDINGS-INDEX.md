@@ -64,6 +64,11 @@
 - [[F028-Structure-Confirmation-Separates-Trade-Quality]] — trades with directional structure confirmation materially outperformed trades without it.
 - [[F029-MSS-And-CHOCH-Are-Historically-Redundant]] — MSS and CHOCH produced identical historical segmentation and should not be treated as independent evidence without implementation review.
 
+
+## EXP-012 capability result
+
+- [[../Experiments/EXP-012-Order-Blocks]] — Order Block research is currently blocked because the archived 2023–2025 feature artifacts contain no deterministic OB fields. No OB performance conclusion was drawn.
+
 ## Status convention
 
 - Preliminary — interesting but sample/evidence is insufficient.

@@ -929,6 +929,27 @@ If OB features are available and reliably encoded, compare:
 
 Reject OB requirements if they mainly reduce trade count without improving expectancy, drawdown, or target capture.
 
+### EXP-012 capability audit — 2026-09-13
+
+**Status: BLOCKED — current baseline artifacts cannot support the experiment.**
+
+The verified 2023, 2024, and 2025 scored artifacts contain no deterministic Order Block fields.
+
+The only search matches were:
+
+- `long_score_penalty_major_obstacle`
+- `short_score_penalty_major_obstacle`
+
+These are unrelated `major_obstacle` fields and are not Order Block features.
+
+Therefore EXP-012 will not invent an Order Block classification from unrelated structure/FVG data.
+
+A later OB research project would first require deterministic historical OB creation, boundaries, state, mitigation/retest, failure, breaker, and overlap features.
+
+No strategy conclusion is drawn from EXP-012.
+
+Next experiment: **EXP-013 — Premium / discount**.
+
 ---
 
 ## EXP-013 — Premium / discount
