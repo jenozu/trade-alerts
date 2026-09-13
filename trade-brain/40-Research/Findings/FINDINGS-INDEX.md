@@ -52,6 +52,12 @@
 - [[F024-Five-Minute-Acceptance-Is-Promising-But-Thin]] — completed 5m acceptance showed substantially stronger continuation expectancy across all three years, but only 22 trades qualified.
 - [[F025-Baseline-Continuations-Did-Not-Wait-For-Retest]] — no archived continuation signal waited for a completed retest, so retest value requires later alternative-entry simulation.
 
+
+## EXP-009 findings
+
+- [[F026-Displacement-Value-Is-Setup-Family-Dependent]] — directional displacement showed a large positive association with continuation quality but little benefit for reversals.
+- [[F027-BOS-Is-A-Promising-Structure-Signal]] — same-direction BOS produced unusually strong expectancy, requiring dedicated EXP-010 redundancy analysis.
+
 ## Status convention
 
 - Preliminary — interesting but sample/evidence is insufficient.

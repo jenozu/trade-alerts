@@ -1,0 +1,30 @@
+{
+  "archived_file_count": 4,
+  "destination": "research-archive/EXP-010",
+  "experiment": "EXP-010",
+  "files": [
+    {
+      "bytes": 10182,
+      "path": "EXP-010-Structure-Shift.md",
+      "sha256": "96bcb9c2d97de2844adeced630e039a1d401563eaf4148eae4156a1eb944b599"
+    },
+    {
+      "bytes": 706311,
+      "path": "classified_structure_trades.csv",
+      "sha256": "34c2e6d5aaca79fbc3c5b48b567073c25ae859f2586b794521d4f70ae7b3461a"
+    },
+    {
+      "bytes": 56080,
+      "path": "exp010_structure_results.json",
+      "sha256": "3814f9f3f39f7a6bd4a6b45ff32b14e7dffea16de375926b33dc173bc3f08bd0"
+    },
+    {
+      "bytes": 17773,
+      "path": "structure_metrics.csv",
+      "sha256": "f2ded344ccedb87db5704ef8d9ea30a6fdb1a973172f52e8b71f4caae80ec05b"
+    }
+  ],
+  "max_file_bytes": 10485760,
+  "skipped": [],
+  "source": "/docker/trade-alerts/data/reports/EXP-010_structure"
+}

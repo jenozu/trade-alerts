@@ -795,6 +795,50 @@ Compare:
 
 Determine whether displacement deserves a larger scoring weight.
 
+### EXP-009 completed evidence — 2026-09-13
+
+- [x] Existing 2023–2025 baseline ledgers joined to scored feature artifacts.
+- [x] Exact signal-time feature coverage: 1,218 / 1,218.
+- [x] No historical pipeline rerun.
+- [x] Markdown/JSON/CSV/classified-trade outputs archived under `research-archive/EXP-009/`.
+- [x] Trade Brain documentation updated.
+
+Aggregate directional displacement:
+
+- absent: +1.32 expectancy / PF 1.07;
+- present: +2.88 / PF 1.16.
+
+Year behavior was regime-dependent:
+
+- 2023 favored displacement-absent trades;
+- 2024 favored displacement-present trades;
+- 2025 favored displacement-present trades.
+
+Setup-family interaction was strong:
+
+- reversal without displacement +1.34 / PF 1.08;
+- reversal with displacement +0.20 / PF 1.01;
+- continuation without displacement +1.21 / PF 1.07;
+- continuation with displacement +10.91 / PF 1.66.
+
+Direction interaction:
+
+- LONG displacement-present +6.22 / PF 1.37;
+- SHORT displacement-present +0.14 / PF 1.01.
+
+Structure interaction:
+
+- same-direction structure break +3.99 / PF 1.23;
+- same-direction MSS +2.28 / PF 1.13;
+- same-direction BOS +11.57 / PF 1.74 across 83 trades;
+- same-direction FVG +4.82 / PF 1.28.
+
+EXP-009 decision: **INVESTIGATE — no strategy change**.
+
+No displacement weights, thresholds, entry rules, stops, targets, or setup logic changed.
+
+Next required experiment: **EXP-010 — MSS / BOS / CHOCH / structure shift**.
+
 ---
 
 ## EXP-010 — MSS / BOS / CHOCH / structure shift
