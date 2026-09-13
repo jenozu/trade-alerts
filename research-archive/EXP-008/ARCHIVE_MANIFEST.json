@@ -1,0 +1,30 @@
+{
+  "archived_file_count": 4,
+  "destination": "research-archive/EXP-008",
+  "experiment": "EXP-008",
+  "files": [
+    {
+      "bytes": 9493,
+      "path": "EXP-008-Breakout-Acceptance-Quality.md",
+      "sha256": "b661107062a2e66936ee76e1573ccee66032a055e609d6f6b14216f5e47a4fcc"
+    },
+    {
+      "bytes": 17591,
+      "path": "breakout_acceptance_metrics.csv",
+      "sha256": "91913e292325f06bdd5350f7bf4549dfbd0a7f5949356ef3951d8a24ae416edb"
+    },
+    {
+      "bytes": 106927,
+      "path": "classified_continuation_trades.csv",
+      "sha256": "614407770a4822753ea80366c2bcf1e34e20b5ae88b85e4d44142b3b438dbf68"
+    },
+    {
+      "bytes": 53192,
+      "path": "exp008_breakout_acceptance_results.json",
+      "sha256": "94bb629edbd875c3c1a6cc2a0b972cb1bc2a59f147c2748c81ce9869a15b3f00"
+    }
+  ],
+  "max_file_bytes": 10485760,
+  "skipped": [],
+  "source": "/docker/trade-alerts/data/reports/EXP-008_breakout-acceptance"
+}
