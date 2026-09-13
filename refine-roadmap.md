@@ -1015,6 +1015,34 @@ Determine whether DOL should act as:
 - target-selection tool;
 - context only.
 
+### EXP-014 completed evidence — 2026-09-13
+
+- [x] Existing 2023–2025 baseline ledgers joined to scored features.
+- [x] Exact feature coverage: 1,218 / 1,218.
+- [x] EXP-014 artifacts archived under `research-archive/EXP-014/`.
+
+DOL alignment was selection-confounded:
+
+- aligned: 1,189 trades, +1.83 expectancy / PF 1.10;
+- neutral/unknown: 28 trades, +0.86 / PF 1.04;
+- opposed: only 1 trade.
+
+Therefore the current baseline cannot establish the independent benefit of a hard DOL-alignment filter.
+
+Target-category evidence:
+
+- equal highs/lows: +5.96 / PF 1.36;
+- ONH/ONL: +5.57 / PF 1.33;
+- weekly high/low: +2.32 / PF 1.13;
+- external swings: +0.16 / PF 1.01;
+- PDH/PDL: +0.24 / PF 1.01.
+
+DOL confidence and target distance were both non-monotonic.
+
+EXP-014 decision: **INVESTIGATE — no strategy change**.
+
+Next required experiment: **EXP-015 — Volume / RVOL**.
+
 ---
 
 ## EXP-015 — Volume / RVOL

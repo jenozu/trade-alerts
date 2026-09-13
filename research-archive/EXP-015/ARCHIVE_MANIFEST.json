@@ -1,0 +1,30 @@
+{
+  "archived_file_count": 4,
+  "destination": "research-archive/EXP-015",
+  "experiment": "EXP-015",
+  "files": [
+    {
+      "bytes": 23662,
+      "path": "EXP-015-Volume-RVOL.md",
+      "sha256": "36f553cd5430731fc13de185250876604176e0719130f0176d9fdc5c76b00ea3"
+    },
+    {
+      "bytes": 797650,
+      "path": "classified_volume_trades.csv",
+      "sha256": "83c4e14454ed99cf6b76f009e504d527e1e9418c80901942040ff3041ecdcd34"
+    },
+    {
+      "bytes": 133481,
+      "path": "exp015_volume_rvol_results.json",
+      "sha256": "1b95732d9253e99907fb2ff8152cf7b2f674b0a5e41935f0e93a51f43380609a"
+    },
+    {
+      "bytes": 54405,
+      "path": "volume_rvol_metrics.csv",
+      "sha256": "355562c64848a0e887b5ae3041b7c69bf7f1f5d31a471aae41938fd6d97d2e6f"
+    }
+  ],
+  "max_file_bytes": 10485760,
+  "skipped": [],
+  "source": "/docker/trade-alerts/data/reports/EXP-015_volume-rvol"
+}
