@@ -1092,14 +1092,45 @@ Next required experiment: **EXP-016 — SNR / efficiency**.
 
 ## EXP-016 — SNR / efficiency
 
-Measure performance across SNR buckets and efficiency buckets.
+Analyze SNR and efficiency as continuous/contextual features rather than assuming higher is always better.
 
-Questions:
+### EXP-016 completed evidence — 2026-09-13
 
-- Does low SNR reliably identify chop?
-- Is SNR more useful as a hard no-trade filter or scoring penalty?
-- Are different SNR thresholds appropriate for continuation vs reversal?
-- Does SNR interact with time of day or volatility regime?
+- [x] Existing 2023–2025 baseline ledgers joined to scored features.
+- [x] Exact feature coverage: 1,218 / 1,218.
+- [x] No historical pipeline rerun.
+- [x] EXP-016 outputs archived under `research-archive/EXP-016/`.
+
+Key evidence:
+
+1m SNR:
+- highest quartile: +4.67 expectancy / PF 1.27;
+- second quartile: -1.68 / PF 0.91.
+
+5m SNR:
+- lowest quartile: +4.23 / PF 1.25;
+- highest quartile: -1.28 / PF 0.93.
+
+15m SNR:
+- second quartile: +7.40 / PF 1.45;
+- highest quartile: -0.13 / PF 0.99.
+
+Efficiency was also timeframe-dependent:
+
+- highest 1m efficiency quartile: -1.60 / PF 0.91;
+- highest 5m efficiency quartile: -2.40 / PF 0.87;
+- highest 15m efficiency quartile: +4.51 / PF 1.25.
+
+Persisted SNR quality labels were not ordinal:
+
+- `developing`: +3.30 / PF 1.19;
+- `strong`: +0.90 / PF 1.05.
+
+EXP-016 decision: **INVESTIGATE — no strategy change**.
+
+SNR/efficiency should remain contextual and should not receive larger global weight without later calibration.
+
+Next required experiment: **EXP-017 — VWAP**.
 
 ---
 

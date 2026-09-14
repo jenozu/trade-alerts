@@ -1,0 +1,30 @@
+{
+  "archived_file_count": 4,
+  "destination": "research-archive/EXP-017",
+  "experiment": "EXP-017",
+  "files": [
+    {
+      "bytes": 17510,
+      "path": "EXP-017-VWAP.md",
+      "sha256": "1c5282c3566cbb4cb63280b1f5b1b2c9b65643574933a56072b059dac5819337"
+    },
+    {
+      "bytes": 804043,
+      "path": "classified_vwap_trades.csv",
+      "sha256": "6e6a80a3be3ae1fea93f8617aa44170adc1308ce012535d40ff062f6c13031eb"
+    },
+    {
+      "bytes": 76741,
+      "path": "exp017_vwap_results.json",
+      "sha256": "23aa29b99114d42c586d192632024ed15b596f79c5075f61a8898f5b25e0f4a7"
+    },
+    {
+      "bytes": 31171,
+      "path": "vwap_metrics.csv",
+      "sha256": "97dd664fcf76b5b2b220581493344314331f3b7d24a962939d7c8c11cbf27094"
+    }
+  ],
+  "max_file_bytes": 10485760,
+  "skipped": [],
+  "source": "/docker/trade-alerts/data/reports/EXP-017_vwap"
+}
