@@ -1,0 +1,30 @@
+{
+  "archived_file_count": 4,
+  "destination": "research-archive/EXP-019",
+  "experiment": "EXP-019",
+  "files": [
+    {
+      "bytes": 20011,
+      "path": "EXP-019-Room-to-Target.md",
+      "sha256": "95a0ab442f76dd0dcf1fad1bd8ff7cbb438560b7c29b6ede37675a4053f99f8e"
+    },
+    {
+      "bytes": 675151,
+      "path": "classified_room_to_target_trades.csv",
+      "sha256": "d737c46551a69534d7b96850ae30e444233c43c2b83359d6b88b541d979fa0df"
+    },
+    {
+      "bytes": 88409,
+      "path": "exp019_room_to_target_results.json",
+      "sha256": "0c95e4effdc61d54e19f2f67bd9839136cc8c6353a7c22024bca219ffbf50f96"
+    },
+    {
+      "bytes": 34156,
+      "path": "room_to_target_metrics.csv",
+      "sha256": "fde39c6a5d5cf3baa8dd8d3fd3297053d7076e51a61e1f9bd98ffcb57851f33c"
+    }
+  ],
+  "max_file_bytes": 10485760,
+  "skipped": [],
+  "source": "/docker/trade-alerts/data/reports/EXP-019_room-to-target"
+}

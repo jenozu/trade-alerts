@@ -1182,6 +1182,35 @@ Questions:
 - Which source types deserve the most weight?
 - Does proximity matter more than raw count?
 
+### EXP-018 completed evidence — 2026-09-15
+
+- [x] Existing 2023–2025 baseline ledgers joined to persisted confluence features.
+- [x] Exact feature coverage: 1,218 / 1,218.
+- [x] No historical pipeline rerun.
+- [x] EXP-018 evidence archived under `research-archive/EXP-018/`.
+
+Headline evidence:
+
+- confluence aligned: +1.97 expectancy / PF 1.11;
+- non-aligned: -4.56 / PF 0.78, n=34.
+
+The numeric confluence score was not monotonic:
+
+- broad lower-score region: +2.23 / PF 1.13;
+- broad higher-score region: -0.83 / PF 0.96.
+
+Equal-liquidity cluster count was also non-monotonic:
+
+- zero clusters: +1.18 / PF 1.07;
+- one cluster: +3.04 / PF 1.18;
+- two clusters: -0.80 / PF 0.96.
+
+EXP-018 decision: **INVESTIGATE — no strategy change**.
+
+Confluence appears useful, but raw count/score should not automatically be interpreted as increasing trade quality.
+
+Next required experiment: **EXP-019 — Room to target**.
+
 ---
 
 ## EXP-019 — Room to target
