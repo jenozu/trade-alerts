@@ -1147,6 +1147,28 @@ Compare:
 
 Determine whether VWAP contributes unique edge after HTF bias and structure are accounted for.
 
+### EXP-017 completed evidence — 2026-09-15
+
+- [x] Existing 2023–2025 baseline ledgers joined to scored VWAP features.
+- [x] Exact feature coverage: 1,218 / 1,218.
+- [x] No historical pipeline rerun.
+- [x] EXP-017 artifacts archived under `research-archive/EXP-017/`.
+
+Headline evidence:
+
+- VWAP-slope aligned: +2.72 expectancy / PF 1.15.
+- VWAP-slope opposed: -0.04 / PF 1.00.
+- Same-direction VWAP cross: -3.42 / PF 0.83.
+- No same-direction cross: +2.16 / PF 1.12.
+- Closest absolute-distance quartile: -2.68 / PF 0.85.
+- Farthest absolute-distance quartile: +6.16 / PF 1.35.
+- Continuation with VWAP side: +7.36 / PF 1.43.
+- Continuation against VWAP side: -11.59 / PF 0.42, but only 14 trades.
+
+EXP-017 decision: **INVESTIGATE — no strategy change**.
+
+Next required experiment: **EXP-018 — Support / resistance confluence**.
+
 ---
 
 ## EXP-018 — Support / resistance confluence

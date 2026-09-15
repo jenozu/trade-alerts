@@ -1,0 +1,30 @@
+{
+  "archived_file_count": 4,
+  "destination": "research-archive/EXP-018",
+  "experiment": "EXP-018",
+  "files": [
+    {
+      "bytes": 19183,
+      "path": "EXP-018-SR-Confluence.md",
+      "sha256": "a68484d027c2b41f616432f4ef35ab9955a2d8a2bd8d6f9f0a4a13defd31c316"
+    },
+    {
+      "bytes": 680085,
+      "path": "classified_sr_confluence_trades.csv",
+      "sha256": "2dd3b225458d748df53a415bbce04eda033264a87d91ef2c78d055c0627ea15c"
+    },
+    {
+      "bytes": 91846,
+      "path": "exp018_sr_confluence_results.json",
+      "sha256": "4a99ebbf2e17187d39ba4923581b404def9322f17d0809d38657314165f4156a"
+    },
+    {
+      "bytes": 33399,
+      "path": "sr_confluence_metrics.csv",
+      "sha256": "36110c39e05423cb656bd33a2867ab4821622776e6450732c6a1a7b131f3c5d8"
+    }
+  ],
+  "max_file_bytes": 10485760,
+  "skipped": [],
+  "source": "/docker/trade-alerts/data/reports/EXP-018_sr-confluence"
+}
