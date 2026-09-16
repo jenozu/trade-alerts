@@ -1,0 +1,30 @@
+{
+  "archived_file_count": 4,
+  "destination": "research-archive/EXP-021",
+  "experiment": "EXP-021",
+  "files": [
+    {
+      "bytes": 4214,
+      "path": "EXP-021-Execution-Confirmation-Timeframe.md",
+      "sha256": "fd086369b1639892514c45fa4a2364bed9172329a4854984b3ceb35ac5d422de"
+    },
+    {
+      "bytes": 735039,
+      "path": "classified_execution_confirmation_trades.csv",
+      "sha256": "8e7f18be112b105027c7cccbc27eede1466d15cd15807115dba2bd403a4d5ab4"
+    },
+    {
+      "bytes": 33489,
+      "path": "execution_confirmation_metrics.csv",
+      "sha256": "eeea9a08ccbc293392bc0f091ab4f862a41e1a007cff7f07695cd9e490f20bb3"
+    },
+    {
+      "bytes": 87890,
+      "path": "exp021_execution_confirmation_results.json",
+      "sha256": "32a53d6adfbc4276f165122ce92d985ebc9e3f54b5ac4710c5e8bb9e960daba4"
+    }
+  ],
+  "max_file_bytes": 10485760,
+  "skipped": [],
+  "source": "/docker/trade-alerts/data/reports/EXP-021_execution-confirmation"
+}
