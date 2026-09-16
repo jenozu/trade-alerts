@@ -1,0 +1,30 @@
+{
+  "archived_file_count": 4,
+  "destination": "research-archive/EXP-020",
+  "experiment": "EXP-020",
+  "files": [
+    {
+      "bytes": 10535,
+      "path": "EXP-020-Time-of-Day.md",
+      "sha256": "f49261ce99d51df54adde4ce29a9ee61cb3634eb06828e3afcc55418cbf2510c"
+    },
+    {
+      "bytes": 702038,
+      "path": "classified_time_of_day_trades.csv",
+      "sha256": "a645f13d243b51effe0cf01d53bf86a2a708c9e6e407fb961a2b04cc70152ae8"
+    },
+    {
+      "bytes": 157183,
+      "path": "exp020_time_of_day_results.json",
+      "sha256": "f8ea68cce8d4d3dfbde5dfc6b65858c6157e030bbd18d77dbec7e9730b6559f5"
+    },
+    {
+      "bytes": 60782,
+      "path": "time_of_day_metrics.csv",
+      "sha256": "04f4f1a2c7b5a248b85a62bf9891f06b4d29e3e22b9148660b6fdf04e99ef2ac"
+    }
+  ],
+  "max_file_bytes": 10485760,
+  "skipped": [],
+  "source": "/docker/trade-alerts/data/reports/EXP-020_time-of-day"
+}
