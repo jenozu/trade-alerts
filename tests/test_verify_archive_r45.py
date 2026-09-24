@@ -1,10 +1,12 @@
 """Small synthetic checks for the guarded R4.5 archival audit."""
 import json
 from pathlib import Path
+import sys
 
 import pandas as pd
 import pytest
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from scripts import verify_archive_r45 as mod
 
 
