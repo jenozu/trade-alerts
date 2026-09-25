@@ -1060,6 +1060,7 @@ Run the complete morning workflow reliably without manual intervention.
   freshness checks, filesystem permissions, Telegram delivery, systemd install
   and manual mode execution, scheduled execution/log inspection, and reboot
   survival. No Work-side test is represented as VPS proof.
+- VPS 2026-09-25: system clock synchronized (UTC + NTP), seven ET-aware timers installed and executing. Live cycles measured ~264 seconds, violating intended one-minute cadence. FVG nearest-active lookup optimized with exact parity on 26,174 actual bars and 10,992 tracked gaps: 115.92s -> 1.42s (81.45x). Full VPS regression: 547 passed, 290 warnings. Merged via PR #2; full-cycle latency, premium/discount and scoring remain open. Data-quality warnings still require investigation.
 
 ---
 
