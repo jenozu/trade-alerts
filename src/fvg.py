@@ -476,6 +476,13 @@ def attach_fvg_events_to_bars(df: pd.DataFrame, tracked_fvgs: pd.DataFrame) -> p
 # ============================================================
 
 def add_nearest_active_fvg(df: pd.DataFrame, tracked_fvgs: pd.DataFrame) -> pd.DataFrame:
+    """Project active FVGs without copying/filtering the entire table per bar.
+
+    The selection semantics are unchanged: a gap is visible at creation_time,
+    invisible at invalidation_time, and equidistant gaps resolve to the first
+    row in the input FVG table. This is a full-history implementation, not a
+    rolling-window approximation; old still-active gaps remain eligible.
+    """
     result = df.copy()
     output_columns = [
         "nearest_active_bullish_fvg_lower",
@@ -493,44 +500,61 @@ def add_nearest_active_fvg(df: pd.DataFrame, tracked_fvgs: pd.DataFrame) -> pd.D
     if tracked_fvgs.empty:
         return result
 
-    for i, bar in result.iterrows():
-        timestamp = bar["timestamp"]
-        close = float(bar["close"])
+    # Evaluate datetime visibility once as UTC-naive numpy timestamps. Both
+    # sides represent the same UTC instants even across EST/EDT transitions.
+    creation = (
+        pd.to_datetime(tracked_fvgs["creation_time"], utc=True)
+        .dt.tz_localize(None).to_numpy(dtype="datetime64[ns]")
+    )
+    invalidation = (
+        pd.to_datetime(tracked_fvgs["invalidation_time"], utc=True)
+        .dt.tz_localize(None).to_numpy(dtype="datetime64[ns]")
+    )
+    timestamps = (
+        pd.to_datetime(result["timestamp"], utc=True)
+        .dt.tz_localize(None).to_numpy(dtype="datetime64[ns]")
+    )
+    directions = tracked_fvgs["direction"].to_numpy()
+    lower = tracked_fvgs["lower_bound"].to_numpy(dtype=float)
+    upper = tracked_fvgs["upper_bound"].to_numpy(dtype=float)
+    middle = tracked_fvgs["midpoint"].to_numpy(dtype=float)
+    prices = result["close"].to_numpy(dtype=float)
+    valid_until = np.isnat(invalidation)
+    is_bullish = directions == "bullish"
+    is_bearish = directions == "bearish"
 
-        active = tracked_fvgs.loc[
-            tracked_fvgs["creation_time"] <= timestamp
-        ].copy()
-        if active.empty:
+    # Column ordering matches the historical pandas implementation above.
+    output = np.full((len(result), len(output_columns)), np.nan, dtype=float)
+    for i, (timestamp, close) in enumerate(zip(timestamps, prices)):
+        visible = (creation <= timestamp) & (
+            valid_until | (invalidation > timestamp)
+        )
+        if not visible.any():
             continue
 
-        active = active.loc[
-            active["invalidation_time"].isna()
-            | (active["invalidation_time"] > timestamp)
-        ]
-        if active.empty:
-            continue
-
-        bullish = active.loc[active["direction"] == "bullish"]
-        bearish = active.loc[active["direction"] == "bearish"]
-
-        if not bullish.empty:
-            bullish = bullish.copy()
-            bullish["distance"] = (close - bullish["upper_bound"]).abs()
-            nearest = bullish.loc[bullish["distance"].idxmin()]
-            result.at[i, "nearest_active_bullish_fvg_lower"] = nearest["lower_bound"]
-            result.at[i, "nearest_active_bullish_fvg_upper"] = nearest["upper_bound"]
-            result.at[i, "nearest_active_bullish_fvg_midpoint"] = nearest["midpoint"]
-            result.at[i, "distance_to_bullish_fvg"] = nearest["distance"]
-
-        if not bearish.empty:
-            bearish = bearish.copy()
-            bearish["distance"] = (close - bearish["lower_bound"]).abs()
-            nearest = bearish.loc[bearish["distance"].idxmin()]
-            result.at[i, "nearest_active_bearish_fvg_lower"] = nearest["lower_bound"]
-            result.at[i, "nearest_active_bearish_fvg_upper"] = nearest["upper_bound"]
-            result.at[i, "nearest_active_bearish_fvg_midpoint"] = nearest["midpoint"]
-            result.at[i, "distance_to_bearish_fvg"] = nearest["distance"]
-
+        for direction_mask, bounds, offset in (
+            (is_bullish, upper, 0),
+            (is_bearish, lower, 4),
+        ):
+            candidates = np.flatnonzero(visible & direction_mask)
+            if not len(candidates):
+                continue
+            distances = np.abs(close - bounds[candidates])
+            # pandas Series.idxmin skips NaN and picks the first tie.
+            finite = np.isfinite(distances)
+            if not finite.any():
+                continue
+            candidates = candidates[finite]
+            distances = distances[finite]
+            position = int(np.argmin(distances))
+            selected = candidates[position]
+            output[i, offset:offset + 4] = (
+                lower[selected],
+                upper[selected],
+                middle[selected],
+                distances[position],
+            )
+    result[output_columns] = output
     return result
 
 
