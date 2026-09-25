@@ -94,9 +94,35 @@ def test_premarket_mode_persists_state_and_plan_from_existing_pipeline(monkeypat
     system = MorningSystem(environment=_environment(tmp_path), now_func=lambda: datetime(2026, 9, 4, 13, 0, tzinfo=timezone.utc))
     state = _state(); plan = build_trade_plan(state, _config())
     report = {"decision": plan["decision"]}
-    monkeypatch.setattr(system, "_analysis", lambda **_kwargs: {"market_state": state, "trade_plan": plan, "morning_report": report})
+    calls = []
+    monkeypatch.setattr(system, "_collect", lambda: calls.append("collect"))
+    def analysis(**kwargs):
+        calls.append("analysis")
+        assert kwargs["as_of"] == datetime(2026, 9, 4, 13, 0, tzinfo=timezone.utc)
+        return {"market_state": state, "trade_plan": plan, "morning_report": report}
+    monkeypatch.setattr(system, "_analysis", analysis)
     assert system.premarket() == 0
+    assert calls == ["collect", "analysis"]
     assert json.loads((system.paths.plans / "morning-plan.json").read_text())["decision"] == plan["decision"]
+
+
+
+def test_premarket_collection_failure_cannot_create_morning_plan(monkeypatch, tmp_path):
+    system = MorningSystem(
+        environment=_environment(tmp_path),
+        now_func=lambda: datetime(2026, 9, 4, 13, 0, tzinfo=timezone.utc),
+    )
+    def fail_collect():
+        raise RuntimeError("unavailable market data")
+    monkeypatch.setattr(system, "_collect", fail_collect)
+    monkeypatch.setattr(
+        system, "_analysis",
+        lambda **kwargs: pytest.fail("Must not analyze a stale premarket snapshot"),
+    )
+    with pytest.raises(RuntimeError, match="unavailable market data"):
+        system.premarket()
+    assert not (system.paths.plans / "morning-plan.json").exists()
+    assert not (system.paths.plans / "morning-state.json").exists()
 
 
 def test_refresh_mode_collects_compares_and_persists(monkeypatch, tmp_path):

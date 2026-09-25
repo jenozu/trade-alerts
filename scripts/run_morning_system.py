@@ -135,7 +135,13 @@ class MorningSystem:
         return 0
 
     def premarket(self) -> int:
-        artifacts = self._analysis(as_of=self._now(), stop_after="morning_report")
+        # The 08:58 scheduled snapshot cannot contain 08:58-08:59 candles
+        # required by the 09:00 premarket coverage check. Collect afresh,
+        # while fixing the analysis cutoff at the start of this job: bars
+        # arriving after that cutoff must never leak into the morning plan.
+        as_of = self._now()
+        self._collect()
+        artifacts = self._analysis(as_of=as_of, stop_after="morning_report")
         _atomic_json(self.paths.plans / "morning-state.json", artifacts["market_state"])
         _atomic_json(self.paths.plans / "morning-plan.json", artifacts["trade_plan"])
         log_event(self.logger, "morning_report_generated", decision=artifacts["morning_report"]["decision"])
