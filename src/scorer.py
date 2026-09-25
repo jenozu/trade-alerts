@@ -8,6 +8,8 @@ import numpy as np
 import pandas as pd
 import yaml
 
+from confluence_zones import prepare_directional_confluence
+
 from scorer_harmonization import (
     dealing_range_alignment,
     harmonized_key_location,
@@ -332,6 +334,8 @@ def score_setup(
     *,
     direction: str,
     config: dict[str, Any],
+    _prepared_confluence: dict[str, Any] | None = None,
+    _weights_validated: bool = False,
 ) -> ScoreResult:
     direction = direction.strip().lower()
     if direction not in {"long", "short"}:
@@ -345,7 +349,8 @@ def score_setup(
     contributions: dict[str, float] = {}
 
     # Production scoring weights must retain the declared 0-100 ceiling.
-    validate_positive_weight_total(config)
+    if not _weights_validated:
+        validate_positive_weight_total(config)
 
     htf_aligned = is_bullish_htf_bias(row) if direction == "long" else is_bearish_htf_bias(row)
     contributions["higher_timeframe_bias"] = float(positive_weights.get("higher_timeframe_bias", 0)) if htf_aligned else 0.0
@@ -359,6 +364,7 @@ def score_setup(
         direction,
         config,
         legacy_aligned=legacy_location_ok,
+        confluence_prepared=_prepared_confluence,
     )
     contributions["key_location"] = (
         float(positive_weights.get("key_location", 0))
@@ -600,11 +606,25 @@ def enrich_scores(df: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
     if not scoring.get("enabled", True):
         return result
 
+    # Exactly the same config is applied to all bars and both directions.
+    # Validate once per batch, retaining standalone score_setup validation.
+    validate_positive_weight_total(config)
     long_scores = []
     short_scores = []
     for _, row in result.iterrows():
-        long_scores.append(score_setup(row, direction="long", config=config))
-        short_scores.append(score_setup(row, direction="short", config=config))
+        prepared = prepare_directional_confluence(row, config)
+        long_scores.append(
+            score_setup(
+                row, direction="long", config=config,
+                _prepared_confluence=prepared, _weights_validated=True,
+            )
+        )
+        short_scores.append(
+            score_setup(
+                row, direction="short", config=config,
+                _prepared_confluence=prepared, _weights_validated=True,
+            )
+        )
 
     result["long_raw_score"] = [score.raw_score for score in long_scores]
     result["short_raw_score"] = [score.raw_score for score in short_scores]

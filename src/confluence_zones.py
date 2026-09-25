@@ -1297,43 +1297,21 @@ def save_confluence_outputs(
     }
 
 
-def directional_confluence_strength(
+def prepare_directional_confluence(
     row: pd.Series,
     config: Mapping[str, Any],
-    *,
-    direction: str,
-) -> dict[str, Any]:
-    """Return causal source-only S/R confluence for one market-state row.
+) -> dict[str, Any] | None:
+    """Prepare source-only clusters once for both directional score passes.
 
-    This intentionally uses only source-location evidence. Reaction,
-    volume, displacement, and HTF alignment remain separate scorer
-    components and therefore are not double-counted here.
+    Only available columns on the supplied market-state row are considered.
     """
-
-    direction = str(direction).strip().lower()
-
-    if direction not in {
-        "long",
-        "short",
-    }:
-        raise ConfluenceZoneError(
-            "direction must be 'long' or 'short'."
-        )
-
     raw_price = row.get(
         "close",
         np.nan,
     )
 
     if pd.isna(raw_price):
-        return {
-            "score": 0.0,
-            "source_score": 0.0,
-            "midpoint": None,
-            "distance_points": None,
-            "sources": [],
-            "categories": [],
-        }
+        return None
 
     price = float(
         raw_price
@@ -1461,7 +1439,37 @@ def directional_confluence_strength(
                 "equilibrium",
             )
 
-    if not candidates:
+    clusters = (
+        _cluster_candidates(candidates, tolerance_points=tolerance)
+        if candidates
+        else []
+    )
+    return {
+        "price": price,
+        "pivot_tolerance": pivot_tolerance,
+        "source_score_cap": source_score_cap,
+        "weights": weights,
+        "clusters": clusters,
+    }
+
+
+def directional_confluence_strength_prepared(
+    prepared: dict[str, Any] | None,
+    *,
+    direction: str,
+) -> dict[str, Any]:
+    """Evaluate prepared, direction-independent source clusters."""
+    direction = str(direction).strip().lower()
+
+    if direction not in {
+        "long",
+        "short",
+    }:
+        raise ConfluenceZoneError(
+            "direction must be 'long' or 'short'."
+        )
+
+    if prepared is None or not prepared["clusters"]:
         return {
             "score": 0.0,
             "source_score": 0.0,
@@ -1471,10 +1479,11 @@ def directional_confluence_strength(
             "categories": [],
         }
 
-    clusters = _cluster_candidates(
-        candidates,
-        tolerance_points=tolerance,
-    )
+    price = prepared["price"]
+    pivot_tolerance = prepared["pivot_tolerance"]
+    source_score_cap = prepared["source_score_cap"]
+    weights = prepared["weights"]
+    clusters = prepared["clusters"]
 
     eligible: list[
         dict[str, Any]
@@ -1599,3 +1608,21 @@ def directional_confluence_strength(
     )
 
     return eligible[0]
+
+
+
+def directional_confluence_strength(
+    row: pd.Series,
+    config: Mapping[str, Any],
+    *,
+    direction: str,
+) -> dict[str, Any]:
+    """Legacy public API: prepare and evaluate one direction."""
+    # Direction must be checked before inspecting row data (legacy contract).
+    direction = str(direction).strip().lower()
+    if direction not in {"long", "short"}:
+        raise ConfluenceZoneError("direction must be 'long' or 'short'.")
+    return directional_confluence_strength_prepared(
+        prepare_directional_confluence(row, config),
+        direction=direction,
+    )
