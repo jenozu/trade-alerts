@@ -1031,7 +1031,7 @@ Run the complete morning workflow reliably without manual intervention.
 
 ## VPS scheduling
 
-- [ ] Check `timedatectl`. **REQUIRES VPS VERIFICATION.**
+- [x] Check `timedatectl`. **VPS VERIFIED 2026-09-25:** UTC timezone, RTC in UTC, NTP enabled/synchronized; `systemd-analyze calendar` resolved 08:55 America/New_York correctly; seven installed timers listed.
 - [x] Choose systemd timers vs cron.
 - [x] Use ET-aware scheduling and automatic EST/EDT handling.
 - [ ] Verify each job manually first. **REQUIRES VPS VERIFICATION.**
