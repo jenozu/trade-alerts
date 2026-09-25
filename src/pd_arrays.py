@@ -251,6 +251,13 @@ def build_pd_array_lifecycle(
         frame
     )
 
+    # Reuse contiguous OHLC arrays and resolve candle event timestamps once.
+    # This preserves available_at fallback and event priority.
+    high_values = frame["high"].to_numpy(dtype=float)
+    low_values = frame["low"].to_numpy(dtype=float)
+    close_values = frame["close"].to_numpy(dtype=float)
+    known_times = [_known_at(frame, index) for index in range(len(frame))]
+
     rows: list[
         dict[str, Any]
     ] = []
@@ -299,19 +306,9 @@ def build_pd_array_lifecycle(
             creation_index + 1,
             end_index + 1,
         ):
-            row = frame.iloc[i]
-
-            high = float(
-                row["high"]
-            )
-
-            low = float(
-                row["low"]
-            )
-
-            close = float(
-                row["close"]
-            )
+            high = high_values[i]
+            low = low_values[i]
+            close = close_values[i]
 
             touches = _touches_zone(
                 high=high,
@@ -342,10 +339,7 @@ def build_pd_array_lifecycle(
             # A close through the far side has priority.
             if disrespected:
                 disrespect_at = (
-                    _known_at(
-                        frame,
-                        i,
-                    )
+                    known_times[i]
                 )
 
                 ifvg_created_at = (
@@ -368,10 +362,7 @@ def build_pd_array_lifecycle(
                 )
             ):
                 respect_at = (
-                    _known_at(
-                        frame,
-                        i,
-                    )
+                    known_times[i]
                 )
 
         # ----------------------------------------------------
@@ -388,19 +379,9 @@ def build_pd_array_lifecycle(
                 inversion_index + 1,
                 end_index + 1,
             ):
-                row = frame.iloc[i]
-
-                high = float(
-                    row["high"]
-                )
-
-                low = float(
-                    row["low"]
-                )
-
-                close = float(
-                    row["close"]
-                )
+                high = high_values[i]
+                low = low_values[i]
+                close = close_values[i]
 
                 touches = (
                     _touches_zone(
@@ -435,10 +416,7 @@ def build_pd_array_lifecycle(
 
                 if disrespected:
                     ifvg_disrespect_at = (
-                        _known_at(
-                            frame,
-                            i,
-                        )
+                        known_times[i]
                     )
                     break
 
@@ -449,10 +427,7 @@ def build_pd_array_lifecycle(
                     )
                 ):
                     ifvg_respect_at = (
-                        _known_at(
-                            frame,
-                            i,
-                        )
+                        known_times[i]
                     )
 
         if pd.notna(
