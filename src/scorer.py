@@ -609,43 +609,52 @@ def enrich_scores(df: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
     # Exactly the same config is applied to all bars and both directions.
     # Validate once per batch, retaining standalone score_setup validation.
     validate_positive_weight_total(config)
-    long_scores = []
-    short_scores = []
+    # Store only the output columns as we score each bar, rather than
+    # retaining two heavyweight ScoreResult objects (and their per-bar
+    # contribution dictionaries) for the entire historical year.
+    fields = (
+        "raw_score", "score_band", "positive_points", "penalty_points",
+        "disabled", "disable_reason",
+    )
+    values = {
+        direction: {field: [] for field in fields}
+        for direction in ("long", "short")
+    }
+    contributions = {"long": {}, "short": {}}
+    contribution_names: set[str] = set()
     for _, row in result.iterrows():
         prepared = prepare_directional_confluence(row, config)
-        long_scores.append(
-            score_setup(
-                row, direction="long", config=config,
+        for direction in ("long", "short"):
+            score = score_setup(
+                row, direction=direction, config=config,
                 _prepared_confluence=prepared, _weights_validated=True,
             )
-        )
-        short_scores.append(
-            score_setup(
-                row, direction="short", config=config,
-                _prepared_confluence=prepared, _weights_validated=True,
-            )
-        )
+            store = values[direction]
+            for field in fields:
+                store[field].append(getattr(score, field))
+            contribution_names.update(score.contributions)
+            # A component may become available only later in the series:
+            # backfill earlier rows with the same 0.0 default as the legacy
+            # score.contributions.get(component, 0.0) output contract.
+            prior_rows = len(store["raw_score"]) - 1
+            columns = contributions[direction]
+            for name in score.contributions:
+                if name not in columns:
+                    columns[name] = [0.0] * prior_rows
+            for name, column in columns.items():
+                column.append(score.contributions.get(name, 0.0))
 
-    result["long_raw_score"] = [score.raw_score for score in long_scores]
-    result["short_raw_score"] = [score.raw_score for score in short_scores]
-    result["long_score_band"] = [score.score_band for score in long_scores]
-    result["short_score_band"] = [score.score_band for score in short_scores]
-    result["long_positive_points"] = [score.positive_points for score in long_scores]
-    result["short_positive_points"] = [score.positive_points for score in short_scores]
-    result["long_penalty_points"] = [score.penalty_points for score in long_scores]
-    result["short_penalty_points"] = [score.penalty_points for score in short_scores]
-    result["long_disabled"] = [score.disabled for score in long_scores]
-    result["short_disabled"] = [score.disabled for score in short_scores]
-    result["long_disable_reason"] = [score.disable_reason for score in long_scores]
-    result["short_disable_reason"] = [score.disable_reason for score in short_scores]
+    # Preserve original schema order: pair long/short for every field.
+    for field in fields:
+        for direction in ("long", "short"):
+            result[f"{direction}_{field}"] = values[direction][field]
 
-    contribution_names = set()
-    for score in long_scores + short_scores:
-        contribution_names.update(score.contributions.keys())
-
-    for contribution in sorted(contribution_names):
-        result[f"long_score_{contribution}"] = [score.contributions.get(contribution, 0.0) for score in long_scores]
-        result[f"short_score_{contribution}"] = [score.contributions.get(contribution, 0.0) for score in short_scores]
+    for name in sorted(contribution_names):
+        for direction in ("long", "short"):
+            column = contributions[direction].get(name)
+            if column is None:
+                column = [0.0] * len(result)
+            result[f"{direction}_score_{name}"] = column
 
     result["score_edge"] = result["long_raw_score"] - result["short_raw_score"]
     result["score_edge_abs"] = result["score_edge"].abs()
