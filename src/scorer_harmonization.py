@@ -7,6 +7,7 @@ import pandas as pd
 
 from confluence_zones import (
     directional_confluence_strength,
+    directional_confluence_strength_prepared,
 )
 
 
@@ -231,6 +232,7 @@ def harmonized_key_location(
     ],
     *,
     legacy_aligned: bool,
+    confluence_prepared: dict[str, Any] | None = None,
 ) -> tuple[
     bool,
     dict[str, float],
@@ -244,6 +246,11 @@ def harmonized_key_location(
         directional_confluence_strength(
             row,
             config,
+            direction=direction,
+        )
+        if confluence_prepared is None
+        else directional_confluence_strength_prepared(
+            confluence_prepared,
             direction=direction,
         )
     )
