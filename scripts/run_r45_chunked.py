@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import argparse
 import gc
-import os
 from pathlib import Path
 import sys
 
@@ -28,8 +27,8 @@ from scripts.resume_r45 import (
     EXCLUDED_DIAGNOSTIC_COLUMNS, atomic_checkpoint, check_baseline,
     load_config, model_config, safe_metrics, verified_checkpoint,
 )
-from src.scorer import enrich_scores
-from src.backtest import run_backtest
+from scorer import enrich_scores
+from backtest import run_backtest
 
 # Full set of original source columns used by run_backtest/simulate_trade
 # for signal selection, stops, execution and trade-ledger annotations.
