@@ -65,3 +65,24 @@ def test_finalize_refuses_missing_models_before_writing(tmp_path):
         mod.finalize(tmp_path)
     assert not (tmp_path / "model_summary.csv").exists()
     assert not (tmp_path / "r45_results.json").exists()
+
+
+def test_selective_loader_excludes_only_known_diagnostic_payloads(tmp_path):
+    path = tmp_path / "features.parquet"
+    pd.DataFrame({
+        "timestamp": pd.to_datetime(["2024-01-01T00:00:00Z"]),
+        "open": [100.0],
+        "close": [101.0],
+        "dol_ranked_candidates": ["large-json"],
+        "snr_market_state_json": ["large-json"],
+        "snr_raw_components_json": ["large-json"],
+        "dol_primary_components": ["large-json"],
+        "dol_alternate_components": ["large-json"],
+        "dol_direction": ["bullish"],
+        "snr_5m": [1.4],
+    }).to_parquet(path, index=False)
+    reduced = mod.load_reduced_features(path)
+    assert set(reduced.columns) == {
+        "timestamp", "open", "close", "dol_direction", "snr_5m",
+    }
+    assert reduced["dol_direction"].iloc[0] == "bullish"
