@@ -158,6 +158,15 @@ def finalize(out: Path) -> None:
                 frames.append(trades)
         combined = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
         metrics = calculate_backtest_metrics(combined) if len(combined) else {"trades": 0}
+        # The backtest metric helper does not always populate "net_points".
+        # Derive it directly from the verified consolidated trade ledger,
+        # matching the audit and preventing NaN in the CSV summary.
+        metrics["net_points"] = (
+            round(float(pd.to_numeric(
+                combined["net_result_points"], errors="raise",
+            ).sum()), 2)
+            if len(combined) else 0.0
+        )
         aggregate[model] = metrics
         summary.append({"model": model, **{
             key: metrics.get(key) for key in (
