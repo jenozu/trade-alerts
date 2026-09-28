@@ -12,8 +12,12 @@ from __future__ import annotations
 import argparse
 import gc
 from pathlib import Path
+import sys
 
 import pandas as pd
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 
 from scripts.resume_r45 import (
     CANDIDATE_WEIGHTS, FEATURES, MODELS, YEARS,
