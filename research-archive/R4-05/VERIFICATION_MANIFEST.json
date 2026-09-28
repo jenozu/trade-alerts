@@ -1,0 +1,118 @@
+{
+  "experiment": "R4.5",
+  "created_utc": "2026-09-28T00:35:59.473627+00:00",
+  "verification": {
+    "years": {
+      "2023": {
+        "baseline": {
+          "trades": 344,
+          "net_points": 1003.0
+        },
+        "candidate_conservative": {
+          "trades": 372,
+          "net_points": 604.5
+        },
+        "candidate_evidence_tilt": {
+          "trades": 382,
+          "net_points": 746.5
+        },
+        "candidate_redundancy_reduced": {
+          "trades": 387,
+          "net_points": 49.25
+        }
+      },
+      "2024": {
+        "baseline": {
+          "trades": 388,
+          "net_points": 66.25
+        },
+        "candidate_conservative": {
+          "trades": 423,
+          "net_points": -743.25
+        },
+        "candidate_evidence_tilt": {
+          "trades": 440,
+          "net_points": -398.25
+        },
+        "candidate_redundancy_reduced": {
+          "trades": 419,
+          "net_points": -881.0
+        }
+      },
+      "2025": {
+        "baseline": {
+          "trades": 486,
+          "net_points": 1103.25
+        },
+        "candidate_conservative": {
+          "trades": 527,
+          "net_points": 55.75
+        },
+        "candidate_evidence_tilt": {
+          "trades": 548,
+          "net_points": 658.5
+        },
+        "candidate_redundancy_reduced": {
+          "trades": 536,
+          "net_points": 186.75
+        }
+      }
+    },
+    "baseline_reproduced": true,
+    "aggregate": {
+      "baseline": {
+        "trades": 1218,
+        "net_points": 2172.5
+      },
+      "candidate_conservative": {
+        "trades": 1322,
+        "net_points": -83.0
+      },
+      "candidate_evidence_tilt": {
+        "trades": 1370,
+        "net_points": 1006.75
+      },
+      "candidate_redundancy_reduced": {
+        "trades": 1342,
+        "net_points": -645.0
+      }
+    }
+  },
+  "source_ledger_sha256": {
+    "2023": "7197ca8db354fb60a6353cc13e4268a571d8cac1717412187a7bebd2c076f03d",
+    "2024": "3b75955377636e2c85a64a76f658f7b8ca6c8ec7fddf50b07e55eceadf2ffa89",
+    "2025": "3bc28bba7391e9a236c48605f7fe4d1423573074c8acc51adb73bffa022a2441"
+  },
+  "artifact_sha256": {
+    "2023/baseline/metrics.json": "91b9f5462c5a373f2ee310584ab5a8e00cdb5ca0f1f01d8c3ea47a22c01fda62",
+    "2023/baseline/trades.csv": "7197ca8db354fb60a6353cc13e4268a571d8cac1717412187a7bebd2c076f03d",
+    "2023/candidate_conservative/metrics.json": "5378301f2526669cb968272bccc7cef1866633a74201e709930adc6964c0c704",
+    "2023/candidate_conservative/trades.csv": "41fc7db6f499e5131a1dbbd649e54ac2c978d377ad30f874323555f190cb066a",
+    "2023/candidate_evidence_tilt/metrics.json": "3de01f37b72d7cb8cd3e202d43986a985476cb57f0efc47b70ff1f9f847f8d7a",
+    "2023/candidate_evidence_tilt/trades.csv": "c8e1d47bae73488b9e8d3d76a1063bdd154c392824978e3759587796868c5515",
+    "2023/candidate_redundancy_reduced/metrics.json": "c2cbd814eb68fb650bbafb55fbe934b59d69d558c2a77620344cb0100c1dc72a",
+    "2023/candidate_redundancy_reduced/trades.csv": "480bdf69b5b62bcc18ace44ede2c7542a02a96b939fb22d281158650e97cbca2",
+    "2024/baseline/metrics.json": "9f539d4d954b865dec3d750bc24ab367aea7d54a63997407ea42167898202a22",
+    "2024/baseline/trades.csv": "3b75955377636e2c85a64a76f658f7b8ca6c8ec7fddf50b07e55eceadf2ffa89",
+    "2024/candidate_conservative/metrics.json": "1301edf618ed790e478f5f7f849b22e49690358218255e6cb378fc7919c11e64",
+    "2024/candidate_conservative/trades.csv": "87d00849e7ae61260744e7451698cf603ddc08f5bf391b9db428643df04b00b8",
+    "2024/candidate_evidence_tilt/metrics.json": "989f576b69f6e118560faa081708f9e610327ae861cff144a3848a3988e1fdf4",
+    "2024/candidate_evidence_tilt/trades.csv": "83b83d83c77168264ed13b484bf359717b2b68dd6759fb6c01319a724a5f0a35",
+    "2024/candidate_redundancy_reduced/metrics.json": "84608431074ac6889a172b8855170ff05f70da4a9804d8ad95607be8d59b135b",
+    "2024/candidate_redundancy_reduced/trades.csv": "be958f7d3774d3a036fccc3401dcec15c52abc04a00fd05cd546bbc12c710877",
+    "2025/baseline/metrics.json": "c6c3951d4fe4614d574f4a4ac805b6bf3288c50dd527c61e0bedcf81fbec5538",
+    "2025/baseline/trades.csv": "3bc28bba7391e9a236c48605f7fe4d1423573074c8acc51adb73bffa022a2441",
+    "2025/candidate_conservative/metrics.json": "aa29bc8ca93b2df7ee7cdcbac8a68b84bf9b23a0f92a5d915c30d25525932be5",
+    "2025/candidate_conservative/trades.csv": "056678953b52c70a3c9e1d77dfcd46ed59ec134e6aa23a0ddda863be7258fe9e",
+    "2025/candidate_evidence_tilt/metrics.json": "09e4fb3e1f86eeecee10377a4909d5a21768299379365eb538b414c52031925d",
+    "2025/candidate_evidence_tilt/trades.csv": "99593f2259c7101c6b967a0d6f7a45855a681a74532c0063afd9480d11bbfd57",
+    "2025/candidate_redundancy_reduced/metrics.json": "8e1e7a015e7b7423c74f18acd386bf6e675a2e89e7d16768924bf85b4e7f08c6",
+    "2025/candidate_redundancy_reduced/trades.csv": "ded4a610110919d8a2a9a3a432956299bdfb7c5b0e14ccaa16b1fa297a9a6735",
+    "baseline_all_years_trades.csv": "5297c8038be3a503425852edb244235bd083afc1f73c0bc5b11f6c4fabff88b8",
+    "candidate_conservative_all_years_trades.csv": "e9f21ee4e650b736423c95ffdeba0d9f363272564abb55ee651b6e838a68e2a5",
+    "candidate_evidence_tilt_all_years_trades.csv": "5cd77bece152d59ebdcf2f9b783c6f7e21f297c2581426af659332cff0b1626c",
+    "candidate_redundancy_reduced_all_years_trades.csv": "a212c18d4051949a08d3752ff36fb8cec6a8602f3116bcaef5639eb748f81dcc",
+    "model_summary.csv": "e65680ba2ce22e519625755e5fd2e10a0c2e10d1d568359950b9a07b88bed1b3",
+    "r45_results.json": "4ad48083a43ba47bdfb1d7f888df9cc2faf658738803359c722d3ed58a764178"
+  }
+}

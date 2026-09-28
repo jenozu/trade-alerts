@@ -1,0 +1,20 @@
+{
+  "trades": 388,
+  "wins": 106,
+  "losses": 282,
+  "win_rate": 0.27319587628865977,
+  "expectancy_points": 0.17074742268041238,
+  "expectancy_r": 0.007433163970908702,
+  "profit_factor": 1.0095262060536343,
+  "average_mfe_points": 36.9458762886598,
+  "average_mae_points": 25.750644329896907,
+  "median_mfe_points": 20.5,
+  "median_mae_points": 27.0,
+  "tp1_hit_rate": 0.44329896907216493,
+  "tp2_hit_rate": 0.30927835051546393,
+  "tp3_hit_rate": 0.20876288659793815,
+  "tp4_hit_rate": 0.12628865979381443,
+  "stop_hit_rate": 0.7061855670103093,
+  "average_score": 75.82082662404196,
+  "average_hold_minutes": 20.31958762886598
+}
