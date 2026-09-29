@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import gc
+from io import StringIO
 from pathlib import Path
 import sys
 
@@ -63,25 +64,27 @@ def assert_frozen_70(actual: pd.DataFrame, frozen: pd.DataFrame) -> None:
             "Frozen 70 parity failed: trade ledger columns differ "
             f"(new={set(actual)-set(frozen)}, missing={set(frozen)-set(actual)})"
         )
-    # Comparing all ledger columns flags any unexpected execution or
-    # contextual difference rather than just matching summary metrics.
-    # Normalize timestamp representations from the archived CSV.
-    # Preserve all other original trade fields and comparison checks.
-    actual_checked = actual.reset_index(drop=True)[frozen.columns].copy()
-    frozen_checked = frozen.reset_index(drop=True).copy()
 
-    for column in ("signal_time", "entry_time", "exit_time"):
-        if column in frozen_checked.columns:
-            actual_checked[column] = pd.to_datetime(
-                actual_checked[column], utc=True, errors="raise"
-            )
-            frozen_checked[column] = pd.to_datetime(
-                frozen_checked[column], utc=True, errors="raise"
-            )
+    # The frozen reference was loaded from CSV.
+    # Normalize the newly generated ledger using exactly the
+    # same CSV serialization and parsing representation.
+    #
+    # Preserve every column, row order, trade ID and numeric
+    # comparison. Do not discard genuine execution differences.
+
+    buffer = StringIO()
+
+    actual.reset_index(drop=True)[frozen.columns].to_csv(
+        buffer,
+        index=False,
+    )
+
+    buffer.seek(0)
+    comparable_actual = pd.read_csv(buffer)
 
     pd.testing.assert_frame_equal(
-        actual_checked,
-        frozen_checked,
+        comparable_actual,
+        frozen.reset_index(drop=True),
         check_dtype=False,
         check_exact=False,
         rtol=1e-10,

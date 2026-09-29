@@ -90,3 +90,52 @@ def test_frozen_parity_normalizes_archived_timestamps():
             actual.iloc[::-1].reset_index(drop=True),
             frozen,
         )
+
+
+def test_frozen_parity_handles_session_dates():
+    from io import StringIO
+
+    actual = pd.DataFrame({
+        "trade_id": [1, 2],
+        "signal_time": pd.to_datetime([
+            "2023-10-02T13:30:00Z",
+            "2023-10-02T13:36:00Z",
+        ], utc=True),
+        "session_date": [
+            pd.Timestamp("2023-10-02").date(),
+            pd.Timestamp("2023-10-02").date(),
+        ],
+        "net_result_points": [25.25, -25.25],
+        "stop_hit": [False, True],
+        "rvol_time_of_day": [None, 3.7],
+    })
+
+    frozen = pd.read_csv(
+        StringIO(actual.to_csv(index=False))
+    )
+
+    # Equivalent trades with different date representations pass.
+    assert_frozen_70(actual, frozen)
+
+    # Genuine date differences still fail.
+    changed = actual.copy()
+    changed.loc[0, "session_date"] = (
+        pd.Timestamp("2023-10-03").date()
+    )
+
+    with pytest.raises(AssertionError):
+        assert_frozen_70(changed, frozen)
+
+    # Genuine financial differences still fail.
+    changed = actual.copy()
+    changed.loc[1, "net_result_points"] = -30.25
+
+    with pytest.raises(AssertionError):
+        assert_frozen_70(changed, frozen)
+
+    # Changing the trade order must still fail.
+    with pytest.raises(AssertionError):
+        assert_frozen_70(
+            actual.iloc[::-1].reset_index(drop=True),
+            frozen,
+        )
