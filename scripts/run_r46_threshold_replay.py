@@ -65,9 +65,23 @@ def assert_frozen_70(actual: pd.DataFrame, frozen: pd.DataFrame) -> None:
         )
     # Comparing all ledger columns flags any unexpected execution or
     # contextual difference rather than just matching summary metrics.
+    # Normalize timestamp representations from the archived CSV.
+    # Preserve all other original trade fields and comparison checks.
+    actual_checked = actual.reset_index(drop=True)[frozen.columns].copy()
+    frozen_checked = frozen.reset_index(drop=True).copy()
+
+    for column in ("signal_time", "entry_time", "exit_time"):
+        if column in frozen_checked.columns:
+            actual_checked[column] = pd.to_datetime(
+                actual_checked[column], utc=True, errors="raise"
+            )
+            frozen_checked[column] = pd.to_datetime(
+                frozen_checked[column], utc=True, errors="raise"
+            )
+
     pd.testing.assert_frame_equal(
-        actual.reset_index(drop=True)[frozen.columns],
-        frozen.reset_index(drop=True),
+        actual_checked,
+        frozen_checked,
         check_dtype=False,
         check_exact=False,
         rtol=1e-10,

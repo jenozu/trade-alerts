@@ -41,3 +41,52 @@ def test_rejects_out_of_range_threshold():
                 "long_raw_score": [80.], "short_raw_score": [20.],
             }), 110
         )
+
+
+def test_frozen_parity_normalizes_archived_timestamps():
+    from io import StringIO
+
+    actual = pd.DataFrame({
+        "trade_id": [1, 2],
+        "signal_time": pd.to_datetime([
+            "2024-01-02T14:30:00Z",
+            "2024-01-02T14:40:00Z",
+        ], utc=True),
+        "entry_time": pd.to_datetime([
+            "2024-01-02T14:31:00Z",
+            "2024-01-02T14:41:00Z",
+        ], utc=True),
+        "exit_time": pd.to_datetime([
+            "2024-01-02T14:35:00Z",
+            "2024-01-02T14:45:00Z",
+        ], utc=True),
+        "net_result_points": [25.25, -25.25],
+    })
+
+    frozen = pd.read_csv(
+        StringIO(actual.to_csv(index=False))
+    )
+
+    # Identical trades must pass despite CSV timestamp types.
+    assert_frozen_70(actual, frozen)
+
+    # A genuine timestamp difference must still fail.
+    changed = actual.copy()
+    changed.loc[0, "signal_time"] += pd.Timedelta(minutes=1)
+
+    with pytest.raises(AssertionError):
+        assert_frozen_70(changed, frozen)
+
+    # A changed financial result must still fail.
+    changed = actual.copy()
+    changed.loc[1, "net_result_points"] = -30.25
+
+    with pytest.raises(AssertionError):
+        assert_frozen_70(changed, frozen)
+
+    # Chronological trade order must remain identical.
+    with pytest.raises(AssertionError):
+        assert_frozen_70(
+            actual.iloc[::-1].reset_index(drop=True),
+            frozen,
+        )
