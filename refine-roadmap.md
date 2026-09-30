@@ -1675,7 +1675,21 @@ Implementation:
 - [x] 2023 replay + control parity;
 - [x] 2024 replay + control parity;
 - [x] 2025 replay + control parity;
-- [ ] archive and cross-year decision.
+- [x] archive and cross-year decision.
+
+R6.2 completed evidence — 2026-09-30:
+
+- TP100 control parity passed in all three years.
+- 25% TP50 + 75% TP100 runner: +1,854.68 combined net points.
+- 25% TP50 + 75% TP100 BE runner: +2,006.36 combined net points.
+- TP100 control: +2,172.50 combined net points.
+- The BE runner improved the plain runner in all three years and reduced annual drawdown in all three years.
+- It beat the TP100 control in 2023 and 2024, but surrendered too much 2025 upside.
+
+R6.2 decision: **INVESTIGATE — NO PRODUCTION CHANGE.**
+
+Avoid further nearby partial-size tuning on the same sample. Move to the already-planned equal-partials exit model next.
+
 
 ---
 
@@ -1698,10 +1712,10 @@ Implementation:
 
 - [x] `scripts/run_r62_p25_tp50_runner.py`
 - [x] `tests/test_r62_p25_tp50_runner.py`
-- [ ] targeted tests;
-- [ ] 2023 replay + control parity;
-- [ ] 2024 replay + control parity;
-- [ ] 2025 replay + control parity;
+- [x] targeted tests;
+- [x] 2023 replay + control parity;
+- [x] 2024 replay + control parity;
+- [x] 2025 replay + control parity;
 - [ ] archive and cross-year decision.
 
 ---
