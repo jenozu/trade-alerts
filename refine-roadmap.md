@@ -1639,6 +1639,46 @@ Do not choose the exit model solely because it has the highest win rate.
 
 ---
 
+## R6.1 — TP50 partial realization + TP100 runner
+
+R6.0 showed that a full TP50 exit increased win rate but sacrificed too much
+upside overall. R6.1 therefore tests whether the strategy can realize part of
+the move at 50 points while preserving exposure to the existing 100-point
+runner.
+
+Models:
+
+- CONTROL — current 100% TP100 baseline (parity gate only);
+- P50_RUNNER — 50% at +50, remaining 50% to +100, original stop retained;
+- P50_BE_RUNNER — 50% at +50, remaining 50% to +100, runner stop moves to
+  break-even beginning on the next bar.
+
+Frozen:
+
+- baseline score and threshold-70 eligibility;
+- setup/entry logic;
+- initial stop logic;
+- time/session rules;
+- slippage;
+- maximum hold;
+- one-open-trade behavior.
+
+The no-BE variant isolates partial realization. The BE variant then measures
+the incremental effect of break-even management instead of bundling both
+changes without attribution.
+
+Implementation:
+
+- [x] `scripts/run_r61_tp50_runner.py`
+- [x] `tests/test_r61_tp50_runner.py`
+- [ ] targeted unit tests;
+- [ ] 2023 replay + control parity;
+- [ ] 2024 replay + control parity;
+- [ ] 2025 replay + control parity;
+- [ ] archive and cross-year decision.
+
+---
+
 # 11. Phase R7 — Interaction experiments
 
 Only after individual components are understood should combinations be tested.
