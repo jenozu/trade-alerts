@@ -260,13 +260,24 @@ def determine_stop_price(
         stop_points=fallback_points,
     )
 
-    if settings.stop_method != "structural":
+    if settings.stop_method == "fixed":
         return fallback
     if structural is None:
         return fallback
 
     risk = entry_price - structural if direction == "long" else structural - entry_price
     if risk <= 0:
+        return fallback
+
+    if settings.stop_method == "structural_raw":
+        return structural
+
+    if settings.stop_method == "structural_cap":
+        if risk > settings.preferred_fixed_stop_max:
+            return fallback
+        return structural
+
+    if settings.stop_method != "structural":
         return fallback
     if risk < settings.preferred_fixed_stop_min or risk > settings.preferred_fixed_stop_max:
         return fallback
