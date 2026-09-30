@@ -1565,6 +1565,67 @@ No production setting changes are authorized from these research years alone.
 
 ---
 
+## R5.1 — Structural-stop sweep
+
+R5.0 found that FIXED_15 is the strongest fixed-stop candidate across the three
+research years, but it is not a production change. R5.1 now isolates the
+roadmap-defined structural-stop family before any sweep-extreme or volatility /
+ATR research.
+
+Models:
+
+- CONTROL — untouched current behavior: structural stop only when the valid
+  causal structure distance is inside 20–25 points, otherwise fixed 25;
+- STRUCTURAL_RAW — use the first valid causal internal/external structural stop
+  at any positive distance, otherwise fixed 25 fallback;
+- STRUCTURAL_CAP_25 — use the valid structural stop when risk is <=25 points,
+  otherwise fixed 25 fallback.
+
+Frozen:
+
+- baseline score weights and threshold-70 eligibility;
+- setup qualification and directional logic;
+- entry timing and price/slippage behavior;
+- TP1/TP2/TP3/TP4 logic;
+- session/time rules;
+- maximum hold;
+- one-open-trade-at-a-time behavior.
+
+Method:
+
+- full chronological replay from the scored feature stream;
+- exact untouched CONTROL parity required before trusting variants;
+- 2023 reviewed first, then 2024 and 2025 separately;
+- trade count may change naturally through path dependence;
+- no production configuration is modified.
+
+Additional diagnostics:
+
+- mean / median / p10 / p90 stop distance;
+- minimum / maximum stop distance;
+- percentage of realized stops below 15 and 20 points;
+- percentage above 25 and 35 points;
+- setup-family segmentation;
+- normal R5 performance / MAE / drawdown metrics.
+
+Implementation:
+
+- [x] research-only stop modes added without changing default CONTROL semantics;
+- [x] `scripts/run_r51_structural_stop_sweep.py`;
+- [x] `tests/test_r51_structural_stop_sweep.py`;
+- [ ] targeted unit tests;
+- [ ] 2023 replay + exact control parity;
+- [ ] review 2023 before running 2024/2025;
+- [ ] 2024 replay + exact control parity;
+- [ ] 2025 replay + exact control parity;
+- [ ] archive results with hashes;
+- [ ] cross-year decision.
+
+Do not compare or combine R5.1 with FIXED_15 inside the same replay. FIXED_15 is
+carried forward only as a later validation candidate.
+
+---
+
 # 10. Phase R6 — Exit / trade-management experiments
 
 ## R6.0 — Fixed full-target sweep (first isolated exit experiment)
