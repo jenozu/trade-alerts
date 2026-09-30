@@ -1480,6 +1480,74 @@ Do not widen stops merely to increase win rate.
 
 # 10. Phase R6 — Exit / trade-management experiments
 
+## R6.0 — Fixed full-target sweep (first isolated exit experiment)
+
+Before testing partial exits or break-even management, isolate the user's current
+full-target question without changing any other parameter family.
+
+Compare:
+
+```text
+Full TP 50 points
+Full TP 75 points
+Full TP 100 points — frozen control
+```
+
+Frozen during this experiment:
+
+- baseline score weights;
+- threshold-70 eligibility;
+- entry/setup logic;
+- current stop logic;
+- session and time rules;
+- one-open-trade behavior;
+- slippage;
+- maximum holding time.
+
+Important: current baseline stop logic is **structural when the valid structure
+stop falls inside the configured 20–25 point range, otherwise 25-point
+fallback**. R6.0 must not force every stop to exactly 25 points because that
+would mix stop research with target research. A true fixed-25 stop belongs in
+Phase R5 as a separate experiment.
+
+Method:
+
+- use the full scored chronological feature stream;
+- do not filter already executed trades;
+- TP100 must reproduce the frozen baseline ledger trade-for-trade;
+- changing target distance is allowed to alter later trade availability because
+  the strategy permits only one open trade at a time;
+- evaluate each year independently before pooled interpretation.
+
+Primary metrics:
+
+- trades;
+- win rate;
+- expectancy points / R;
+- PF;
+- net points;
+- max drawdown;
+- stop-hit rate;
+- full-target exit rate;
+- MFE / MAE;
+- average hold time;
+- cross-year stability.
+
+Implementation:
+
+- [x] `scripts/run_r6_fixed_target_sweep.py`
+- [x] `tests/test_r6_fixed_target_sweep.py`
+- [ ] run targeted tests;
+- [ ] run 2023 / 2024 / 2025 full chronological replays;
+- [ ] review cross-year results;
+- [ ] archive with hashes;
+- [ ] decide whether 50 / 75 / 100 proceeds to validation.
+
+This is not a new competing checklist. It is the first controlled experiment
+inside the already-planned R6 exit-management family.
+
+
+
 This experiment family was intentionally deferred until after untouched baseline establishment.
 
 The current simulator has historically behaved largely as an all-or-nothing **TP4 vs stop** model while still recording TP1-TP4 touches.
