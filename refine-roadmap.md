@@ -1478,6 +1478,69 @@ Do not widen stops merely to increase win rate.
 
 ---
 
+## R5.0 — Fixed-stop sweep
+
+This is the first isolated R5 experiment. It deliberately tests only the
+roadmap-defined fixed-stop family before adding structural/sweep/volatility
+variants, so stop research does not become a multi-parameter search.
+
+Models:
+
+- CONTROL — untouched current stop behavior: structural stop only when the
+  valid structural distance is inside 20–25 points, otherwise 25-point fallback;
+- FIXED_15;
+- FIXED_20;
+- FIXED_25;
+- FIXED_30;
+- FIXED_35.
+
+Frozen:
+
+- baseline score weights and threshold-70 eligibility;
+- setup qualification and directional logic;
+- entry timing and price/slippage behavior;
+- TP1/TP2/TP3/TP4 logic;
+- session/time rules;
+- maximum hold;
+- one-open-trade-at-a-time behavior.
+
+Method:
+
+- replay the full chronological scored feature stream, never a filtered trade
+  ledger;
+- require exact CONTROL parity with the frozen R4.5 baseline before trusting any
+  fixed-stop variant;
+- run and inspect 2023 first, then 2024 and 2025 separately;
+- allow trade count to change naturally because stop duration can change later
+  opportunity availability under the one-open-trade rule.
+
+Primary outputs:
+
+- trade count, win rate, expectancy points/R, PF, net points and max drawdown;
+- average/median MAE and MAE of eventual winners;
+- baseline-winner survival at 15/20/25/30/35 points;
+- stop/TP4 rates;
+- reversal vs continuation results using the established EXP-003 setup-family
+  contract (directional liquidity_sweep context);
+- year-by-year stability before any pooled interpretation.
+
+Implementation:
+
+- [x] `scripts/run_r5_fixed_stop_sweep.py`
+- [x] `tests/test_r5_fixed_stop_sweep.py`
+- [ ] targeted unit tests;
+- [ ] 2023 replay + exact control parity;
+- [ ] review 2023 before running 2024/2025;
+- [ ] 2024 replay + exact control parity;
+- [ ] 2025 replay + exact control parity;
+- [ ] archive completed results with hashes;
+- [ ] decide whether any fixed stop deserves later validation;
+- [ ] only then evaluate supported structural/sweep-extreme/ATR/capped variants.
+
+No production setting changes are authorized from these research years alone.
+
+---
+
 # 10. Phase R6 — Exit / trade-management experiments
 
 ## R6.0 — Fixed full-target sweep (first isolated exit experiment)
