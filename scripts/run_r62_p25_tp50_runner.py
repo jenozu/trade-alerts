@@ -127,9 +127,7 @@ def simulate_managed_trade(
     tp100 = _target(entry, direction, 100.0)
 
     entry_time = data.iloc[entry_index]["timestamp"]
-    max_end = entry_time + pd.Timedelta(
-        minutes=int(settings.maximum_holding_minutes)
-    )
+    max_end = entry_time + pd.Timedelta(seconds=int(settings.maximum_holding_minutes) * 60)
 
     partial_hit = False
     runner_hit = False
