@@ -1679,6 +1679,33 @@ Implementation:
 
 ---
 
+## R6.2 — Smaller TP50 partial (25%) + TP100 runner
+
+R6.1 showed that taking 50% off at +50 consistently reduced drawdown but
+sacrificed too much TP100 upside. R6.2 isolates partial size by reducing the
+realized fraction to 25% and preserving 75% for the existing +100 target.
+
+Models:
+
+- CONTROL — current TP100 baseline (parity gate only);
+- P25_RUNNER — 25% at +50, 75% to +100, original stop retained;
+- P25_BE_RUNNER — 25% at +50, 75% to +100, next-bar break-even on runner.
+
+All scoring, eligibility, setup, entry, initial-stop, time/session, slippage,
+maximum-hold and one-position-at-a-time behavior remains frozen.
+
+Implementation:
+
+- [x] `scripts/run_r62_p25_tp50_runner.py`
+- [x] `tests/test_r62_p25_tp50_runner.py`
+- [ ] targeted tests;
+- [ ] 2023 replay + control parity;
+- [ ] 2024 replay + control parity;
+- [ ] 2025 replay + control parity;
+- [ ] archive and cross-year decision.
+
+---
+
 # 11. Phase R7 — Interaction experiments
 
 Only after individual components are understood should combinations be tested.
