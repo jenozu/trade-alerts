@@ -1528,14 +1528,38 @@ Implementation:
 
 - [x] `scripts/run_r5_fixed_stop_sweep.py`
 - [x] `tests/test_r5_fixed_stop_sweep.py`
-- [ ] targeted unit tests;
-- [ ] 2023 replay + exact control parity;
-- [ ] review 2023 before running 2024/2025;
-- [ ] 2024 replay + exact control parity;
-- [ ] 2025 replay + exact control parity;
-- [ ] archive completed results with hashes;
-- [ ] decide whether any fixed stop deserves later validation;
-- [ ] only then evaluate supported structural/sweep-extreme/ATR/capped variants.
+- [x] targeted unit tests;
+- [x] 2023 replay + exact control parity;
+- [x] review 2023 before running 2024/2025;
+- [x] 2024 replay + exact control parity;
+- [x] 2025 replay + exact control parity;
+- [x] archive completed results with hashes under `research-archive/R5-00/`;
+- [x] decide whether any fixed stop deserves later validation;
+- [x] only then evaluate supported structural/sweep-extreme/ATR/capped variants.
+
+R5.0 completed evidence — 2026-09-30:
+
+- Exact untouched CONTROL parity passed in all three years: 344 / 388 / 486 trades.
+- FIXED_15 was positive in every research year and produced the strongest combined fixed-stop result:
+  - 2023: 391 trades, +1,023.75 net points, +2.6183 pts/trade, +0.1746R, PF 1.2204, DD 498.25.
+  - 2024: 432 trades, +269.00 net points, +0.6227 pts/trade, +0.0415R, PF 1.0498, DD 770.25.
+  - 2025: 544 trades, +1,864.75 net points, +3.4278 pts/trade, +0.2285R, PF 1.2734, DD 631.00.
+  - Combined: 1,367 trades, +3,157.50 net points, approximately +2.310 pts/trade.
+- Fixed-stop combined net points:
+  - 15: +3,157.50;
+  - 20: +1,945.75;
+  - 25: +2,153.50;
+  - 30: +1,714.75;
+  - 35: +1,733.75.
+- Untouched CONTROL combined reference: 1,218 trades, +2,172.50 net points, approximately +1.784 pts/trade.
+- FIXED_30 led 2023 raw net points but turned negative in 2024; FIXED_20 and FIXED_35 also turned negative in 2024.
+- Baseline-winner survival at 15 points was 75/111 (2023), 76/106 (2024), and 83/121 (2025): 234/338 combined, about 69.2%.
+- The 15-point advantage therefore did not come from preserving more eventual baseline winners. Earlier stop-outs changed trade duration and subsequent opportunity availability under the one-open-trade rule.
+- In 2025, FIXED_15 remained positive in both setup families: continuation +617.25 points across 85 trades and reversal +1,247.50 across 459 trades.
+
+R5.0 decision: **INVESTIGATE — FIXED_15 ADVANCES AS THE FIXED-STOP CANDIDATE; NO PRODUCTION CHANGE.**
+
+The research years are not a production acceptance test. Carry FIXED_15 forward only into later robustness / held-out validation. Continue R5 with structural-stop research before sweep-extreme or volatility/ATR variants.
 
 No production setting changes are authorized from these research years alone.
 
