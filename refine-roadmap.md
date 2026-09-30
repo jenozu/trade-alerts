@@ -1416,6 +1416,30 @@ Before calling the score calibrated:
 
 ---
 
+## R4.6 completed evidence — 2026-09-30
+
+- [x] True chronological threshold replay implemented with frozen threshold-70 parity gating.
+- [x] Thresholds 70 / 75 / 80 / 85 reviewed across 2023 / 2024 / 2025.
+- [x] Baseline, Conservative, Evidence Tilt, and Redundancy Reduced scoring candidates reviewed.
+- [x] Year-by-year statistical review archived under `research-archive/R4-06/`.
+- [x] No production scoring, entries, stops, targets, or setup rules changed.
+
+Key findings:
+
+- Baseline threshold increases were not stable across years; 2024 remained negative at 75/80/85.
+- Evidence Tilt 80: 559 combined trades, +2432.00 net points, +4.3506 points/trade, positive expectancy in every year.
+- Redundancy Reduced 85: 283 combined trades, +2098.00 net points, +7.4134 points/trade, positive expectancy in every year.
+- Conservative remained negative in 2024 at every tested threshold.
+- Higher thresholds were not perfectly monotonic, so threshold alone is not a sufficient strategy improvement.
+
+R4.6 decision: **INVESTIGATE — NO PRODUCTION CHANGE**.
+
+Carry Evidence Tilt 80 and Redundancy Reduced 85 forward only as later validation candidates.
+
+Do not combine these score candidates with target, stop, or entry changes inside an isolated parameter-family experiment.
+
+---
+
 # 9. Phase R5 — Stop-loss research
 
 Do not optimize exits until entry/setup behavior has first been understood, but stop behavior should be analyzed before final strategy certification.
