@@ -1716,7 +1716,7 @@ Implementation:
 - [x] 2023 replay + control parity;
 - [x] 2024 replay + control parity;
 - [x] 2025 replay + control parity;
-- [ ] archive and cross-year decision.
+- [x] archive and cross-year decision.
 
 ---
 
@@ -1742,11 +1742,24 @@ Implementation:
 
 - [x] `scripts/run_r63_equal_partials.py`
 - [x] `tests/test_r63_equal_partials.py`
-- [ ] targeted tests;
-- [ ] 2023 replay + control parity;
-- [ ] 2024 replay + control parity;
-- [ ] 2025 replay + control parity;
-- [ ] archive and cross-year decision.
+- [x] targeted tests;
+- [x] 2023 replay + control parity;
+- [x] 2024 replay + control parity;
+- [x] 2025 replay + control parity;
+- [x] archive and cross-year decision.
+
+
+R6.3 completed evidence — 2026-09-30:
+
+- TP100 control parity passed in 2023 / 2024 / 2025.
+- Equal partials: +653.75 combined net points / +0.5367 points per trade.
+- TP100 control: +2,172.50 combined net points / +1.7837 points per trade.
+- Equal partials reduced maximum drawdown in all three years but materially reduced expectancy and net profit.
+- 2024 turned negative and 2025 lost most of the TP100 upside.
+
+R6.3 decision: **REJECT AS DEFAULT EXIT MODEL — NO PRODUCTION CHANGE.**
+
+Close the current fixed-target/partial-exit block. Keep TP100 as the control and move to Phase R5 stop-loss research rather than further tuning partial sizes on the same sample.
 
 ---
 
