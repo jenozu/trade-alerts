@@ -1537,14 +1537,28 @@ Implementation:
 
 - [x] `scripts/run_r6_fixed_target_sweep.py`
 - [x] `tests/test_r6_fixed_target_sweep.py`
-- [ ] run targeted tests;
-- [ ] run 2023 / 2024 / 2025 full chronological replays;
-- [ ] review cross-year results;
+- [x] run targeted tests;
+- [x] run 2023 / 2024 / 2025 full chronological replays;
+- [x] review cross-year results;
 - [ ] archive with hashes;
-- [ ] decide whether 50 / 75 / 100 proceeds to validation.
+- [x] decide whether 50 / 75 / 100 proceeds to validation.
 
 This is not a new competing checklist. It is the first controlled experiment
 inside the already-planned R6 exit-management family.
+
+
+R6.0 completed evidence — 2026-09-30:
+
+- TP100 parity passed in 2023 / 2024 / 2025.
+- TP50 combined descriptive total: 1,324 trades, +1,451.50 points, +1.0963 points/trade.
+- TP75 combined descriptive total: 1,260 trades, +1,064.00 points, +0.8444 points/trade.
+- TP100 combined descriptive total: 1,218 trades, +2,172.50 points, +1.7837 points/trade.
+- TP50 increased win rate and reduced worst annual drawdown, but turned 2024 negative and materially reduced 2025 net points.
+- TP75 did not provide a stable improvement.
+
+R6.0 decision: **KEEP TP100 AS CURRENT CONTROL — NO PRODUCTION CHANGE.**
+
+The TP50 result supports testing partial realization / runner management next rather than replacing the full-position target.
 
 
 
