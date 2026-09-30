@@ -1671,10 +1671,10 @@ Implementation:
 
 - [x] `scripts/run_r61_tp50_runner.py`
 - [x] `tests/test_r61_tp50_runner.py`
-- [ ] targeted unit tests;
-- [ ] 2023 replay + control parity;
-- [ ] 2024 replay + control parity;
-- [ ] 2025 replay + control parity;
+- [x] targeted unit tests;
+- [x] 2023 replay + control parity;
+- [x] 2024 replay + control parity;
+- [x] 2025 replay + control parity;
 - [ ] archive and cross-year decision.
 
 ---
