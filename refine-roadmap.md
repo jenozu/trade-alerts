@@ -1720,6 +1720,36 @@ Implementation:
 
 ---
 
+## R6.3 — Equal partials across TP1–TP4
+
+R6.2 produced the strongest partial-exit candidate so far, but nearby partial-size
+tuning is now stopped to avoid parameter mining.
+
+R6.3 moves to the distinct roadmap-defined EXIT-C model:
+
+```text
+25% at TP1 (+25)
+25% at TP2 (+50)
+25% at TP3 (+75)
+25% at TP4 (+100)
+```
+
+No break-even or trailing behavior is added. The original stop remains active
+for the remaining position. This isolates distributed profit realization from
+stop-management changes.
+
+Implementation:
+
+- [x] `scripts/run_r63_equal_partials.py`
+- [x] `tests/test_r63_equal_partials.py`
+- [ ] targeted tests;
+- [ ] 2023 replay + control parity;
+- [ ] 2024 replay + control parity;
+- [ ] 2025 replay + control parity;
+- [ ] archive and cross-year decision.
+
+---
+
 # 11. Phase R7 — Interaction experiments
 
 Only after individual components are understood should combinations be tested.
