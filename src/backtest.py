@@ -45,6 +45,7 @@ class BacktestSettings:
     fixed_stop_values: tuple[float, ...]
     preferred_fixed_stop_min: float
     preferred_fixed_stop_max: float
+    atr_stop_multiplier: float
     tp1_points: float
     tp2_points: float
     tp3_points: float
@@ -140,6 +141,7 @@ def build_backtest_settings(config: dict[str, Any]) -> BacktestSettings:
     stop_loss = config.get("stop_loss", {})
     structural_stop = stop_loss.get("structural", {})
     preferred_stop = stop_loss.get("preferred_initial_range_points", {})
+    atr_stop = stop_loss.get("atr", {})
     take_profit = config.get("take_profit", {})
     preferred_tp = take_profit.get("preferred_initial", {})
     commission = backtest.get("commission", {})
@@ -162,6 +164,7 @@ def build_backtest_settings(config: dict[str, Any]) -> BacktestSettings:
         fixed_stop_values=tuple(float(x) for x in stop_loss.get("fixed_research_values_points", [15, 20, 25, 30])),
         preferred_fixed_stop_min=float(preferred_stop.get("minimum", 20)),
         preferred_fixed_stop_max=float(preferred_stop.get("maximum", 25)),
+        atr_stop_multiplier=float(atr_stop.get("multiplier", 1.5)),
         tp1_points=float(preferred_tp.get("tp1_points", 25)),
         tp2_points=float(preferred_tp.get("tp2_points", 50)),
         tp3_points=float(preferred_tp.get("tp3_points", 75)),
@@ -262,6 +265,17 @@ def determine_stop_price(
 
     if settings.stop_method == "fixed":
         return fallback
+
+    if settings.stop_method == "atr":
+        atr = safe_float(signal_row, "atr_14_points")
+        if atr is None or atr <= 0:
+            return fallback
+        atr_points = atr * settings.atr_stop_multiplier
+        return fixed_stop_price(
+            entry_price=entry_price,
+            direction=direction,
+            stop_points=atr_points,
+        )
 
     if settings.stop_method == "sweep_extreme":
         sweep_extreme = safe_float(
