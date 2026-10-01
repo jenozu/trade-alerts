@@ -1,0 +1,2 @@
+research_year,model,trades,mean_stop_points,median_stop_points,p10_stop_points,p90_stop_points,minimum_stop_points,maximum_stop_points,pct_below_15,pct_below_20,pct_above_25,pct_above_35
+2025,SWEEP_EXTREME,481,39.62837837837838,25.0,9.25,69.0,0.75,1068.75,0.1704781704781705,0.2182952182952183,0.3866943866943867,0.2869022869022869
