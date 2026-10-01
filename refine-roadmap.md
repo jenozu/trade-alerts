@@ -1699,6 +1699,55 @@ FIXED_15 remains the only R5 candidate carried forward so far for later robustne
 
 ---
 
+## R5.3 — ATR / volatility-adjusted stop
+
+R5.3 is the final isolated stop-family experiment in Phase R5.
+
+Models:
+
+- CONTROL — untouched current stop logic;
+- ATR_1_0 — 14-bar 1m ATR x 1.0;
+- ATR_1_5 — 14-bar 1m ATR x 1.5;
+- ATR_2_0 — 14-bar 1m ATR x 2.0.
+
+ATR is calculated causally from the signal bar and prior completed bars using
+true range. The strategy enters on the next bar, so the current signal-bar ATR
+is available without lookahead. If ATR is unavailable or invalid, use the
+existing fixed-25 fallback.
+
+Frozen:
+
+- baseline score weights and threshold-70 eligibility;
+- setup qualification and direction;
+- entry timing and slippage;
+- TP1/TP2/TP3/TP4;
+- session/time rules;
+- maximum hold;
+- one-open-trade behavior.
+
+Method:
+
+- full chronological replay;
+- exact untouched CONTROL parity gate before trusting any ATR result;
+- inspect 2023 first, then 2024 and 2025 separately;
+- report normal R5 metrics, stop-distance distribution, and setup-family split;
+- do not tune additional nearby ATR multipliers on these research years.
+
+Implementation:
+
+- [x] research-only ATR stop support;
+- [x] `scripts/run_r53_atr_stop.py`;
+- [x] `tests/test_r53_atr_stop.py`;
+- [ ] targeted unit tests;
+- [ ] 2023 replay + exact control parity;
+- [ ] review 2023;
+- [ ] 2024 replay + exact control parity;
+- [ ] 2025 replay + exact control parity;
+- [ ] archive with hashes;
+- [ ] final R5 cross-family decision and Phase R5 closure.
+
+---
+
 # 10. Phase R6 — Exit / trade-management experiments
 
 ## R6.0 — Fixed full-target sweep (first isolated exit experiment)
