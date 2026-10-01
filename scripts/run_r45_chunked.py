@@ -38,6 +38,10 @@ BACKTEST_SOURCE_COLUMNS = (
     "active_internal_swing_low", "active_external_swing_low",
     "active_internal_swing_high", "active_external_swing_high",
     "recent_sell_side_sweep", "recent_buy_side_sweep",
+    # R5.2 sweep-extreme research needs the causal event-bar flags to
+    # reconstruct the actual wick extreme. These extra columns are ignored by
+    # the untouched control backtester, so baseline behavior remains frozen.
+    "sell_side_liquidity_sweep", "buy_side_liquidity_sweep",
     "recent_bullish_displacement", "recent_bearish_displacement",
     "recent_bullish_mss", "recent_bearish_mss",
     "recent_bullish_bos", "recent_bearish_bos",
