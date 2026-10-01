@@ -1637,6 +1637,55 @@ the only R5 candidate carried forward so far, for later robustness / held-out va
 
 ---
 
+## R5.2 — Sweep-extreme stop
+
+R5.2 isolates the roadmap-defined sweep-extreme family using only causal data
+already present in the full scored stream.
+
+Definition:
+
+- LONG -> use the low of the most recent sell-side liquidity-sweep bar;
+- SHORT -> use the high of the most recent buy-side liquidity-sweep bar;
+- reuse the existing 2-point stop buffer outside that wick extreme;
+- use the existing 10-bar recent-sweep window;
+- if no valid recent directional sweep extreme exists, fall back to fixed 25.
+
+The recent extreme is reconstructed causally from current/past bars only. It is
+not inferred from future price action.
+
+Frozen:
+
+- baseline score weights and threshold-70 eligibility;
+- setup qualification and direction;
+- entry timing and slippage;
+- TP1/TP2/TP3/TP4;
+- session/time rules;
+- maximum hold;
+- one-open-trade behavior.
+
+Method:
+
+- full chronological replay;
+- exact untouched CONTROL parity gate first;
+- inspect 2023 before 2024/2025;
+- report normal R5 metrics plus stop-distance distribution and setup family;
+- no production change from research years.
+
+Implementation:
+
+- [x] research-only `sweep_extreme` stop mode;
+- [x] `scripts/run_r52_sweep_extreme_stop.py`;
+- [x] `tests/test_r52_sweep_extreme_stop.py`;
+- [ ] targeted unit tests;
+- [ ] 2023 replay + exact control parity;
+- [ ] review 2023;
+- [ ] 2024 replay + exact control parity;
+- [ ] 2025 replay + exact control parity;
+- [ ] archive with hashes;
+- [ ] cross-year decision.
+
+---
+
 # 10. Phase R6 — Exit / trade-management experiments
 
 ## R6.0 — Fixed full-target sweep (first isolated exit experiment)
