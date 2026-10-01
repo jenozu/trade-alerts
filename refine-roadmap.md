@@ -1613,16 +1613,27 @@ Implementation:
 - [x] research-only stop modes added without changing default CONTROL semantics;
 - [x] `scripts/run_r51_structural_stop_sweep.py`;
 - [x] `tests/test_r51_structural_stop_sweep.py`;
-- [ ] targeted unit tests;
-- [ ] 2023 replay + exact control parity;
-- [ ] review 2023 before running 2024/2025;
-- [ ] 2024 replay + exact control parity;
-- [ ] 2025 replay + exact control parity;
-- [ ] archive results with hashes;
-- [ ] cross-year decision.
+- [x] targeted unit tests;
+- [x] 2023 replay + exact control parity;
+- [x] review 2023 before running 2024/2025;
+- [x] 2024 replay + exact control parity;
+- [x] 2025 replay + exact control parity;
+- [x] archive results with hashes under `research-archive/R5-01/`;
+- [x] cross-year decision.
 
-Do not compare or combine R5.1 with FIXED_15 inside the same replay. FIXED_15 is
-carried forward only as a later validation candidate.
+R5.1 completed evidence — 2026-10-01:
+
+- Exact untouched CONTROL parity passed in 2023 / 2024 / 2025.
+- STRUCTURAL_RAW combined net: -1,232.75 points versus +2,172.50 CONTROL.
+- STRUCTURAL_RAW p90 stop distance widened from 57.25 (2023) to 61.00 (2024) to 86.15 (2025), with materially worse drawdown.
+- STRUCTURAL_CAP_25 combined net: +1,978.00 points, below the +2,172.50 CONTROL.
+- STRUCTURAL_CAP_25 was +971.00 / -46.00 / +1,053.00 by year.
+- The capped variant remained much healthier than uncapped structure, but did not improve the untouched control across the research years.
+
+R5.1 decision: **REJECT STRUCTURAL_RAW; DO NOT ADVANCE STRUCTURAL_CAP_25 OVER CONTROL; NO PRODUCTION CHANGE.**
+
+Do not compare or combine R5.1 with FIXED_15 inside the same replay. FIXED_15 remains
+the only R5 candidate carried forward so far, for later robustness / held-out validation.
 
 ---
 
