@@ -262,6 +262,28 @@ def determine_stop_price(
 
     if settings.stop_method == "fixed":
         return fallback
+
+    if settings.stop_method == "sweep_extreme":
+        sweep_extreme = safe_float(
+            signal_row,
+            "recent_sell_side_sweep_extreme_low"
+            if direction == "long"
+            else "recent_buy_side_sweep_extreme_high",
+        )
+        if sweep_extreme is None:
+            return fallback
+        sweep_stop = (
+            sweep_extreme - settings.structural_stop_buffer_points
+            if direction == "long"
+            else sweep_extreme + settings.structural_stop_buffer_points
+        )
+        sweep_risk = (
+            entry_price - sweep_stop
+            if direction == "long"
+            else sweep_stop - entry_price
+        )
+        return sweep_stop if sweep_risk > 0 else fallback
+
     if structural is None:
         return fallback
 
