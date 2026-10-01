@@ -1676,13 +1676,26 @@ Implementation:
 - [x] research-only `sweep_extreme` stop mode;
 - [x] `scripts/run_r52_sweep_extreme_stop.py`;
 - [x] `tests/test_r52_sweep_extreme_stop.py`;
-- [ ] targeted unit tests;
-- [ ] 2023 replay + exact control parity;
-- [ ] review 2023;
-- [ ] 2024 replay + exact control parity;
-- [ ] 2025 replay + exact control parity;
-- [ ] archive with hashes;
-- [ ] cross-year decision.
+- [x] targeted unit tests;
+- [x] 2023 replay + exact control parity;
+- [x] review 2023;
+- [x] 2024 replay + exact control parity;
+- [x] 2025 replay + exact control parity;
+- [x] archive with hashes under `research-archive/R5-02/`;
+- [x] cross-year decision.
+
+R5.2 completed evidence — 2026-10-01:
+
+- Exact untouched CONTROL parity passed in 2023 / 2024 / 2025.
+- SWEEP_EXTREME net points by year: +549.75 / -40.00 / +370.00.
+- Combined SWEEP_EXTREME net: +879.75 versus +2,172.50 CONTROL.
+- Stop-distance p90 widened to 46.00 / 47.53 / 69.00 points.
+- Maximum drawdown was materially worse than control in the observed years.
+- 2023 setup-family review showed the largest deterioration in the dominant reversal family.
+
+R5.2 decision: **REJECT SWEEP_EXTREME AS A GENERAL STOP MODEL — NO PRODUCTION CHANGE.**
+
+FIXED_15 remains the only R5 candidate carried forward so far for later robustness / held-out validation.
 
 ---
 
