@@ -2098,6 +2098,166 @@ At each addition record:
 
 This identifies where additional confirmation stops helping and begins over-filtering.
 
+The conceptual sequence above is not an instruction to force every component
+into one stack. R7 interactions must be chosen from completed R1-R4 evidence,
+must use causally available historical fields, and must preserve attribution.
+
+## R7.0 — Continuation-proxy + same-direction displacement
+
+### Audit basis
+
+R1-R4 evidence does not support beginning R7 with the full conceptual stack.
+
+Key constraints from completed research:
+
+- continuation trades outperformed reversals overall in all three research
+  years, but the family interaction is important and does not justify removing
+  reversals;
+- a global displacement requirement is not supported: displacement was
+  regime-dependent overall and did not improve reversal trades as a universal
+  condition;
+- the continuation + displacement interaction was materially stronger than
+  continuation without displacement in the archived baseline and the sign of
+  that advantage was consistent across all three years:
+  - 2023: with displacement 22 trades, +11.68 pts/trade, PF 1.79 versus
+    24 trades, -3.50 pts/trade, PF 0.81 without;
+  - 2024: with displacement 29 trades, +15.03 pts/trade, PF 1.92 versus
+    31 trades, +5.06 pts/trade, PF 1.33 without;
+  - 2025: with displacement 39 trades, +7.40 pts/trade, PF 1.41 versus
+    40 trades, +1.04 pts/trade, PF 1.05 without;
+- retest cannot be the first R7 requirement because EXP-008/EXP-021 did not
+  establish a causal pre-entry retest condition for the existing baseline.
+  A true wait-for-retest experiment requires alternate-entry simulation;
+- HTF bias was regime-dependent rather than a universal hard filter;
+- DOL was heavily selection-confounded in the surviving baseline;
+- premium/discount and SNR were non-monotonic;
+- broad RVOL and room-to-target measures were not clean enough to justify the
+  first interaction gate;
+- Order Block research remains unavailable because deterministic historical OB
+  fields do not exist.
+
+### Hypothesis
+
+The current continuation-proxy family may contain low-quality breaks that lack
+the directional impulse expected from a genuine continuation. Requiring
+same-direction recent displacement for continuation-proxy signals may improve
+trade quality while leaving the independently different reversal family
+untouched.
+
+### Single controlled change
+
+Use the established EXP-003 deterministic family contract:
+
+```text
+directional recent liquidity sweep present -> reversal proxy
+no directional recent liquidity sweep      -> continuation proxy
+```
+
+Candidate rule:
+
+```text
+reversal proxy:
+    unchanged
+
+continuation proxy:
+    require same-direction recent displacement
+```
+
+Specifically:
+
+- LONG continuation proxy -> require `recent_bullish_displacement`;
+- SHORT continuation proxy -> require `recent_bearish_displacement`;
+- LONG reversal proxy remains identified by `recent_sell_side_sweep`;
+- SHORT reversal proxy remains identified by `recent_buy_side_sweep`.
+
+This is a setup-qualification interaction only. It does not change how
+displacement itself is calculated.
+
+### Historical capability / causality
+
+Required fields are already persisted in the full scored historical feature
+stream and were feature-matched in completed EXP-007 / EXP-009 research:
+
+- `recent_sell_side_sweep`;
+- `recent_buy_side_sweep`;
+- `recent_bullish_displacement`;
+- `recent_bearish_displacement`.
+
+The unchanged backtester already consumes these directional sweep/displacement
+states when writing trade context. No proxy is invented. The R7.0 runner must
+fail closed if these fields are unavailable.
+
+Important limitation: "continuation proxy" means the same deterministic
+no-directional-sweep family used by EXP-003. It does not prove that every
+historical signal completed every conceptual break/retest/hold state.
+
+### Frozen during R7.0
+
+- untouched baseline score weights;
+- threshold-70 eligibility;
+- score component values;
+- entry timing and next-bar-open execution;
+- slippage assumptions;
+- untouched CONTROL stop logic;
+- TP1 / TP2 / TP3 / TP4 distances and TP100 full-position exit;
+- session window and time rules;
+- maximum holding time;
+- one-open-trade-at-a-time behavior;
+- reversal qualification.
+
+Do not use FIXED_15, ATR_1.0, Evidence Tilt 80, Redundancy Reduced 85, or any
+R6 exit candidate in R7.0. Those remain separate later validation candidates.
+
+### Method
+
+- replay the full chronological scored feature stream;
+- do not filter an already-executed trade ledger;
+- require exact frozen CONTROL parity before trusting the candidate;
+- alter only the existing candidate eligibility flags on a copied scored stream;
+- preserve one-open-trade path dependence so rejected/accepted candidates may
+  naturally change later trade availability;
+- run 2023 first and review it before 2024;
+- only then run 2024, review it, and finally run 2025;
+- do not make a pooled decision until all three years have been reviewed.
+
+Primary outputs:
+
+- trade count;
+- win rate;
+- expectancy points / R;
+- profit factor;
+- net points;
+- maximum drawdown;
+- average / median MFE;
+- average / median MAE;
+- TP1 / TP2 / TP3 / TP4 hit rates;
+- stop-hit rate;
+- average hold time;
+- direction segmentation;
+- setup-family segmentation;
+- pre-path eligibility/exclusion diagnostics.
+
+### Implementation status
+
+- [x] verified `research/r53-atr-stop` equals R5 closure commit
+      `cbf7dff` and is the correct R7 base;
+- [x] created isolated branch
+      `research/r70-continuation-displacement`;
+- [x] added research runner
+      `scripts/run_r7_continuation_displacement.py`;
+- [x] added targeted tests
+      `tests/test_r7_continuation_displacement.py`;
+- [ ] run targeted tests on the VPS;
+- [ ] run 2023 full chronological replay and exact CONTROL parity gate;
+- [ ] review 2023 before running 2024;
+- [ ] run and review 2024;
+- [ ] run and review 2025;
+- [ ] archive completed R7.0 outputs with SHA256 manifest;
+- [ ] record the cross-year R7.0 decision;
+- [ ] only then choose the next isolated R7 interaction.
+
+No production change is authorized by R7.0.
+
 ---
 
 # 12. Phase R8 — Market regime and day-type research
