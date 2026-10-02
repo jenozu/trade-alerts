@@ -113,6 +113,7 @@ def test_summary_exposes_required_r7_metrics():
             "tp4_hit": [False, False],
             "stop_hit": [False, True],
             "minutes_held": [10.0, 15.0],
+            "raw_score": [75.0, 75.0],
         }
     )
 
