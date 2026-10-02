@@ -1738,13 +1738,46 @@ Implementation:
 - [x] research-only ATR stop support;
 - [x] `scripts/run_r53_atr_stop.py`;
 - [x] `tests/test_r53_atr_stop.py`;
-- [ ] targeted unit tests;
-- [ ] 2023 replay + exact control parity;
-- [ ] review 2023;
-- [ ] 2024 replay + exact control parity;
-- [ ] 2025 replay + exact control parity;
-- [ ] archive with hashes;
-- [ ] final R5 cross-family decision and Phase R5 closure.
+- [x] targeted unit tests;
+- [x] 2023 replay + exact control parity;
+- [x] review 2023;
+- [x] 2024 replay + exact control parity;
+- [x] 2025 replay + exact control parity;
+- [x] archive with hashes under `research-archive/R5-03/`;
+- [x] final R5 cross-family decision and Phase R5 closure.
+
+R5.3 completed evidence — 2026-10-02:
+
+- Exact untouched CONTROL parity passed in 2023 / 2024 / 2025.
+- ATR_1_0:
+  - 2023: 401 trades, +985.02 net, +2.4564 pts/trade, +0.2079R, PF 1.2145, DD 457.18.
+  - 2024: 431 trades, +511.04 net, +1.1857 pts/trade, +0.0929R, PF 1.0917, DD 852.04.
+  - 2025: 511 trades, +1,702.93 net, +3.3325 pts/trade, +0.1925R, PF 1.1942, DD 936.96.
+  - Combined: 1,343 trades, +3,198.98 net points, approximately +2.382 pts/trade.
+- ATR_1_5 combined: 1,211 trades, +1,996.57 net points, approximately +1.649 pts/trade.
+- ATR_2_0 combined: 1,122 trades, +1,340.64 net points, approximately +1.195 pts/trade; it turned materially negative in 2024.
+- ATR_1_0 was positive in all three years and improved expectancy-R / PF versus CONTROL in each year, though annual drawdown was not uniformly lower.
+
+R5.3 decision: **INVESTIGATE — ATR_1_0 ADVANCES AS THE VOLATILITY-STOP CANDIDATE; NO PRODUCTION CHANGE.**
+
+### Phase R5 final cross-family conclusion
+
+Completed stop families:
+
+- R5.0 fixed stops — FIXED_15 advances;
+- R5.1 structural / capped structural — STRUCTURAL_RAW rejected; STRUCTURAL_CAP_25 does not advance;
+- R5.2 sweep-extreme — rejected as a general stop model;
+- R5.3 ATR / volatility-adjusted — ATR_1_0 advances.
+
+Cross-family research-period reference:
+
+- CONTROL: 1,218 trades, +2,172.50 net points, approximately +1.784 pts/trade.
+- FIXED_15: 1,367 trades, +3,157.50 net points, approximately +2.310 pts/trade.
+- ATR_1_0: 1,343 trades, +3,198.98 net points, approximately +2.382 pts/trade.
+
+Phase R5 decision: **COMPLETE — CARRY FIXED_15 AND ATR_1_0 FORWARD TO LATER ROBUSTNESS / HELD-OUT VALIDATION; NO PRODUCTION STOP CHANGE.**
+
+Do not select between FIXED_15 and ATR_1_0 from the 2023–2025 research years alone. Their trade-path differences, drawdown behavior, parameter sensitivity, transaction costs, and unseen-data performance must be tested in the later robustness and validation phases.
 
 ---
 
