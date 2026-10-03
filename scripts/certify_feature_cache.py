@@ -62,6 +62,9 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     cache_dir = args.cache_dir
+    # Never overwrite an already certified cache's provenance.
+    if (cache_dir / "cache_metadata.json").exists() or (cache_dir / "feature_code_manifest.json").exists():
+        raise SystemExit("Cache already certified; use a new versioned directory")
     pre = cache_dir / "features_pre_scoring.parquet"
     scored = cache_dir / "features_scored.parquet"
 

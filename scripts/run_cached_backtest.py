@@ -12,6 +12,7 @@ SRC_DIRECTORY = PROJECT_ROOT / "src"
 if str(SRC_DIRECTORY) not in sys.path:
     sys.path.insert(0, str(SRC_DIRECTORY))
 
+from experiment_identity import build_input_lock, verify_input_lock, write_input_lock  # noqa: E402
 from backtest import (  # noqa: E402
     calculate_backtest_metrics,
     run_backtest,
@@ -96,9 +97,37 @@ def main() -> None:
     dataframe = load_scored_cache(validation)
     strategy_config = load_yaml(strategy_config_path)
 
+    lock = build_input_lock(
+        experiment_id="CACHED-BACKTEST", root=PROJECT_ROOT,
+        files={"scored_cache": validation.scored_path.resolve(),
+               "cache_metadata": validation.metadata_path.resolve(),
+               "source_data": input_file.resolve(),
+               "strategy": strategy_config_path.resolve(),
+               "sessions": sessions_config_path.resolve(),
+               "research_policy": PROJECT_ROOT / "config/research_policy.yaml",
+               "dependencies": PROJECT_ROOT / "requirements.txt"},
+        years=sorted(set(dataframe["timestamp"].dt.year)),
+        contracts=dataframe["contract"].dropna().astype(str).unique().tolist()
+                  if "contract" in dataframe else [],
+        counts={"bars": len(dataframe), "candidates": int(sum(
+            dataframe[column].fillna(False).astype(bool).sum()
+            for column in ("long_candidate", "short_candidate") if column in dataframe)),
+            "trades": None},
+        settings={"execution": {"backtest": strategy_config.get("backtest", {}),
+                                "stop_loss": strategy_config.get("stop_loss", {}),
+                                "take_profit": strategy_config.get("take_profit", {}),
+                                "trade_management": strategy_config.get("trade_management", {}),
+                                "allow_code_mismatch": args.allow_code_mismatch},
+                  "cost": strategy_config.get("backtest", {}).get("commission", {}),
+                  "slippage": strategy_config.get("backtest", {}).get("slippage", {})},
+        unavailable={"contracts": "cache has no contract column"} if "contract" not in dataframe else {},
+    )
+    # Lock before simulation; refuse reuse of an old output identity.
+    write_input_lock(output_dir / "EXPERIMENT_INPUT_LOCK.json", lock)
     print()
     print("=== CACHED BACKTEST ===")
     trades = run_backtest(dataframe, strategy_config)
+    verify_input_lock(lock, root=PROJECT_ROOT)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     if trades.empty:
@@ -109,6 +138,7 @@ def main() -> None:
         save_backtest_outputs(trades, output_dir)
 
     summary = {
+        "input_identity_sha256": lock["input_identity_sha256"],
         "cache_directory": str(cache_dir),
         "scored_cache": str(validation.scored_path),
         "bars": int(len(dataframe)),

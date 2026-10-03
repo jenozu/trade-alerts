@@ -9,7 +9,7 @@ No weights, thresholds, setup selection, or research experiments are changed/run
 | 1 Commission / net accounting | PASS | Per-contract point accounting, explicit points/dollars conversion and quantity totals; 29 targeted tests; full suite 582 passed, 300 warnings. |
 | 2 Execution invariants | PARTIAL | 39 targeted tests; full suite 592 passed, 340 warnings. Definite gap-fill bugs fixed; missing path/session liquidation remains uncertified. |
 | 3 Dataset freeze | PARTIAL | Classification PASS (3 new tests); forward model freeze not established while fidelity is unresolved; 595 passed, 340 warnings. |
-| 4 Input fingerprinting | PENDING | |
+| 4 Input fingerprinting | PASS for new locks | Deterministic/tamper/drift/immutable archive tests; 604 passed, 340 warnings. Old producer provenance remains explicitly partial where unavailable. |
 | 5 Strategy fidelity | PENDING | |
 
 ## Section 1
@@ -43,3 +43,14 @@ tests/test_research_policy.py, docs/research_dataset_policy.md and
 docs/integrity_checkpoint.json. Permanent dataset labels reject unsupported
 holdout claims. Configuration identity is checkpointed without falsely declaring
 an approved forward model freeze. Section 2 commit: `de94173`.
+
+## Section 4
+
+Files: src/experiment_identity.py, scripts/lock_experiment_inputs.py,
+scripts/archive_experiment.py, scripts/certify_feature_cache.py,
+scripts/run_cached_backtest.py, tests/test_experiment_identity.py,
+docs/experiment_input_locks.md. Existing feature-cache SHA-256 helper is reused.
+Archive CLI requires verified input identity; locked archives and certification
+metadata cannot be silently overwritten. Cached backtests lock inputs before
+simulation and verify afterward. 9 new tests; 14 related tests pass.
+Section 3 commit: `bc5283a`. No historical producer facts were invented.
