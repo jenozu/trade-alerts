@@ -429,6 +429,7 @@ events:
   score_change_threshold: 8
 
 entry_model:
+  fill_mode: "market_after_retest_confirmation_v1" # selected 2026-10-03; see docs/confirmed_entry_execution.md
   primary_sequence:
     - "important_level"
     - "breakout_close"
@@ -462,11 +463,13 @@ trade_management:
   move_to_breakeven_initially: false
 
 backtest:
+  execution_model: "score_signal_v1" # archived baseline; select confirmed mode explicitly for fidelity replays
   use_completed_bars_only: true
   entry_on_next_bar_open: true
   conservative_same_bar_resolution: true
   same_bar_stop_and_target_behavior: "stop_first"
   commission:
+    unit: "points" # per contract, full entry + exit round trip
     enabled: false
     per_contract_round_trip: 0.0
   slippage:

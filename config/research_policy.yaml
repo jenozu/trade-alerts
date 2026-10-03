@@ -1,0 +1,13 @@
+schema_version: 1
+periods:
+  2023: development_research
+  2024: development_research
+  2025: development_research
+  2026: pseudo_out_of_sample_validation
+forward_holdout:
+  status: not_established
+  model_freeze_identity: null
+  start: null
+  end: null
+  untouched_portion_proven: false
+  rule: Preregister an unexamined future period after the model freeze; do not tune against it.

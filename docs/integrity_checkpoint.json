@@ -1,0 +1,10 @@
+{
+  "archive_policy": "preserve all existing archive bytes",
+  "checkpoint": "pre-critical-integrity",
+  "code_commit": "de94173dbbe5dbf515d48676b6e851b000d51206",
+  "config_sha256": {
+    "config/sessions.yaml": "67afd67c97caddbc4559b3df4bd177cf9d582b057e85ad8e8918a6c87070433c",
+    "config/strategy.yaml": "d3e5dcbaf7559d32088e308ccd0543f9d342634f0d0a3960cf6661ee781c5213"
+  },
+  "model_freeze_status": "not_established"
+}
