@@ -764,7 +764,7 @@ def performance_by_snr_bucket(trades: pd.DataFrame, *, column: str = "snr_5m") -
     result = trades.copy()
     bins = [-np.inf, 0.50, 0.80, 1.10, 1.40, 1.70, 2.00, 2.50, np.inf]
     labels = ["<0.50", "0.50-0.79", "0.80-1.09", "1.10-1.39", "1.40-1.69", "1.70-1.99", "2.00-2.49", "2.50+"]
-    result["snr_bucket"] = pd.cut(result[column], bins=bins, labels=labels, right=False)
+    result["snr_bucket"] = pd.cut(pd.to_numeric(result[column], errors="coerce"), bins=bins, labels=labels, right=False)
 
     records = []
     for bucket, group in result.groupby("snr_bucket", observed=True):

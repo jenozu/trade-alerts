@@ -412,3 +412,11 @@ def test_same_bar_terminal_target_and_stop_remains_stop_first_without_open_gap(d
     assert trade.exit_reason == 'stop'
     assert trade.net_result_points == -25
     assert not trade.tp4_hit
+
+
+def test_optional_missing_snr_does_not_break_backtest_report():
+    from backtest import performance_by_snr_bucket
+    df = _bars(3)
+    _mark_long(df, 0)
+    trades = run_backtest(df, _config(slippage=False))
+    assert performance_by_snr_bucket(trades).empty

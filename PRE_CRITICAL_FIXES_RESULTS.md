@@ -54,3 +54,10 @@ Archive CLI requires verified input identity; locked archives and certification
 metadata cannot be silently overwritten. Cached backtests lock inputs before
 simulation and verify afterward. 9 new tests; 14 related tests pass.
 Section 3 commit: `bc5283a`. No historical producer facts were invented.
+
+### Section 4 integration follow-up
+
+A real cached-backtest CLI smoke test exposed an existing all-null optional SNR
+report failure. A failing regression test was added, and numeric coercion now
+preserves missing values rather than comparing None. Full suite: 605 passed,
+342 warnings. Fingerprinting commit: `041ca73`.
