@@ -1307,3 +1307,13 @@ Then:
 - [ ] Confirm metadata snapshot.
 - [ ] Mark Phase 1 complete.
 - [ ] Begin Phase 2.
+
+
+## Pre-critical research integrity checkpoint — 2026-10-03
+
+See [PRE_CRITICAL_FIXES_RESULTS.md](PRE_CRITICAL_FIXES_RESULTS.md) and
+[the strategy fidelity audit](docs/strategy_fidelity_audit.md). Local engineering
+and audit work is verified (611 passed, 350 warnings); the research gate is
+**PARTIAL/BLOCKED** pending explicit execution semantics and original VPS inputs.
+No strategy-changing research may resume based merely on green tests. This
+checkpoint does not change the historical phase completion records above.

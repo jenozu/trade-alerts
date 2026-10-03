@@ -10,7 +10,7 @@ No weights, thresholds, setup selection, or research experiments are changed/run
 | 2 Execution invariants | PARTIAL | 39 targeted tests; full suite 592 passed, 340 warnings. Definite gap-fill bugs fixed; missing path/session liquidation remains uncertified. |
 | 3 Dataset freeze | PARTIAL | Classification PASS (3 new tests); forward model freeze not established while fidelity is unresolved; 595 passed, 340 warnings. |
 | 4 Input fingerprinting | PASS for new locks | Deterministic/tamper/drift/immutable archive tests; 604 passed, 340 warnings. Old producer provenance remains explicitly partial where unavailable. |
-| 5 Strategy fidelity | PENDING | |
+| 5 Strategy fidelity | PARTIAL / BLOCKED | Audit and six new fixtures complete; material entry/target/sequence mismatches require strategy decisions, real-cache parity requires VPS. |
 
 ## Section 1
 
@@ -24,7 +24,9 @@ certified here. Existing archives were neither changed nor regenerated.
 
 ## Research gate
 
-Research remains paused until the remaining sections are assessed.
+**Strategy-changing research is NOT safe to resume yet.** Accounting and input-lock
+engineering is tested, but strategy parity is not established. Diagnostic/archive
+reproduction may continue; no new selection experiment was started.
 
 ## Section 2
 
@@ -61,3 +63,80 @@ A real cached-backtest CLI smoke test exposed an existing all-null optional SNR
 report failure. A failing regression test was added, and numeric coercion now
 preserves missing values rather than comparing None. Full suite: 605 passed,
 342 warnings. Fingerprinting commit: `041ca73`.
+
+## Section 5 — completed audit, unresolved fidelity gate
+
+Files: docs/strategy_fidelity_audit.md, tests/test_strategy_fidelity.py. Six new
+fixtures cover positive-plan vs baseline mismatches, score/sequence independence,
+same-row reversal/FVG ordering assumptions, window metadata, real-stage synthetic
+raw replay through alert, and rollover-gap FVG isolation. Related suite: 64 passed,
+29 warnings. Full suite: **611 passed, 350 warnings in 12.49s**.
+
+Synthetic raw replay proves feature/state/planner/alert append invariance. It does
+not establish positive-entry parity on actual source data. In the positive fixture,
+score/direction/entry/stop agree, but a HYPOTHESIS becomes a baseline trade and the
+market-derived targets differ from baseline fixed distances. Family/confirmation/
+invalidation are absent from the baseline ledger. No scoring weights were changed.
+
+Production continuation waits for a later FVG retest, but does not independently
+prove acceptance duration, retest-object linkage or a later micro-BOS. Reversal
+sequence permits several events in one OHLC row. The baseline does not require
+production sequences. RULES.md section 6 prohibits inventing these semantics.
+
+## Commits and verification
+
+| Commit | Work | Full suite |
+|---|---|---|
+| 2092ff8 | Commission units, net/R, quantity accounting | 582 passed, 300 warnings |
+| de94173 | Gap fills and execution invariants | 592 passed, 340 warnings |
+| bc5283a | Development classification / holdout policy | 595 passed, 340 warnings |
+| 041ca73 | Immutable experiment input locks / cache provenance | 604 passed, 340 warnings |
+| 80fe7c0 | Integration-discovered missing SNR report defect | 605 passed, 342 warnings |
+| See Git history for fidelity audit commit | Audit and six fidelity fixtures | 611 passed, 350 warnings |
+
+The cached-backtest CLI was run on a certified synthetic four-bar cache from a
+clean commit; one trade and all reports were produced, and its input-lock CLI
+verification passed. This is an integration check, not an experiment selecting a
+strategy. No raw feature pipeline was rebuilt for ledger-only verification.
+
+EXP-001 was reproduced from the tracked EXP-005 classified ledger split by source
+year: all serialized metrics exactly match the frozen EXP-001 JSON (1,218 trades).
+Every research-archive file remains identical to starting main according to Git.
+Costs-disabled accounting is preserved. Gap-fill/stale-entry corrections intentionally
+change new simulations on affected paths: old archives retain old execution
+semantics, and any corrected replay requires versioning and original VPS inputs.
+No archive, expected output, or source dataset was regenerated/replaced.
+
+Runtime: Python 3.12.14, pandas 2.3.3, NumPy 2.5.3, pyarrow 23.0.1, pytest 9.1.1;
+installed declared requirements into the project virtual environment. Warnings are
+existing timedelta/datetime compatibility debt plus increased exercised cases;
+they are reported, not suppressed. Dependency ranges were not changed. Older
+PHASES_TRUTH_AUDIT.md remains historical; this checkpoint is the current test evidence.
+
+## Exact remaining blockers
+
+1. **User strategy decision:** define the canonical retest/confirmation fill
+   contract, required ordered family gates, acceptance and post-retest BOS,
+   object/level linkage, whether same-row reversal events count, hard stop cap,
+   market-derived vs fixed research targets, and signal-time vs fill-time window.
+   Existing source materials establish a retest intent but not all deterministic
+   order/fill rules. Changing these without that contract would silently change
+   the tested strategy. The audit lists the current implementations and gaps.
+2. **VPS inputs/access:** preserved raw/certified caches and original producer
+   configs/manifests for 2023–2025 are absent here. Verify exact contract/roll
+   provenance, adjustment status, volume crossovers, segment isolation and
+   prior-day/premarket levels around rolls. Replay real paths to quantify impact
+   of corrected stop-gap/stale-entry behavior and compare positive live/backtest
+   entries/stops/targets/invalidation. Do not infer these facts from ledger hashes.
+3. **Forward freeze:** after fidelity decisions/parity evidence, declare a versioned
+   model freeze and preregister an actually untouched future validation period.
+   Current checkpoint hashes are not an approved forward model or holdout start.
+
+## Conclusion
+
+All five sections have been worked through sequentially; locally provable fixes,
+tests, classifications, fingerprinting and audit are implemented. Full regression
+passes and frozen artifacts are preserved. **The pre-critical research gate remains
+PARTIAL/BLOCKED, so strategy-changing research must stay paused.** The remaining
+work depends on explicit strategy semantics and unavailable VPS evidence, not on
+an unperformed local engineering task. No EXP-002/new selection research began.
