@@ -298,3 +298,50 @@ def test_appending_future_bars_cannot_rewrite_an_already_completed_trade():
             assert right == pytest.approx(left), column
         else:
             assert right == left, column
+
+
+@pytest.mark.parametrize('direction', ['long', 'short'])
+@pytest.mark.parametrize('enabled,cost,unit,point_value,quantity,expected', [
+    (False, 2.0, 'points', 2.0, 1, 0.0),
+    (True, 0.0, 'points', 2.0, 1, 0.0),
+    (True, 1.5, 'points', 2.0, 1, 1.5),
+    (True, 3.0, 'dollars', 2.0, 10, 1.5),
+    (True, 30.0, 'dollars', 20.0, 3, 1.5),
+])
+def test_commission_net_points_r_and_position_quantity(direction, enabled, cost, unit, point_value, quantity, expected):
+    df = _bars(4)
+    (_mark_long if direction == 'long' else _mark_short)(df, 0)
+    df.loc[1:, 'close'] = 104.0 if direction == 'long' else 96.0
+    config = _config(slippage=True)
+    config['market'] = {'point_value': point_value}
+    config['backtest']['quantity'] = quantity
+    config['backtest']['commission'] = {'enabled': enabled, 'unit': unit, 'per_contract_round_trip': cost}
+    trade = run_backtest(df, config).iloc[0]
+    assert trade.gross_result_points == pytest.approx(3.5)
+    assert trade.commission_cost == expected
+    assert trade.net_result_points == pytest.approx(3.5 - expected)
+    assert trade.net_result_r == pytest.approx((3.5 - expected) / 25)
+    if quantity != 1:
+        assert trade.position_net_points == pytest.approx((3.5 - expected) * quantity)
+        assert trade.position_commission_points == expected * quantity
+
+
+@pytest.mark.parametrize('commission', [
+    {'unit': 'euros'}, {'per_contract_round_trip': -1},
+    {'per_contract_round_trip': float('nan')}, {'unit': 'dollars'},
+])
+def test_ambiguous_or_invalid_commission_fails_closed(commission):
+    from backtest import build_backtest_settings
+    config = _config()
+    config['backtest']['commission'].update(commission)
+    with pytest.raises(BacktestError):
+        build_backtest_settings(config)
+
+
+@pytest.mark.parametrize('quantity', [0, -1, 1.5, True])
+def test_invalid_position_quantity_is_rejected(quantity):
+    from backtest import build_backtest_settings
+    config = _config()
+    config['backtest']['quantity'] = quantity
+    with pytest.raises(BacktestError, match='quantity'):
+        build_backtest_settings(config)

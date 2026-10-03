@@ -35,6 +35,9 @@ class BacktestSettings:
     same_bar_stop_and_target_behavior: str
     commission_enabled: bool
     commission_round_trip: float
+    commission_unit: str
+    point_value: float
+    quantity: int
     slippage_enabled: bool
     entry_slippage_points: float
     exit_slippage_points: float
@@ -145,13 +148,31 @@ def build_backtest_settings(config: dict[str, Any]) -> BacktestSettings:
     commission = backtest.get("commission", {})
     slippage = backtest.get("slippage", {})
 
+    unit = str(commission.get("unit", "points"))
+    cost = float(commission.get("per_contract_round_trip", 0.0))
+    point_value = float(config.get("market", {}).get("point_value", 1.0))
+    quantity = backtest.get("quantity", 1)
+    if unit not in {"points", "dollars"}:
+        raise BacktestError("commission.unit must be points or dollars")
+    if not np.isfinite(cost) or cost < 0:
+        raise BacktestError("commission must be finite and non-negative")
+    if not np.isfinite(point_value) or point_value <= 0:
+        raise BacktestError("market.point_value must be finite and positive")
+    if unit == "dollars" and "point_value" not in config.get("market", {}):
+        raise BacktestError("Dollar commissions require explicit market.point_value")
+    if isinstance(quantity, bool) or not isinstance(quantity, int) or quantity < 1:
+        raise BacktestError("backtest.quantity must be a positive integer")
+
     return BacktestSettings(
         use_completed_bars_only=bool(backtest.get("use_completed_bars_only", True)),
         entry_on_next_bar_open=bool(backtest.get("entry_on_next_bar_open", True)),
         conservative_same_bar_resolution=bool(backtest.get("conservative_same_bar_resolution", True)),
         same_bar_stop_and_target_behavior=str(backtest.get("same_bar_stop_and_target_behavior", "stop_first")),
         commission_enabled=bool(commission.get("enabled", False)),
-        commission_round_trip=float(commission.get("per_contract_round_trip", 0.0)),
+        commission_round_trip=cost,
+        commission_unit=unit,
+        point_value=point_value,
+        quantity=quantity,
         slippage_enabled=bool(slippage.get("enabled", True)),
         entry_slippage_points=float(slippage.get("points_per_entry", 0.25)),
         exit_slippage_points=float(slippage.get("points_per_exit", 0.25)),
@@ -478,8 +499,11 @@ def simulate_trade(
 
     exit_price = apply_exit_slippage(raw_exit, direction=direction, settings=settings)
     gross_points = exit_price - entry_price if direction == "long" else entry_price - exit_price
+    # Price points per contract. Gross already incorporates both adverse fills.
     commission_cost = settings.commission_round_trip if settings.commission_enabled else 0.0
-    net_points = gross_points
+    if settings.commission_unit == "dollars":
+        commission_cost /= settings.point_value
+    net_points = gross_points - commission_cost
     net_result_r = net_points / stop_distance if stop_distance > 0 else None
     mfe_r = max_favorable / stop_distance if stop_distance > 0 else None
     mae_r = max_adverse / stop_distance if stop_distance > 0 else None
@@ -629,7 +653,14 @@ def run_backtest(df: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
 
     if not trades:
         return pd.DataFrame()
-    return pd.DataFrame([asdict(trade) for trade in trades])
+    result = pd.DataFrame([asdict(trade) for trade in trades])
+    if settings.quantity != 1:
+        # Keep legacy one-contract ledgers byte/schema compatible.
+        result["quantity"] = settings.quantity
+        result["position_gross_points"] = result["gross_result_points"] * settings.quantity
+        result["position_commission_points"] = result["commission_cost"] * settings.quantity
+        result["position_net_points"] = result["net_result_points"] * settings.quantity
+    return result
 
 
 def calculate_backtest_metrics(trades: pd.DataFrame) -> dict[str, Any]:

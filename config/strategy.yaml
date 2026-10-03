@@ -467,6 +467,7 @@ backtest:
   conservative_same_bar_resolution: true
   same_bar_stop_and_target_behavior: "stop_first"
   commission:
+    unit: "points" # per contract, full entry + exit round trip
     enabled: false
     per_contract_round_trip: 0.0
   slippage:
