@@ -7,7 +7,7 @@ No weights, thresholds, setup selection, or research experiments are changed/run
 | Section | Status | Evidence |
 |---|---|---|
 | 1 Commission / net accounting | PASS | Per-contract point accounting, explicit points/dollars conversion and quantity totals; 29 targeted tests; full suite 582 passed, 300 warnings. |
-| 2 Execution invariants | PENDING | |
+| 2 Execution invariants | PARTIAL | 39 targeted tests; full suite 592 passed, 340 warnings. Definite gap-fill bugs fixed; missing path/session liquidation remains uncertified. |
 | 3 Dataset freeze | PENDING | |
 | 4 Input fingerprinting | PENDING | |
 | 5 Strategy fidelity | PENDING | |
@@ -25,3 +25,13 @@ certified here. Existing archives were neither changed nor regenerated.
 ## Research gate
 
 Research remains paused until the remaining sections are assessed.
+
+## Section 2
+
+Files: src/backtest.py, tests/test_backtest.py, docs/backtest_execution.md.
+Five new regression cases failed before correction; now both stop-gap directions,
+known-open terminal-target priority and stale next-session entry rejection pass.
+Other cases cover both-direction ambiguity, timeout/gaps and end-of-data costs.
+Commission commit: `2092ff8`. Gap fixes intentionally change replay on affected
+paths; no frozen archive has been overwritten. Real-cache impact requires VPS
+verification. Session liquidation and missing-path fills need explicit policy/data.

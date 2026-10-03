@@ -345,3 +345,70 @@ def test_invalid_position_quantity_is_rejected(quantity):
     config['backtest']['quantity'] = quantity
     with pytest.raises(BacktestError, match='quantity'):
         build_backtest_settings(config)
+
+
+@pytest.mark.parametrize('direction,opening,high,low,expected', [
+    ('long', 60, 65, 55, 60), ('short', 140, 145, 135, 140),
+])
+def test_gap_through_stop_fills_at_adverse_open(direction, opening, high, low, expected):
+    df = _bars(4)
+    (_mark_long if direction == 'long' else _mark_short)(df, 0)
+    df.loc[2, ['open', 'high', 'low', 'close']] = [opening, high, low, opening]
+    trade = run_backtest(df, _config(slippage=True)).iloc[0]
+    assert trade.exit_reason == 'stop'
+    assert trade.exit_price_raw == expected
+    assert trade.exit_price == expected + (-0.25 if direction == 'long' else 0.25)
+
+
+@pytest.mark.parametrize('direction,opening,high,low,target', [
+    ('long', 220, 225, 70, 200), ('short', -20, 130, -25, 0),
+])
+def test_gap_through_terminal_target_is_known_before_intrabar_stop(direction, opening, high, low, target):
+    df = _bars(4)
+    (_mark_long if direction == 'long' else _mark_short)(df, 0)
+    df.loc[2, ['open', 'high', 'low', 'close']] = [opening, high, low, opening]
+    trade = run_backtest(df, _config(slippage=False)).iloc[0]
+    assert trade.exit_reason == 'tp4'
+    assert trade.exit_price_raw == target  # Conservative limit fill, no favorable gap improvement.
+    assert trade.maximum_target_reached == 4
+
+
+def test_next_observed_bar_across_session_gap_is_not_a_next_bar_entry():
+    df = _bars(3)
+    _mark_long(df, 0)
+    df.loc[1:, 'timestamp'] += pd.Timedelta(days=1)
+    assert run_backtest(df, _config(slippage=False)).empty
+
+
+def test_session_gap_beyond_holding_deadline_uses_last_observed_close():
+    df = _bars(4)
+    _mark_long(df, 0)
+    df.loc[2:, 'timestamp'] += pd.Timedelta(days=1)
+    df.loc[1, 'close'] = 103
+    df.loc[2:, 'low'] = 1
+    trade = run_backtest(df, _config(slippage=False)).iloc[0]
+    assert trade.exit_reason == 'max_holding_time'
+    assert trade.exit_index == 1
+    assert trade.exit_price_raw == 103
+    assert trade.mae_points == 1
+
+
+@pytest.mark.parametrize('direction', ['long', 'short'])
+def test_end_of_data_closes_full_position_with_adverse_exit_slippage(direction):
+    df = _bars(3)
+    (_mark_long if direction == 'long' else _mark_short)(df, 0)
+    trade = run_backtest(df, _config(slippage=True)).iloc[0]
+    assert trade.exit_reason == 'end_of_data'
+    assert trade.exit_index == 2
+    assert trade.gross_result_points == -0.5
+
+
+@pytest.mark.parametrize('direction', ['long', 'short'])
+def test_same_bar_terminal_target_and_stop_remains_stop_first_without_open_gap(direction):
+    df = _bars(3)
+    (_mark_long if direction == 'long' else _mark_short)(df, 0)
+    df.loc[1, ['high', 'low']] = [210, -10]
+    trade = run_backtest(df, _config(slippage=False)).iloc[0]
+    assert trade.exit_reason == 'stop'
+    assert trade.net_result_points == -25
+    assert not trade.tp4_hit

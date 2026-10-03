@@ -390,6 +390,10 @@ def simulate_trade(
     if settings.entry_on_next_bar_open:
         entry_index = signal_index + 1
         entry_row = df.iloc[entry_index]
+        # Execution input is left-labelled one-minute bars. Missing rows are
+        # not a license to carry yesterday's signal into the next session.
+        if entry_row["timestamp"] - signal_row["timestamp"] != pd.Timedelta(minutes=1):
+            return None
         raw_entry = float(entry_row["open"])
     else:
         entry_index = signal_index
@@ -438,6 +442,36 @@ def simulate_trade(
             raw_exit = float(df.iloc[previous_index]["close"])
             exit_reason = "max_holding_time"
             break
+
+        bar_open = float(row["open"])
+        open_stop = stop_touched(
+            direction=direction, stop_price=stop_price,
+            bar_high=bar_open, bar_low=bar_open,
+        )
+        open_targets = [target_touched(
+            direction=direction, target_price=target,
+            bar_high=bar_open, bar_low=bar_open,
+        ) for target in targets]
+        # The opening print has known precedence over unknown OHLC ordering.
+        if open_stop or open_targets[3]:
+            favorable, adverse = directional_excursions(
+                direction=direction, entry_price=entry_price,
+                bar_high=bar_open, bar_low=bar_open,
+            )
+            max_favorable = max(max_favorable, favorable)
+            max_adverse = max(max_adverse, adverse)
+            exit_index = i
+            if open_stop:
+                stop_hit_flag = True
+                raw_exit = bar_open
+                exit_reason = "stop"
+            else:
+                tp_hits = [True] * 4
+                raw_exit = tp4
+                exit_reason = "tp4"
+            break
+        # Nonterminal targets are observations, not partial fills.
+        tp_hits = [previous or current for previous, current in zip(tp_hits, open_targets)]
 
         bar_high = float(row["high"])
         bar_low = float(row["low"])
