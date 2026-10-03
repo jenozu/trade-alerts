@@ -8,7 +8,7 @@ No weights, thresholds, setup selection, or research experiments are changed/run
 |---|---|---|
 | 1 Commission / net accounting | PASS | Per-contract point accounting, explicit points/dollars conversion and quantity totals; 29 targeted tests; full suite 582 passed, 300 warnings. |
 | 2 Execution invariants | PARTIAL | 39 targeted tests; full suite 592 passed, 340 warnings. Definite gap-fill bugs fixed; missing path/session liquidation remains uncertified. |
-| 3 Dataset freeze | PENDING | |
+| 3 Dataset freeze | PARTIAL | Classification PASS (3 new tests); forward model freeze not established while fidelity is unresolved; 595 passed, 340 warnings. |
 | 4 Input fingerprinting | PENDING | |
 | 5 Strategy fidelity | PENDING | |
 
@@ -35,3 +35,11 @@ Other cases cover both-direction ambiguity, timeout/gaps and end-of-data costs.
 Commission commit: `2092ff8`. Gap fixes intentionally change replay on affected
 paths; no frozen archive has been overwritten. Real-cache impact requires VPS
 verification. Session liquidation and missing-path fills need explicit policy/data.
+
+## Section 3
+
+Files: config/research_policy.yaml, src/research_policy.py,
+tests/test_research_policy.py, docs/research_dataset_policy.md and
+docs/integrity_checkpoint.json. Permanent dataset labels reject unsupported
+holdout claims. Configuration identity is checkpointed without falsely declaring
+an approved forward model freeze. Section 2 commit: `de94173`.
