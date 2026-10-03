@@ -140,3 +140,26 @@ passes and frozen artifacts are preserved. **The pre-critical research gate rema
 PARTIAL/BLOCKED, so strategy-changing research must stay paused.** The remaining
 work depends on explicit strategy semantics and unavailable VPS evidence, not on
 an unperformed local engineering task. No EXP-002/new selection research began.
+
+## Publication verification
+
+Published as draft PR [#7](https://github.com/jenozu/trade-alerts/pull/7) on
+`research/pre-critical-integrity`; main remains at starting commit 3555c6f.
+Automatic approval review rejected the direct default-branch push because of
+shared-branch impact. A review branch is the safer publication route. Shell Git
+lacked write credentials; the connected GitHub tools published the tested trees.
+Connector-created commit metadata produces different commit IDs; every remote
+tree was verified equal to the corresponding tested local Git tree.
+
+| Tested local commit | Published review-branch commit |
+|---|---|
+| 2092ff8 | a7d5c03 |
+| de94173 | 5006bd1 |
+| bc5283a | a8f92db |
+| 041ca73 | d275ef8 |
+| 80fe7c0 | 4fc85a6 |
+| 588b116 | 8d7a58d |
+
+The earlier checkpoint code hash and test history refer to local commits above;
+this mapping preserves their remote content identity. Final documentation-only
+publication records do not change tested code or experiment artifacts.
