@@ -192,3 +192,12 @@ docs/strategy_fidelity_audit.md, phases.md and this checkpoint document.
 Entry-method approval is no longer a blocker. The gate remains PARTIAL/BLOCKED
 because full stop/target parity, fine sequence semantics and original VPS evidence
 are still unresolved. This follow-up does not declare a forward model freeze.
+
+Confirmed-mode integration verification: a certified synthetic five-bar cache
+produced one fresh reversal entry through the actual cache-runner CLI. The
+execution override was present in the input lock, standalone lock verification
+passed, and ledger execution/family/confirmation metadata matched the selected
+contract. This is an integrity smoke test, not strategy-selection research.
+
+Entry-mode code commit: tested local `30e8cbe`, published `b7722ae` on draft PR #7;
+Git trees were verified identical (`27445f10bbd6ac9bcfa7274f60fc5ed3d17823d3`).
