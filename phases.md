@@ -1317,3 +1317,11 @@ and audit work is verified (611 passed, 350 warnings); the research gate is
 **PARTIAL/BLOCKED** pending explicit execution semantics and original VPS inputs.
 No strategy-changing research may resume based merely on green tests. This
 checkpoint does not change the historical phase completion records above.
+
+
+### Entry-method decision follow-up — 2026-10-03
+
+The selected confirmed-entry execution mode is implemented and tested; see
+[docs/confirmed_entry_execution.md](docs/confirmed_entry_execution.md).
+Latest full regression: **631 passed, 403 warnings**. Legacy baseline is retained
+for reproduction. The remaining fidelity/VPS gate remains PARTIAL/BLOCKED.

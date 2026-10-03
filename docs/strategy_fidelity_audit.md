@@ -166,3 +166,18 @@ Then implement the versioned semantics with positive-entry historical parity
 fixtures, establish a forward model freeze and complete the listed VPS checks.
 The smallest safe work here is the test/audit framework; guessing these choices
 would change strategy-significant trades contrary to RULES.md section 6.
+
+
+## Entry decision follow-up — 2026-10-03
+
+The user delegated the entry-method decision. Selected and implemented:
+market_after_retest_confirmation_v1, a next-minute-open fill after a fresh
+completed production retest-confirmation event. See
+[confirmed entry contract](confirmed_entry_execution.md). The planner and this
+mode now share family precedence; legacy score_signal_v1 remains explicit for
+old baseline reproduction. New mode records family, confirmation time and
+execution version and rejects missing confirmation schema or late availability.
+
+This resolves the limit-vs-market choice. The audit's baseline findings above
+remain historically valid, and remaining target/stop, raw chronology and actual
+VPS parity findings are not reclassified PASS. No research selection ran.

@@ -8,6 +8,8 @@ import numpy as np
 import pandas as pd
 import yaml
 
+from setup_family_contract import classify_setup_family
+
 DEFAULT_STRATEGY_CONFIG = Path("config/strategy.yaml")
 REQUIRED_COLUMNS = {
     "timestamp",
@@ -21,6 +23,8 @@ REQUIRED_COLUMNS = {
     "short_score_band",
 }
 VALID_DIRECTIONS = {"long", "short"}
+LEGACY_EXECUTION_MODEL = "score_signal_v1"
+CONFIRMED_EXECUTION_MODEL = "market_after_retest_confirmation_v1"
 
 
 class BacktestError(RuntimeError):
@@ -29,6 +33,7 @@ class BacktestError(RuntimeError):
 
 @dataclass(frozen=True)
 class BacktestSettings:
+    execution_model: str
     use_completed_bars_only: bool
     entry_on_next_bar_open: bool
     conservative_same_bar_resolution: bool
@@ -163,7 +168,17 @@ def build_backtest_settings(config: dict[str, Any]) -> BacktestSettings:
     if isinstance(quantity, bool) or not isinstance(quantity, int) or quantity < 1:
         raise BacktestError("backtest.quantity must be a positive integer")
 
+    execution_model = str(backtest.get("execution_model", LEGACY_EXECUTION_MODEL))
+    if execution_model not in {LEGACY_EXECUTION_MODEL, CONFIRMED_EXECUTION_MODEL}:
+        raise BacktestError(f"Unknown execution_model: {execution_model}")
+    if execution_model == CONFIRMED_EXECUTION_MODEL and (
+        not backtest.get("entry_on_next_bar_open", True)
+        or not backtest.get("use_completed_bars_only", True)
+    ):
+        raise BacktestError("Confirmed execution requires completed bars and next-bar-open entry")
+
     return BacktestSettings(
+        execution_model=execution_model,
         use_completed_bars_only=bool(backtest.get("use_completed_bars_only", True)),
         entry_on_next_bar_open=bool(backtest.get("entry_on_next_bar_open", True)),
         conservative_same_bar_resolution=bool(backtest.get("conservative_same_bar_resolution", True)),
@@ -229,6 +244,56 @@ def directional_candidate(row: pd.Series, direction: str) -> bool:
         return safe_bool(row, candidate_column)
     band = safe_string(row, f"{direction}_score_band")
     return band in {"near_trigger", "high_probability", "a_plus_plus"}
+
+
+def validate_confirmation_inputs(data: pd.DataFrame) -> None:
+    required = {
+        f"{side}_{family}_{suffix}"
+        for side in ("bullish", "bearish")
+        for family in ("reversal", "continuation")
+        for suffix in ("sequence", "entry_valid_event")
+    }
+    missing = required - set(data.columns)
+    if missing:
+        raise BacktestError(f"Missing confirmation columns: {sorted(missing)}")
+    if any(not pd.api.types.is_bool_dtype(data[column]) for column in required):
+        raise BacktestError("Confirmation sequence/event columns must have boolean dtype")
+    if not {"bar_complete", "is_complete"}.intersection(data.columns):
+        raise BacktestError("Confirmed execution requires explicit bar completion metadata")
+    if not {"new_entry_allowed", "is_strategy_window"}.intersection(data.columns):
+        raise BacktestError("Confirmed execution requires explicit entry-window metadata")
+
+
+def confirmed_setup_family(row: pd.Series, direction: str) -> str | None:
+    side = "bullish" if direction == "long" else "bearish"
+    opposite = "sell_side" if direction == "long" else "buy_side"
+    if any(column in row and not safe_bool(row, column)
+           for column in ("bar_complete", "is_complete")):
+        return None
+    window_column = "new_entry_allowed" if "new_entry_allowed" in row else "is_strategy_window"
+    if not safe_bool(row, window_column):
+        return None
+    family = classify_setup_family(
+        reversal_sequence=safe_bool(row, f"{side}_reversal_sequence"),
+        opposite_recent_sweep=safe_bool(row, f"recent_{opposite}_sweep"),
+        opposite_sweep=safe_bool(row, f"{opposite}_liquidity_sweep"),
+    )
+    if not (safe_bool(row, f"{side}_{family}_sequence")
+            and safe_bool(row, f"{side}_{family}_entry_valid_event")):
+        return None
+    return family
+
+
+def confirmation_available_at(row: pd.Series) -> pd.Timestamp | None:
+    earliest = row["timestamp"] + pd.Timedelta(minutes=1)
+    if "available_at" not in row:
+        return earliest
+    if pd.isna(row["available_at"]):
+        return None
+    value = pd.Timestamp(row["available_at"])
+    if value.tzinfo is None:
+        raise BacktestError("Confirmation available_at must be timezone-aware")
+    return max(earliest, value)
 
 
 def determine_structural_stop(
@@ -386,6 +451,9 @@ def simulate_trade(
         return None
 
     signal_row = df.iloc[signal_index]
+    if settings.execution_model == CONFIRMED_EXECUTION_MODEL:
+        if confirmed_setup_family(signal_row, direction) is None:
+            return None
 
     if settings.entry_on_next_bar_open:
         entry_index = signal_index + 1
@@ -394,6 +462,10 @@ def simulate_trade(
         # not a license to carry yesterday's signal into the next session.
         if entry_row["timestamp"] - signal_row["timestamp"] != pd.Timedelta(minutes=1):
             return None
+        if settings.execution_model == CONFIRMED_EXECUTION_MODEL:
+            confirmation_time = confirmation_available_at(signal_row)
+            if confirmation_time is None or confirmation_time > entry_row["timestamp"]:
+                return None
         raw_entry = float(entry_row["open"])
     else:
         entry_index = signal_index
@@ -634,6 +706,8 @@ def run_backtest(df: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
     validate_input_dataframe(df)
     settings = build_backtest_settings(config)
     data = df.sort_values("timestamp").copy().reset_index(drop=True)
+    if settings.execution_model == CONFIRMED_EXECUTION_MODEL:
+        validate_confirmation_inputs(data)
 
     trades: list[TradeResult] = []
     next_trade_id = 1
@@ -652,7 +726,10 @@ def run_backtest(df: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
 
         candidates = []
         for direction in ["long", "short"]:
-            if directional_candidate(row, direction):
+            if directional_candidate(row, direction) and (
+                settings.execution_model == LEGACY_EXECUTION_MODEL
+                or confirmed_setup_family(row, direction) is not None
+            ):
                 candidates.append(direction)
 
         if not candidates:
@@ -688,6 +765,12 @@ def run_backtest(df: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
     if not trades:
         return pd.DataFrame()
     result = pd.DataFrame([asdict(trade) for trade in trades])
+    if settings.execution_model == CONFIRMED_EXECUTION_MODEL:
+        result["execution_model"] = settings.execution_model
+        result["setup_family"] = [confirmed_setup_family(data.iloc[trade.signal_index], trade.direction)
+                                  for trade in trades]
+        result["confirmation_time"] = [confirmation_available_at(data.iloc[trade.signal_index])
+                                       for trade in trades]
     if settings.quantity != 1:
         # Keep legacy one-contract ledgers byte/schema compatible.
         result["quantity"] = settings.quantity

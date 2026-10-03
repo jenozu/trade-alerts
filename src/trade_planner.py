@@ -8,6 +8,8 @@ semantics that produced that state.
 
 from __future__ import annotations
 
+from setup_family_contract import classify_setup_family
+
 from dataclasses import dataclass
 import math
 from typing import Any, Mapping
@@ -497,12 +499,11 @@ def _attempt_candidate(
     liquidity = _mapping(state.get("liquidity"))
     directional = _directional_name(direction)
     opposite_sweep = "sell_side" if direction == "long" else "buy_side"
-    reversal_context = (
-        _truth(structure.get(f"{directional}_reversal_sequence"))
-        or _truth(liquidity.get(f"recent_{opposite_sweep}_sweep"))
-        or _truth(liquidity.get(f"{opposite_sweep}_liquidity_sweep"))
+    family = classify_setup_family(
+        reversal_sequence=_truth(structure.get(f"{directional}_reversal_sequence")),
+        opposite_recent_sweep=_truth(liquidity.get(f"recent_{opposite_sweep}_sweep")),
+        opposite_sweep=_truth(liquidity.get(f"{opposite_sweep}_liquidity_sweep")),
     )
-    family = "reversal" if reversal_context else "continuation"
     criteria, entry_valid = _confirmation_criteria(
         state, direction, family, trigger_exists=True
     )

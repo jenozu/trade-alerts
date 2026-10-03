@@ -115,8 +115,8 @@ PHASES_TRUTH_AUDIT.md remains historical; this checkpoint is the current test ev
 
 ## Exact remaining blockers
 
-1. **User strategy decision:** define the canonical retest/confirmation fill
-   contract, required ordered family gates, acceptance and post-retest BOS,
+1. **Remaining strategy semantics:** the entry-method choice is resolved below;
+   remaining issues include acceptance and post-retest BOS,
    object/level linkage, whether same-row reversal events count, hard stop cap,
    market-derived vs fixed research targets, and signal-time vs fill-time window.
    Existing source materials establish a retest intent but not all deterministic
@@ -163,3 +163,32 @@ tree was verified equal to the corresponding tested local Git tree.
 The earlier checkpoint code hash and test history refer to local commits above;
 this mapping preserves their remote content identity. Final documentation-only
 publication records do not change tested code or experiment artifacts.
+
+
+## Selected entry-method follow-up — 2026-10-03
+
+User delegated the limit-vs-market decision. **Selected: next one-minute bar open
+following completed retest confirmation**, version market_after_retest_confirmation_v1.
+Implementation requires existing score eligibility plus a fresh production-family
+sequence/event, explicit completion/window metadata, timely confirmation availability
+and the immediate next minute. Adverse slippage applies. Shared family precedence
+matches the live planner; a high-scoring unconfirmed opposite side cannot block a
+confirmed candidate. Ledgers record execution version, family and confirmation time.
+
+The archived score_signal_v1 baseline remains explicit and is not silently replaced.
+A cache-runner execution override is included in effective input-lock settings.
+No weights, thresholds, historical selections or archived outputs were changed.
+Tests cover both directions/families, missing/false/string confirmation fields,
+late availability, completion/window gating, fresh-event eligibility, conflicting
+family context, adverse fills, append invariance and legacy parity. All 20 new
+regression cases pass; related suite **76 passed, 128 warnings**; full suite
+**631 passed, 403 warnings in 12.24s**. Warnings remain reported compatibility debt.
+
+Files: src/backtest.py, src/setup_family_contract.py, src/trade_planner.py,
+scripts/run_cached_backtest.py, config/strategy.yaml,
+tests/test_confirmed_entry_execution.py, docs/confirmed_entry_execution.md,
+docs/strategy_fidelity_audit.md, phases.md and this checkpoint document.
+
+Entry-method approval is no longer a blocker. The gate remains PARTIAL/BLOCKED
+because full stop/target parity, fine sequence semantics and original VPS evidence
+are still unresolved. This follow-up does not declare a forward model freeze.

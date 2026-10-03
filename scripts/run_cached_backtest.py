@@ -14,6 +14,8 @@ if str(SRC_DIRECTORY) not in sys.path:
 
 from experiment_identity import build_input_lock, verify_input_lock, write_input_lock  # noqa: E402
 from backtest import (  # noqa: E402
+    CONFIRMED_EXECUTION_MODEL,
+    LEGACY_EXECUTION_MODEL,
     calculate_backtest_metrics,
     run_backtest,
     save_backtest_outputs,
@@ -37,6 +39,8 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Run a backtest from a certified scored feature cache."
     )
+    parser.add_argument("--execution-model", choices=[LEGACY_EXECUTION_MODEL, CONFIRMED_EXECUTION_MODEL],
+                        help="Override execution semantics; confirmed mode requires production sequence/event columns")
     parser.add_argument("--cache-dir", required=True)
     parser.add_argument("--input", required=True)
     parser.add_argument(
@@ -96,6 +100,8 @@ def main() -> None:
 
     dataframe = load_scored_cache(validation)
     strategy_config = load_yaml(strategy_config_path)
+    if args.execution_model is not None:
+        strategy_config.setdefault("backtest", {})["execution_model"] = args.execution_model
 
     lock = build_input_lock(
         experiment_id="CACHED-BACKTEST", root=PROJECT_ROOT,
