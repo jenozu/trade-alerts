@@ -1325,3 +1325,12 @@ The selected confirmed-entry execution mode is implemented and tested; see
 [docs/confirmed_entry_execution.md](docs/confirmed_entry_execution.md).
 Latest full regression: **631 passed, 403 warnings**. Legacy baseline is retained
 for reproduction. The remaining fidelity/VPS gate remains PARTIAL/BLOCKED.
+
+
+### Isolated historical replay preparation — 2026-10-04
+
+Added frozen-producer diagnostic replay tooling with explicit historical timing
+provenance, date-bounded derived data, immutable input locks and separate outputs.
+See [docs/isolated_cache_replay.md](docs/isolated_cache_replay.md).
+Full regression: **650 passed, 443 warnings**. The actual VPS replay and remaining
+fidelity checks are pending; the research/deployment gate remains PARTIAL/BLOCKED.

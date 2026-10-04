@@ -201,3 +201,32 @@ contract. This is an integrity smoke test, not strategy-selection research.
 
 Entry-mode code commit: tested local `30e8cbe`, published `b7722ae` on draft PR #7;
 Git trees were verified identical (`27445f10bbd6ac9bcfa7274f60fc5ed3d17823d3`).
+
+
+## Isolated historical replay tooling — 2026-10-04
+
+VPS verification checkout passed the prior 631-test suite. User-supplied VPS
+checks show original 2025 warmup raw/scored/config hashes match cache metadata.
+Three current feature files differ from the cache producer: fvg.py, pd_arrays.py,
+scorer.py. All eight confirmation columns exist as booleans; raw/scored inputs
+lack explicit completion fields. The input audit reports 352,125 evaluation rows
+for 2025 and source-file/contract segment provenance. These are user-provided
+terminal findings, not a completed real-data replay or rollover certification.
+
+Added scripts/run_isolated_cache_replay.py with a separate diagnostic provenance
+contract, documented in docs/isolated_cache_replay.md. It verifies frozen producer
+blobs at the recorded Git commit rather than claiming current feature-code
+compatibility; no current features are generated, no validation bypass flag is
+used, and original metadata is not recertified. Timing is derived under an
+explicit historical-export assumption, preserving restrictive existing metadata.
+A date-bounded derived Parquet, locked inputs and separate legacy/confirmed
+ledgers are written only to a fresh directory outside the production source tree.
+Original inputs are checked after simulation. Vendor live correction/latency
+history and CSV-specific timing remain uncertified.
+
+Validation: 19 new tests, including actual two-mode backtests and locked-file
+verification, unchanged source hashes, producer mismatch rejection, unsafe output
+rejection, completion boundaries, malformed times and date-bounded reads.
+Full regression: **650 passed, 443 warnings in 12.51s**. Real VPS replay has not
+yet run. The research/deployment gate remains **PARTIAL/BLOCKED**; no selection
+experiment ran and no frozen research archive was regenerated.
