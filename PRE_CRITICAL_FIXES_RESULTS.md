@@ -292,3 +292,14 @@ The research gate is still PARTIAL/BLOCKED by sequence fidelity and corrected
 baseline/historical parity checks. Do not repeat passed roll/build checks. The
 next task is the versioned object/chronology contract, then the locked baseline
 with actual fees and R5/R6 evidence reconciliation; R7 remains paused.
+
+## Object-linkage correction — 2026-10-05
+
+Implemented opt-in `fvg_object_linked_v1` derivation and shared v2 execution
+activation. Only a directional post-trigger gap's own later retest can confirm
+the setup. Original columns/defaults remain preserved; missing or inconsistent
+linked evidence fails closed. The public market planner and actual backtest
+agree on accepted/rejected both-direction/family fixtures. No scoring change,
+production migration, historical overwrite or selection experiment occurred.
+See docs/linked_sequence_contract.md for scope and remaining chronology limits.
+Full regression: **738 passed, 704 reported compatibility warnings in 17.33s**.

@@ -644,6 +644,20 @@ def build_market_execution_plan(
     """
     if direction not in {"long", "short"} or not isinstance(market_state, Mapping):
         raise TradePlannerError("Market execution requires a state and long/short direction")
+    from linked_sequences import selected_contract, CONTRACT
+    sequence_contract = selected_contract(strategy_config or {})
+    linked_identity = None
+    linked_missing = False
+    if sequence_contract == CONTRACT:
+        structure = dict(_mapping(market_state.get('structure')))
+        linked_missing = structure.get('linked_sequence_contract') != CONTRACT
+        for linked_side in ('bullish', 'bearish'):
+            for linked_family in ('reversal', 'continuation'):
+                for suffix in ('sequence', 'entry_valid_event'):
+                    name = f'{linked_side}_linked_{linked_family}_{suffix}'
+                    linked_missing |= not isinstance(structure.get(name), bool)
+                    structure[f'{linked_side}_{linked_family}_{suffix}'] = structure.get(name) is True
+        market_state = dict(market_state, structure=structure)
     price = _number(entry_price)
     if price is None:
         raise TradePlannerError("Market entry price must be finite")
@@ -653,6 +667,8 @@ def build_market_execution_plan(
     label = _aware_execution_time(instrument.get("latest_bar_timestamp"))
     available = _aware_execution_time(instrument.get("latest_bar_available_at"))
     reasons: list[str] = []
+    if linked_missing:
+        reasons.append('object_linked_confirmation_evidence_required')
     if (fill != label + timedelta(minutes=1) or available < label + timedelta(minutes=1)
             or available > fill or available > as_of or as_of > fill):
         reasons.append("confirmation_not_available_for_immediate_next_open")
@@ -675,6 +691,10 @@ def build_market_execution_plan(
         opposite_recent_sweep=_truth(liquidity.get(f"recent_{opposite}_sweep")),
         opposite_sweep=_truth(liquidity.get(f"{opposite}_liquidity_sweep")),
     )
+    if sequence_contract == CONTRACT:
+        linked_identity = structure.get(f'{side}_linked_{family}_fvg_id')
+        if not isinstance(linked_identity, str) or not linked_identity:
+            reasons.append('linked_retest_object_required')
     if (structure.get(f"{side}_{family}_sequence") is not True
             or structure.get(f"{side}_{family}_entry_valid_event") is not True):
         reasons.append("fresh_confirmation_event_required")
@@ -698,12 +718,16 @@ def build_market_execution_plan(
             }
             candidate["planned_invalidation_criteria"] = candidate["invalidation_criteria"]
             candidate["invalidation_criteria"] = [candidate["invalidation_criteria"][0]]
-    return {
+    result = {
         "execution_model": MARKET_EXECUTION_MODEL, "as_of": as_of.isoformat(),
         "direction": direction, "entry_price": price, "entry_time": fill.isoformat(),
         "decision": DECISION_PLAN if candidate is not None else DECISION_NO_TRADE,
         "candidate": candidate, "rejections": reasons,
     }
+    if sequence_contract == CONTRACT:
+        result['sequence_contract'] = CONTRACT
+        result['confirmation_fvg_id'] = linked_identity
+    return result
 
 
 def build_trade_plan(
