@@ -316,3 +316,6 @@ docs/linked_sequence_contract.md. The original lifecycle CSVs lacked an earlier
 output lock and are now explicitly locked/consistency checked, not retroactively
 described as having immutable provenance. Six new integration/provenance tests.
 Latest full regression: **744 passed, 711 compatibility warnings in 20.14s**.
+Committed CLI `bc47f9e` completed on the real-stage two-contract synthetic build;
+both independent lock verifications passed. Historical derivation is the next
+VPS task, with no upstream feature-pipeline rerun. Tested linkage code: `e5fb742`.

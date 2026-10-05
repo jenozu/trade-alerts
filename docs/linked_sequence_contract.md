@@ -91,3 +91,8 @@ restart the original build. The derivation processes the full retained source
 history but does not repeat resampling, bias, indicators or scoring. Its elapsed
 runtime on the VPS has not been measured. Retain the printed output path for the
 next read-only evidence check. R7 stays paused pending the remaining fidelity gate.
+
+Committed implementation `bc47f9e` passed the actual CLI on a real-stage two-
+contract synthetic build, preserving its original inputs. Both new locks passed
+standalone verification afterward. Full regression: 744 passed, 711 reported
+compatibility warnings in 20.14s. Historical derivation remains pending on VPS.

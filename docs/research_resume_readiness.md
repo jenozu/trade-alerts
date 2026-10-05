@@ -154,3 +154,15 @@ Next: resolve/test the versioned sequence contract, then prepare the locked
 corrected baseline from preserved candidates, inspect historical v2 decisions
 and realistic costs, and reconcile R5/R6 completion evidence. No more VPS commands
 are needed for March 18. Do not deploy or resume R7 on feature-build success alone.
+
+### Object-linkage implementation follow-up
+
+Opt-in `fvg_object_linked_v1` is now implemented and both-direction/family
+planner/backtest parity tests reject unrelated older-gap retests. Legacy defaults
+and original features are preserved. The separate derivation runner reuses the
+saved isolated features/lifecycle evidence, checks consistency and locks its new
+outputs; it does not repeat the full pipeline. Full suite: 744 passed, 711 warnings.
+The committed synthetic CLI and both new independent locks passed. The next
+required external step is the historical VPS derivation command in
+linked_sequence_contract.md. Same-row core ambiguity and separate acceptance/
+micro-BOS remain independent fidelity findings; R7 is not cleared by this fix.
