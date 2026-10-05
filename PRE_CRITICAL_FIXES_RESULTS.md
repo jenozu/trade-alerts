@@ -332,3 +332,12 @@ linked eligible directional signals (9 reversal, 6 continuation), with output
 lock verified before/after. Per-contract/direction counts are retained in
 linked_sequence_contract.md. These are not accepted execution plans or trades;
 next evaluate the 15 signals through v2's shared risk/target decision API.
+
+The historical v2 decision task is now complete: **15 checked, 0 accepted plans**,
+with output lock verified before/after and no simulated trades or changed files.
+Thirteen exceeded the structural-risk cap; the remaining two failed obstacle
+room or fill-window checks. Other rejection reasons may coexist. Exact evidence
+and limits are in linked_sequence_contract.md. Do not repeat this check or tune
+thresholds to manufacture accepted trades. Remaining chronology/continuation
+fidelity, accepted historical-path evidence, actual fees and R5/R6 reconciliation
+still prevent clearing the research gate.

@@ -166,3 +166,14 @@ The committed synthetic CLI and both new independent locks passed. The next
 required external step is the historical VPS derivation command in
 linked_sequence_contract.md. Same-row core ambiguity and separate acceptance/
 micro-BOS remain independent fidelity findings; R7 is not cleared by this fix.
+
+### Latest historical decision checkpoint
+
+Historical linked derivation and both new locks passed. The 2025 overlap check
+found 15 eligible directional signals among 846 score-candidate rows. Actual
+shared v2 decisions then checked all 15 and accepted zero plans, with the output
+lock verified before/after and no trades/files changed. See
+linked_sequence_contract.md for evidence and rejection categories. No further
+VPS rerun of these completed checks is required. Next address core chronology
+and continuation acceptance/post-retest micro-BOS; historical accepted-path
+evidence, realistic fees and R5/R6 reconciliation remain outstanding. R7 is paused.

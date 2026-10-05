@@ -146,3 +146,26 @@ plans, realized trades, P&L or independent validation. The next bounded diagnost
 should evaluate these 15 signals through the shared market-execution decision
 API using completed same-contract prefixes and only the observed next open.
 Do not change thresholds to increase this sample or repeat the completed builds.
+
+### Historical v2 decisions completed
+
+The user-run terminal check on 2026-10-05 evaluated all 15 eligible signals
+through `market_execution_decision` with the linked contract and the locked
+strategy settings. Result: **15 checked, 0 accepted plans**. The output lock
+verified before/after; no trades were simulated and no files changed. Evidence
+is the supplied terminal screenshot `image(20261005-211314).png`, not a locally
+reproduced historical run.
+
+Thirteen signals exceeded the existing 25-point structural-risk cap. The May 28
+long was rejected for insufficient room to the first obstacle; the June 23 short
+was outside the fill-entry window. Several signals also failed target/obstacle
+or asymmetry checks. January 29 and March 18 retain their previously observed
+rejections. These are rejection decisions, not historical accepted-trade parity,
+realistic-cost performance or evidence that the selected strategy is complete.
+
+This bounded task is complete. Do not rerun it, lower thresholds, or repeat the
+feature build/derivation to obtain trades. Next resolve the remaining core-event
+chronology and continuation acceptance/post-retest micro-BOS contract against the
+supplied strategy sources. The zero-plan diagnostic cannot validate an accepted
+historical execution path. R7 remains paused; production and archived baselines
+remain unchanged.
