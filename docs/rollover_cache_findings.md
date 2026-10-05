@@ -69,6 +69,11 @@ not a positive historical v2 execution or performance validation. The replay
 reused the frozen features described above and remains diagnostic only.
 
 The preventive guard subsequently passed 697 tests on the VPS (user-reported).
-The next bounded regeneration task is documented in
-[isolated_rollover_check.md](isolated_rollover_check.md); it precedes any full-year
-corrected-cache build. Original controls remain preserved.
+All five real historical bounded regeneration checks subsequently passed, with
+unchanged source inputs and true raw/ATR/initial-level/initial-sequence checks for
+both segments at every roll. The four remaining saved reports were inspected
+through read-only VPS terminal output after the March result. Detailed windows,
+row counts and output locations are recorded in
+[isolated_rollover_check.md](isolated_rollover_check.md). Do not repeat this task.
+Full-input corrected feature generation and availability/warmup certification
+remain outstanding. Original controls remain preserved; R7 remains blocked.

@@ -31,7 +31,7 @@ existing NumPy timedelta paths in the new real-stage fixture. They remain report
 The actual CLI from clean committed code `73452de` passed on a synthetic
 two-contract fixture (90 bars each), with all reset/raw/ATR checks and standalone
 input-lock verification. This proves the CLI plumbing; it is not VPS historical
-evidence. The March VPS check below is the next required evidence.
+evidence. Historical VPS evidence is now recorded below.
 
 This is deliberately a **cold-start feature diagnostic**. It validates OHLCV,
 completion and identity, but does not apply the full research/live session-coverage
@@ -82,3 +82,30 @@ A successful run ends with `ROLLOVER CHECK: diagnostic checks passed; inputs
 unchanged`, two contract summaries and the output path. A traceback or missing
 summary means the check has not passed. Paste these final lines; no download is
 required. Retain the complete diagnostic directory and log for subsequent review.
+
+## Historical VPS completion — 2026-10-05
+
+The March command completed at
+`/root/trade-alerts-verify-YwIqEc/replays/march-roll-isolation-20261005T182624Z`.
+The remaining four ran sequentially under
+`/root/trade-alerts-verify-YwIqEc/replays/remaining-rolls-20261005T183346Z`.
+The terminal displayed `ALL FOUR REMAINING ROLLOVER CHECKS PASSED`; subsequent
+read-only output of each saved summary confirmed `DIAGNOSTIC_ONLY`, unchanged
+inputs and all four checks true for both segments. Evidence is user-supplied VPS
+terminal screenshots; full JSONs/locks remain on the VPS, not in this checkout.
+
+| Boundary UTC | Old contract / selected bars | New contract / selected bars |
+| --- | --- | --- |
+| 2024-12-16 23:00 | NMZ24 / 1,380 | NMH25 / 4,140 |
+| 2025-03-17 22:00 | NMH25 / 1,380 | NMM25 / 4,140 |
+| 2025-06-16 05:00 | NMM25 / 960 | NMU25 / 4,140 |
+| 2025-09-15 22:00 | NMU25 / 1,380 | NMZ25 / 4,140 |
+| 2025-12-15 23:00 | NMZ25 / 1,380 | NMH26 / 4,140 |
+
+All ten segments preserved raw identity, matched isolated same-contract ATR,
+reset the checked initial levels and reset the checked initial sequence flags.
+Each had 13 initial ATR warmup bars. The bounded diagnostic task is complete;
+do not repeat these checks. This proves the tested isolation path on these
+windows, not universal feature causality or research eligibility. The next task
+is a separate full-input feature build preserving all available segment history,
+followed by availability/warmup review before any corrected backtest or R7 work.
