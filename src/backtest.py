@@ -173,8 +173,8 @@ def build_backtest_settings(config: dict[str, Any]) -> BacktestSettings:
         raise BacktestError("backtest.quantity must be a positive integer")
 
     execution_model = str(backtest.get("execution_model", LEGACY_EXECUTION_MODEL))
-    from linked_sequences import selected_contract, CONTRACT
-    if selected_contract(config) == CONTRACT and execution_model != MARKET_EXECUTION_MODEL:
+    from linked_sequences import selected_contract, LEGACY
+    if selected_contract(config) != LEGACY and execution_model != MARKET_EXECUTION_MODEL:
         raise BacktestError('Object-linked sequence execution requires market v2')
     if execution_model not in {LEGACY_EXECUTION_MODEL, *CONFIRMED_EXECUTION_MODELS}:
         raise BacktestError(f"Unknown execution_model: {execution_model}")
@@ -751,7 +751,7 @@ def simulate_trade(
 
 
 def run_backtest(df: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
-    from linked_sequences import apply_sequence_contract, selected_contract, CONTRACT
+    from linked_sequences import apply_sequence_contract, selected_contract, LEGACY
     df = apply_sequence_contract(df, config)
     validate_input_dataframe(df)
     settings = build_backtest_settings(config)
@@ -849,8 +849,8 @@ def run_backtest(df: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
     if settings.execution_model == MARKET_EXECUTION_MODEL:
         result["execution_plan"] = [json.dumps(plan, sort_keys=True, allow_nan=False) for plan in accepted_plans]
         result.attrs["execution_decisions"] = decisions
-    if selected_contract(config) == CONTRACT:
-        result['sequence_contract'] = CONTRACT
+    if selected_contract(config) != LEGACY:
+        result['sequence_contract'] = selected_contract(config)
     if settings.quantity != 1:
         # Keep legacy one-contract ledgers byte/schema compatible.
         result["quantity"] = settings.quantity

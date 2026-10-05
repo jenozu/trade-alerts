@@ -5,12 +5,13 @@ import numpy as np
 import pandas as pd
 
 CONTRACT = 'fvg_object_linked_v1'
+CHRONOLOGY = 'fvg_chronology_v2'
 LEGACY = 'production_boolean_v1'
 
 
 def selected_contract(config):
     value = config.get('backtest', {}).get('sequence_contract', LEGACY)
-    if value not in (LEGACY, CONTRACT):
+    if value not in (LEGACY, CONTRACT, CHRONOLOGY):
         raise ValueError(f'Unknown sequence_contract: {value}')
     return value
 
@@ -131,7 +132,7 @@ def apply_sequence_contract(frame, config):
     if selected_contract(config) == LEGACY:
         return frame
     if ('linked_sequence_contract' not in frame or
-            not frame.linked_sequence_contract.eq(CONTRACT).all()):
+            not frame.linked_sequence_contract.eq(selected_contract(config)).all()):
         raise ValueError('Object-linked execution requires versioned feature evidence')
     result = frame.copy()
     for side in ('bullish', 'bearish'):

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 
 import pandas as pd
@@ -16,9 +17,24 @@ from tests.test_linked_sequences import inputs
 from fvg import attach_fvg_events_to_bars
 
 
+def snapshot_producer_commit(tmp_path):
+    """Real Git blobs of the tested producer, including pending code changes.
+
+    A private index leaves the worktree/branch/index untouched. Claiming HEAD
+    produced dirty source bytes would make the provenance test contradictory.
+    """
+    env = dict(os.environ, GIT_INDEX_FILE=str(tmp_path / 'producer-index'))
+    def git(*args):
+        return subprocess.check_output(['git', *args], cwd=ROOT, env=env, text=True).strip()
+    git('read-tree', 'HEAD')
+    git('add', 'src', 'scripts')
+    return git('commit-tree', git('write-tree'), '-p', git('rev-parse', 'HEAD'),
+               '-m', 'test producer snapshot')
+
+
 def test_real_stage_build_to_linked_derivation_and_both_locks(tmp_path, monkeypatch):
     source, cache = frozen_source(tmp_path)
-    commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
+    commit = snapshot_producer_commit(tmp_path)
     monkeypatch.setattr(experiment_identity, 'clean_git_commit', lambda _: commit)
     original = tmp_path / 'full-build'
     build_features(source_root=source, cache_dir=cache, output_dir=original, year=2025,

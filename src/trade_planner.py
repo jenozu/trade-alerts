@@ -644,13 +644,13 @@ def build_market_execution_plan(
     """
     if direction not in {"long", "short"} or not isinstance(market_state, Mapping):
         raise TradePlannerError("Market execution requires a state and long/short direction")
-    from linked_sequences import selected_contract, CONTRACT
+    from linked_sequences import selected_contract, LEGACY
     sequence_contract = selected_contract(strategy_config or {})
     linked_identity = None
     linked_missing = False
-    if sequence_contract == CONTRACT:
+    if sequence_contract != LEGACY:
         structure = dict(_mapping(market_state.get('structure')))
-        linked_missing = structure.get('linked_sequence_contract') != CONTRACT
+        linked_missing = structure.get('linked_sequence_contract') != sequence_contract
         for linked_side in ('bullish', 'bearish'):
             for linked_family in ('reversal', 'continuation'):
                 for suffix in ('sequence', 'entry_valid_event'):
@@ -691,7 +691,7 @@ def build_market_execution_plan(
         opposite_recent_sweep=_truth(liquidity.get(f"recent_{opposite}_sweep")),
         opposite_sweep=_truth(liquidity.get(f"{opposite}_liquidity_sweep")),
     )
-    if sequence_contract == CONTRACT:
+    if sequence_contract != LEGACY:
         linked_identity = structure.get(f'{side}_linked_{family}_fvg_id')
         if not isinstance(linked_identity, str) or not linked_identity:
             reasons.append('linked_retest_object_required')
@@ -724,8 +724,8 @@ def build_market_execution_plan(
         "decision": DECISION_PLAN if candidate is not None else DECISION_NO_TRADE,
         "candidate": candidate, "rejections": reasons,
     }
-    if sequence_contract == CONTRACT:
-        result['sequence_contract'] = CONTRACT
+    if sequence_contract != LEGACY:
+        result['sequence_contract'] = sequence_contract
         result['confirmation_fvg_id'] = linked_identity
     return result
 
