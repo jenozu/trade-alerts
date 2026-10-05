@@ -341,3 +341,31 @@ and limits are in linked_sequence_contract.md. Do not repeat this check or tune
 thresholds to manufacture accepted trades. Remaining chronology/continuation
 fidelity, accepted historical-path evidence, actual fees and R5/R6 reconciliation
 still prevent clearing the research gate.
+
+## Local chronology and durable diagnostic checkpoint
+
+Implemented opt-in `fvg_chronology_v2`: earlier completed sweep before
+displacement/MSS; continuation hold of the frozen broken swing before its own
+FVG retest, then a later close through the internal swing frozen at that retest.
+These conservative semantics use the user's delegated choices and are explicit
+in docs/chronology_sequence_contract.md. Existing feature columns, contracts,
+scoring and production defaults remain preserved. Real planner/backtest accepted
+and rejected fixtures prove both-direction/family parity and future invariance.
+
+The versioned derivation runner and new locked execution diagnostic are locally
+tested. They reuse the completed isolated build, preserve original producer
+identities and save decisions/diagnostic trades under fresh output locks.
+Realistic fee certification and historical chronology evidence still need VPS/
+user inputs; no research-selection experiment or deployment occurred.
+
+Read-only remote-ref reconciliation found completed R5 and R6 study records,
+plus preserved R7.0 outputs, outside main/the review checkout. R5/R7 manifests
+verified 135 Git-blob artifacts. The R6 fixed-target/partial-exit block is reviewed;
+not every original EXIT-A–E definition is independently certified. R7 roadmap
+completion boxes are stale relative to archived outputs. See
+docs/research_branch_reconciliation.md; do not blindly rerun completed research.
+
+Latest full regression: **779 passed, 862 reported compatibility warnings in
+23.24 seconds**. No existing archive changes relative to starting main.
+The engineering tasks are locally proven; overall item 5 remains PARTIAL / NEEDS
+VPS VERIFICATION. This checkpoint does not authorize resuming R7 yet.

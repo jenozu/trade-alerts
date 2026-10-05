@@ -87,3 +87,59 @@ DERIVATION: completed; original inputs unchanged; research readiness pending`.
 
 Runner checkpoint: **772 passed, 800 compatibility warnings in 22.03 seconds**.
 Both v1 and v2 derivation integration cases passed with preserved source bytes.
+
+## Locked execution evidence
+
+`scripts/audit_linked_execution.py` verifies preserved linked-output provenance
+using original producer blobs and unchanged data/config files. It verifies
+summary coverage and every feature identity, records all effective strategy,
+execution, cost and slippage settings, and limits candidate eligibility to the
+requested UTC development year while retaining the full context history.
+
+It saves independent shared decisions and, when a plan is accepted, runs the
+actual backtester under the same contract. Every executed plan must match its
+independent decision exactly. Side ties and one-position policy can prevent an
+otherwise accepted standalone decision from executing; counts remain distinct.
+No whole-segment simulation is repeated when no plan is accepted. Source bytes
+and source locks are verified afterward. New input/output locks cover durable
+decisions, any diagnostic ledger, effective config and the summary.
+
+The diagnostic does not certify realistic fees, optimize rules, declare a model
+freeze or clear research readiness. Zero simulated trades explicitly means no
+accepted historical-path proof. Local tests use real chronology derivation,
+planner/backtest execution, locks and drift rejection in both directions/families.
+
+### Next VPS job (one fresh run)
+
+Use the existing verification repo and sibling venv. Pull the review branch,
+then derive only new chronology fields from the passed full isolated build and
+audit those new outputs. This does not rerun upstream indicators or scoring.
+The background job survives a terminal disconnect. A failed derivation stops
+the audit; never reuse/overwrite a partially completed output directory.
+
+```bash
+cd "$HOME/trade-alerts-verify-YwIqEc/repo" &&
+git fetch origin research/pre-critical-integrity &&
+git merge --ff-only FETCH_HEAD &&
+trade_chronology_job="$PWD/../replays/chronology-2025-$(date -u +%Y%m%dT%H%M%SZ)" && {
+nohup bash -c '
+  set -e
+  ../venv/bin/python -u scripts/derive_linked_sequences.py \
+    --source-build "$1" --output-dir "$2/features" \
+    --sequence-contract fvg_chronology_v2
+  ../venv/bin/python -u scripts/audit_linked_execution.py \
+    --source-build "$2/features" --output-dir "$2/execution" --year 2025
+' bash \
+  "$HOME/trade-alerts-verify-YwIqEc/replays/full-2025-isolated-features-20261005T185645Z" \
+  "$trade_chronology_job" > "$trade_chronology_job.log" 2>&1 < /dev/null &
+printf 'Started PID %s\nLog: %s\n' "$!" "$trade_chronology_job.log"
+}
+```
+
+Final success marker: `EXECUTION AUDIT: completed; inputs unchanged; both locks
+verified; research readiness pending`. Preserve the printed log/output path.
+No focused/full test rerun on VPS is needed before this already-tested diagnostic.
+
+Final local regression: **779 passed, 862 compatibility warnings in 23.24s**.
+The seven durable execution-audit tests passed with 67 warnings. Warnings remain
+reported NumPy timedelta compatibility debt, not suppressed validation evidence.

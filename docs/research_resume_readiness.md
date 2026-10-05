@@ -177,3 +177,21 @@ linked_sequence_contract.md for evidence and rejection categories. No further
 VPS rerun of these completed checks is required. Next address core chronology
 and continuation acceptance/post-retest micro-BOS; historical accepted-path
 evidence, realistic fees and R5/R6 reconciliation remain outstanding. R7 is paused.
+
+### Current local completion and corrected research record
+
+Opt-in `fvg_chronology_v2` now implements explicit completed-bar core ordering,
+separate continuation hold, linked retest and a later close through the internal
+swing frozen at that retest. Both-direction/family real execution fixtures pass.
+The separate versioned derivation and locked execution-audit runners are ready
+for historical VPS verification without repeating the full feature pipeline.
+See chronology_sequence_contract.md for precise delegated choices and boundaries.
+
+The preserved remote research branches contain R5 closure, R6.0–R6.3 completion
+reviews and archived R7.0 outputs. The earlier absence finding applies only to
+main/the integrity checkout. R5/R7 manifests verified 135 files from Git blobs.
+R7's completion boxes lag its archived outputs; its review/decision still needs
+reconciliation. Do not rerun finished studies merely to repair that record.
+See research_branch_reconciliation.md. Historical chronology decisions/accepted
+execution, realistic fees, remaining 2023/2024 producer-cache correspondence and
+review/merge remain external gates. R7 is still paused; old results are preserved.
