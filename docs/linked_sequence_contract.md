@@ -96,3 +96,30 @@ Committed implementation `bc47f9e` passed the actual CLI on a real-stage two-
 contract synthetic build, preserving its original inputs. Both new locks passed
 standalone verification afterward. Full regression: 744 passed, 711 reported
 compatibility warnings in 20.14s. Historical derivation remains pending on VPS.
+
+## Historical derivation passed — 2026-10-05
+
+User-run VPS evidence reports 23 focused tests passed with 95 warnings in 4.25s,
+followed by successful six-segment derivation. Output:
+`/root/trade-alerts-verify-YwIqEc/replays/linked-2025-20261005T205750Z`.
+Original inputs remained unchanged. Both EXPERIMENT_INPUT_LOCK.json and
+LINKED_OUTPUT_LOCK.json independently returned VERIFIED against the unchanged
+verification checkout. All 441,015 rows are retained.
+
+| Contract | Rows | Bullish reversal | Bullish continuation | Bearish reversal | Bearish continuation |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| NMZ24 | 75,315 | 204 | 964 | 198 | 1,052 |
+| NMH25 | 85,772 | 253 | 1,218 | 276 | 1,360 |
+| NMM25 | 86,668 | 282 | 1,159 | 272 | 1,209 |
+| NMU25 | 89,715 | 227 | 1,129 | 247 | 1,195 |
+| NMZ25 | 88,590 | 249 | 1,171 | 274 | 1,262 |
+| NMH26 | 14,955 | 45 | 192 | 52 | 219 |
+
+These are fresh linked confirmation event counts over all retained history,
+including pre-2025/context bars. They are not 2025 score-eligible trade counts or
+accepted execution plans. Status remains LINKED_FEATURE_CANDIDATE_NOT_RESEARCH_READY.
+Do not repeat this derivation or the full feature build. Next inspect overlap
+with 2025 directional score candidates through the actual shared family gate,
+then bounded v2 execution evidence. Remaining chronology findings still apply.
+Historical counts and lock findings are transcribed from user terminal screenshots;
+the source artifacts remain on the VPS and are not locally reproduced.

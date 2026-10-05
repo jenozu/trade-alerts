@@ -319,3 +319,10 @@ Latest full regression: **744 passed, 711 compatibility warnings in 20.14s**.
 Committed CLI `bc47f9e` completed on the real-stage two-contract synthetic build;
 both independent lock verifications passed. Historical derivation is the next
 VPS task, with no upstream feature-pipeline rerun. Tested linkage code: `e5fb742`.
+
+Historical linked derivation now passed on all six contracts, retaining 441,015
+rows with unchanged inputs. Both saved locks independently verified on VPS.
+Focused VPS suite: 23 passed, 95 warnings. See linked_sequence_contract.md for
+the exact output path and per-family counts. Those are full-history confirmation
+events, not score-eligible trades or historical execution parity. No rerun is
+needed; next inspect actual 2025 eligibility and bounded execution decisions.
