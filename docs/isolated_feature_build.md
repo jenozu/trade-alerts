@@ -41,6 +41,12 @@ future-context rejection, source preservation, incomplete inputs, overwrite
 refusal and generated-output drift detection. Feature stages are not mocked.
 Existing NumPy timedelta compatibility warnings remain reported.
 
+The actual CLI from clean committed implementation `d57f451` also passed on a
+synthetic two-contract source (90 bars each), and both persisted input/output
+locks passed independent verification against the same commit. This establishes
+the committed command path, not historical full-input completion. The VPS job
+below is still required before reviewing actual warmup evidence.
+
 ## VPS step
 
 Update only the verification checkout, run the nine new tests, then start one
