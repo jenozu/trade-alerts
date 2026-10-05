@@ -1334,3 +1334,13 @@ provenance, date-bounded derived data, immutable input locks and separate output
 See [docs/isolated_cache_replay.md](docs/isolated_cache_replay.md).
 Full regression: **650 passed, 443 warnings**. The actual VPS replay and remaining
 fidelity checks are pending; the research/deployment gate remains PARTIAL/BLOCKED.
+
+### Research-resume recheck — 2026-10-05
+
+Fresh full regression: **650 passed, 443 warnings**; 104 archived artifact hashes
+verified and frozen research archives unchanged. Isolated VPS replays have run,
+but a January positive confirmed entry disagrees with the production planner.
+Stop/target/sequence fidelity and exact source-cache rollover isolation remain
+unresolved. See [docs/research_resume_readiness.md](docs/research_resume_readiness.md)
+for the ordered tasks and research-phase evidence gap. R7 remains paused; this
+does not rewrite historical phase completion records.

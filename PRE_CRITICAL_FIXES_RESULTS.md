@@ -230,3 +230,23 @@ rejection, completion boundaries, malformed times and date-bounded reads.
 Full regression: **650 passed, 443 warnings in 12.51s**. Real VPS replay has not
 yet run. The research/deployment gate remains **PARTIAL/BLOCKED**; no selection
 experiment ran and no frozen research archive was regenerated.
+
+## Research-resume recheck — 2026-10-05
+
+See [docs/research_resume_readiness.md](docs/research_resume_readiness.md) for the
+current gate and ordered remaining tasks. Fresh full regression: **650 passed,
+443 warnings in 14.57s**. Verified 104 archived artifact hashes with no failures;
+all research-archive content remains unchanged from starting main. GitHub main
+is still 3555c6f; draft PR #7 is open and unmerged.
+
+The isolated first-week and January VPS diagnostic replays have now run with
+unchanged inputs. The January confirmed entry is a demonstrated planner/backtest
+decision mismatch, detailed in docs/strategy_fidelity_audit.md. These diagnostics
+advance verification but do not clear stop/target/sequence or rollover-cache
+fidelity. **R7 strategy-selection research is not approved to resume yet.**
+
+No tracked R5/R6 completion evidence was found during the recheck; reconcile the
+preserved experiment record before declaring R7 next. An untouched forward
+holdout remains required for independent validation and production acceptance;
+it is not by itself a prerequisite for development-only R7 experiments once the
+current fidelity/input gate is cleared.

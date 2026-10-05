@@ -181,3 +181,44 @@ execution version and rejects missing confirmation schema or late availability.
 This resolves the limit-vs-market choice. The audit's baseline findings above
 remain historically valid, and remaining target/stop, raw chronology and actual
 VPS parity findings are not reclassified PASS. No research selection ran.
+
+## Isolated historical replay evidence — 2026-10-05
+
+User-run VPS verification of the review checkout reported 650 passing tests.
+The frozen January 2025 replay reported unchanged inputs, 36 legacy entries
+and one confirmed-market entry. These are diagnostic counts, not evidence of
+performance or completion of the research gate. This evidence was supplied as
+terminal output/screenshots; the historical input files are not available in
+the local development checkout.
+
+The confirmed short used the completed 2025-01-29 15:14 UTC signal, available
+at 15:15 UTC, and the next-minute raw open of 21536.5. Adverse entry slippage
+gave 21536.25; the backtest used a 25-point stop at 21561.25 and fixed targets.
+The ledger reported a holding-time exit, target-one through target-three
+touches and zero commission. Target touches are not partial exits.
+
+Building the production market state at the same 15:15 UTC cutoff and calling
+the planner with the locked producer strategy returned NO TRADE. Its short
+rejection was insufficient_room_to_first_obstacle:7.00<25.00. A subsequent
+read-only diagnostic identified these planner references:
+
+| Reference | Price | Distance below planner risk entry |
+| --- | ---: | ---: |
+| Conservative short trigger-zone edge | 21560.25 | 0 |
+| Asia-session low | 21553.25 | 7.00 |
+| Nearest equal low | 21535.50 | 24.75 |
+| Opposing confluence zone | 21534.875 | 25.375 |
+
+The protected swing high was 21561.0. The planner's 7-point calculation uses
+its trigger-zone edge, not the confirmed-market fill. The Asia low is already
+above the backtest short entry; copying that rejection verbatim into a market
+entry simulation would mix entry references. Likewise, the planner swing
+reference does not establish equivalence with the backtest fixed-distance stop.
+
+This is a demonstrated historical planner/backtest decision mismatch. Shared
+family precedence and causal next-minute timing do not establish full strategy
+parity. The next implementation must specify and test market-entry-relative
+obstacle eligibility, structural stop construction and target/management rules
+under the versioned execution contract. Do not lower thresholds to admit this
+example or classify the remaining fidelity gate as passed. Production and
+historical archive files were not modified by these diagnostics.
