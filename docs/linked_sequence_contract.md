@@ -49,3 +49,45 @@ Next historical step: derive a new locked artifact from the completed isolated
 features and their saved FVG lifecycle evidence. Preserve that build and its
 locks, verify original inputs before/after, and retain the new feature/decision
 identity separately. This is not a repeat of the full upstream feature pipeline.
+
+## Isolated historical derivation
+
+`scripts/derive_linked_sequences.py` checks both preserved build locks. Original
+code is checked against recorded Git blobs, so updating the review checkout does
+not falsely classify an expected code change as altered historical data. Every
+non-code input must still match on disk. Each source feature file must match its
+locked hash, contract and row count. Retained FVG lifecycle geometry and projected
+touch/retest/fill events must match those features. The saved lifecycle CSVs were
+not in the old output lock: their current identities are now locked and their
+consistency checked, without claiming previously recorded immutable provenance.
+
+Only new linked columns are added. Every original feature column is checked for
+exact equality. New source/output locks and LINKED_SEQUENCE_SUMMARY.json are
+written to a fresh sibling directory; no backtest, recertification or alert runs.
+Six new tests include real stage generation followed by actual derivation, both
+independent locks, source preservation, output drift and mismatched lifecycle/
+path rejection. Only Git cleanliness is patched during dirty test development;
+feature stages, lifecycle projection, locks and Git-blob checks are real.
+
+Run this once in the existing verification checkout, using its sibling venv:
+
+```bash
+cd "$HOME/trade-alerts-verify-YwIqEc/repo" &&
+git fetch origin research/pre-critical-integrity &&
+git merge --ff-only FETCH_HEAD &&
+../venv/bin/python -m pytest -q tests/test_linked_sequences.py tests/test_linked_derivation.py &&
+trade_linked_output="$PWD/../replays/linked-2025-$(date -u +%Y%m%dT%H%M%SZ)" && {
+nohup ../venv/bin/python -u scripts/derive_linked_sequences.py \
+  --source-build "$HOME/trade-alerts-verify-YwIqEc/replays/full-2025-isolated-features-20261005T185645Z" \
+  --output-dir "$trade_linked_output" \
+  > "$trade_linked_output.log" 2>&1 < /dev/null &
+printf 'Started PID %s. Log: %s\n' "$!" "$trade_linked_output.log"
+}
+```
+
+Completion marker: `LINKED DERIVATION: completed; original inputs unchanged;
+research readiness pending`. A traceback is a failed check; do not overwrite or
+restart the original build. The derivation processes the full retained source
+history but does not repeat resampling, bias, indicators or scoring. Its elapsed
+runtime on the VPS has not been measured. Retain the printed output path for the
+next read-only evidence check. R7 stays paused pending the remaining fidelity gate.

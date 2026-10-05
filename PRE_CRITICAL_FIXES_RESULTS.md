@@ -303,3 +303,16 @@ agree on accepted/rejected both-direction/family fixtures. No scoring change,
 production migration, historical overwrite or selection experiment occurred.
 See docs/linked_sequence_contract.md for scope and remaining chronology limits.
 Full regression: **738 passed, 704 reported compatibility warnings in 17.33s**.
+
+## Linked derivation runner — 2026-10-05
+
+Added a feature-only runner to reuse the completed isolated build and retained
+FVG lifecycle evidence. It checks original producer blobs, input/output locks,
+creation geometry and projected events; every original feature column is retained
+exactly. Linked features and both new locks go to a fresh sibling directory.
+No full feature pipeline, backtest, production alert or research selection runs.
+Historical VPS execution remains required; its exact command is in
+docs/linked_sequence_contract.md. The original lifecycle CSVs lacked an earlier
+output lock and are now explicitly locked/consistency checked, not retroactively
+described as having immutable provenance. Six new integration/provenance tests.
+Latest full regression: **744 passed, 711 compatibility warnings in 20.14s**.
