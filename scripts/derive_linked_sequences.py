@@ -11,10 +11,12 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
 import pandas as pd
+import yaml
 from experiment_identity import build_input_lock, verify_input_lock, write_input_lock
 from feature_cache import sha256_file
 from fvg import attach_fvg_events_to_bars
-from linked_sequences import CONTRACT, add_linked_sequences, apply_sequence_contract
+from linked_sequences import CONTRACT, CHRONOLOGY, add_linked_sequences, apply_sequence_contract
+from chronology_sequences import add_chronology_sequences
 
 
 def verify_preserved_lock(lock, repository):
@@ -81,7 +83,9 @@ def checked_objects(frame, objects):
     return parsed
 
 
-def derive(source, output, *, repository=ROOT):
+def derive(source, output, *, repository=ROOT, sequence_contract=CONTRACT):
+    if sequence_contract not in (CONTRACT, CHRONOLOGY):
+        raise ValueError('Unknown derivation sequence contract')
     source, output = Path(source).resolve(), Path(output).resolve()
     if not output.is_relative_to(source.parent) or output == source.parent:
         raise ValueError('Output must stay alongside the isolated source build')
@@ -120,10 +124,15 @@ def derive(source, output, *, repository=ROOT):
         files[f'source_lifecycle:{number}'] = checked_file(source, str(features.parent.relative_to(source) / 'processed/fvg/fvg_lifecycle.csv'))
     files.update({f'code:{path.relative_to(repository)}': path for path in sorted((repository / 'src').glob('*.py'))})
     files['code:scripts/derive_linked_sequences.py'] = repository / 'scripts/derive_linked_sequences.py'
+    execution = {'mode': 'linked_sequence_derivation_only', 'sequence_contract': sequence_contract}
+    if sequence_contract == CHRONOLOGY:
+        strategy = yaml.safe_load(files['strategy'].read_text())
+        execution.update(lookback_bars=10,
+                         break_buffer_points=strategy.get('structure', {}).get('break_buffer_points', .25))
     args = dict(root=repository, years=original_locks[0]['identity']['coverage']['years'],
                 contracts=[s['contract'] for s in segments],
                 counts={'bars': report['source_rows'], 'candidates': None, 'trades': None},
-                settings={'execution': {'mode': 'linked_sequence_derivation_only', 'sequence_contract': CONTRACT},
+                settings={'execution': execution,
                           'cost': {}, 'slippage': {}}, unavailable={'research_readiness': 'NOT_CERTIFIED'})
     lock = build_input_lock(experiment_id='DIAGNOSTIC-LINKED-SEQUENCE-DERIVATION', files=files, **args)
     output.mkdir(parents=True, exist_ok=False)
@@ -140,9 +149,11 @@ def derive(source, output, *, repository=ROOT):
         except pd.errors.EmptyDataError:
             objects = pd.DataFrame()
         objects = checked_objects(frame, objects)
-        linked = add_linked_sequences(frame, objects)
+        linked = (add_chronology_sequences(frame, objects, lookback_bars=execution['lookback_bars'],
+                    break_buffer_points=execution['break_buffer_points'])
+                  if sequence_contract == CHRONOLOGY else add_linked_sequences(frame, objects))
         pd.testing.assert_frame_equal(linked[frame.columns], frame)
-        apply_sequence_contract(linked, {'backtest': {'sequence_contract': CONTRACT}})
+        apply_sequence_contract(linked, {'backtest': {'sequence_contract': sequence_contract}})
         destination = output / f'segment_{number}'
         destination.mkdir()
         path = destination / 'features_linked.parquet'
@@ -159,14 +170,17 @@ def derive(source, output, *, repository=ROOT):
     final_lock = build_input_lock(experiment_id='DIAGNOSTIC-LINKED-SEQUENCE-OUTPUTS', files=output_files, **args)
     write_input_lock(output / 'LINKED_OUTPUT_LOCK.json', final_lock)
     verify_input_lock(final_lock, root=repository)
-    result = {'status': 'LINKED_FEATURE_CANDIDATE_NOT_RESEARCH_READY', 'sequence_contract': CONTRACT,
+    result = {'status': 'LINKED_FEATURE_CANDIDATE_NOT_RESEARCH_READY', 'sequence_contract': sequence_contract,
         'inputs_unchanged': True, 'source_rows': report['source_rows'], 'segments': retained,
         'input_identity_sha256': lock['input_identity_sha256'], 'output_identity_sha256': final_lock['input_identity_sha256'],
         'limitations': ['No backtest, research certification or eligibility override',
             'Retained lifecycle CSVs were not included in the prior output lock; now locked and checked against source events/geometry',
-            'Same-row core ordering and separate acceptance/micro-BOS remain unresolved']}
+            ('Completed-bar chronology is explicit; historical execution and research readiness are not certified'
+             if sequence_contract == CHRONOLOGY else
+             'Same-row core ordering and separate acceptance/micro-BOS remain unresolved')]}
     (output / 'LINKED_SEQUENCE_SUMMARY.json').write_text(json.dumps(result, indent=2) + '\n')
-    print('LINKED DERIVATION: completed; original inputs unchanged; research readiness pending', flush=True)
+    label = 'CHRONOLOGY' if sequence_contract == CHRONOLOGY else 'LINKED'
+    print(f'{label} DERIVATION: completed; original inputs unchanged; research readiness pending', flush=True)
     print(output, flush=True)
     return result
 
@@ -175,5 +189,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source-build', type=Path, required=True)
     parser.add_argument('--output-dir', type=Path, required=True)
+    parser.add_argument('--sequence-contract', choices=[CONTRACT, CHRONOLOGY], default=CONTRACT)
     options = parser.parse_args()
-    derive(options.source_build, options.output_dir)
+    derive(options.source_build, options.output_dir, sequence_contract=options.sequence_contract)

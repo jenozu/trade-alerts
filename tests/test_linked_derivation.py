@@ -15,6 +15,7 @@ from scripts.run_isolated_feature_build import build_features
 from tests.test_isolated_rollover_check import ROOT, frozen_source
 from tests.test_linked_sequences import inputs
 from fvg import attach_fvg_events_to_bars
+from linked_sequences import CHRONOLOGY
 
 
 def snapshot_producer_commit(tmp_path):
@@ -32,7 +33,8 @@ def snapshot_producer_commit(tmp_path):
                '-m', 'test producer snapshot')
 
 
-def test_real_stage_build_to_linked_derivation_and_both_locks(tmp_path, monkeypatch):
+@pytest.mark.parametrize('contract', ['fvg_object_linked_v1', CHRONOLOGY])
+def test_real_stage_build_to_linked_derivation_and_both_locks(tmp_path, monkeypatch, contract):
     source, cache = frozen_source(tmp_path)
     commit = snapshot_producer_commit(tmp_path)
     monkeypatch.setattr(experiment_identity, 'clean_git_commit', lambda _: commit)
@@ -41,10 +43,11 @@ def test_real_stage_build_to_linked_derivation_and_both_locks(tmp_path, monkeypa
                    completed_through='2026-01-02T00:00:00Z')
     hashes = {str(p): sha256_file(p) for p in original.rglob('*') if p.is_file()}
     output = tmp_path / 'linked-build'
-    result = derive(original, output)
+    result = derive(original, output, sequence_contract=contract)
     assert result['inputs_unchanged']
     assert result['source_rows'] == 180
     assert len(result['segments']) == 2
+    assert result['sequence_contract'] == contract
     for name in ('EXPERIMENT_INPUT_LOCK.json', 'LINKED_OUTPUT_LOCK.json'):
         verify_input_lock(json.loads((output / name).read_text()), root=ROOT)
     assert hashes == {str(p): sha256_file(p) for p in original.rglob('*') if p.is_file()}
@@ -52,12 +55,19 @@ def test_real_stage_build_to_linked_derivation_and_both_locks(tmp_path, monkeypa
         before = pd.read_parquet(original / old['features_path'])
         after = pd.read_parquet(output / new['features_path'])
         pd.testing.assert_frame_equal(before, after[before.columns])
+        assert after.linked_sequence_contract.eq(contract).all()
     with pytest.raises(ValueError, match='fresh'):
         derive(original, output)
     changed = output / result['segments'][0]['features_path']
     changed.write_bytes(changed.read_bytes() + b'drift')
     with pytest.raises(experiment_identity.ExperimentIdentityError, match='drift'):
         verify_input_lock(json.loads((output / 'LINKED_OUTPUT_LOCK.json').read_text()))
+
+
+def test_unknown_derivation_contract_fails_before_read_or_write(tmp_path):
+    with pytest.raises(ValueError, match='contract'):
+        derive(tmp_path / 'missing', tmp_path / 'new', sequence_contract='invented')
+    assert not (tmp_path / 'new').exists()
 
 
 @pytest.mark.parametrize('damage', ['bound', 'event', 'naive'])

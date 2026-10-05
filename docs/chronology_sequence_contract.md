@@ -68,3 +68,22 @@ in 20.40 seconds**. The full-suite provenance fixture now snapshots actual teste
 producer code into real Git blobs through a private index; it no longer claims
 that dirty source bytes came from the prior HEAD. Source/output-lock verification
 and deliberate drift failures remain real and unchanged.
+
+## Separate artifact derivation
+
+The existing runner now accepts `--sequence-contract fvg_chronology_v2`.
+It reads the completed isolated source build, validates the original locks
+against their producer Git blobs, validates lifecycle identity/geometry/events,
+and writes new features and input/output locks to a fresh sibling directory.
+The frozen strategy's structure buffer and the explicit ten-bar lifetime are
+included in the effective derivation identity. The default CLI still derives v1.
+
+Both modes are tested through actual two-contract raw-to-feature stages,
+derivation, both independent lock checks, exact original-column equality and
+output-drift rejection. An unknown contract is rejected before any output write.
+This runner does not repeat the upstream pipeline on VPS, simulate trades, or
+certify historical eligibility. Its v2 completion marker is `CHRONOLOGY
+DERIVATION: completed; original inputs unchanged; research readiness pending`.
+
+Runner checkpoint: **772 passed, 800 compatibility warnings in 22.03 seconds**.
+Both v1 and v2 derivation integration cases passed with preserved source bytes.
