@@ -44,10 +44,10 @@ Existing NumPy timedelta compatibility warnings remain reported.
 The actual CLI from clean committed implementation `d57f451` also passed on a
 synthetic two-contract source (90 bars each), and both persisted input/output
 locks passed independent verification against the same commit. This establishes
-the committed command path, not historical full-input completion. The VPS job
-below is still required before reviewing actual warmup evidence.
+the committed command path. The historical VPS build has now completed; see
+the evidence below. Do not rerun this build for the current checkpoint.
 
-## VPS step
+## Completed VPS command (reference only)
 
 Update only the verification checkout, run the nine new tests, then start one
 finite feature-only build using its sibling virtual environment. The full input
@@ -78,3 +78,43 @@ research readiness pending`, followed by segment summaries and the output path.
 A traceback or missing summary means the task has not completed. Do not launch a
 second job while this one is running. Inspect the retained summary/warmup evidence
 and locks before preparing a corrected execution baseline; R7 remains paused.
+
+## Historical completion and availability review — 2026-10-05
+
+User-supplied terminal evidence records the successful build at
+`/root/trade-alerts-verify-YwIqEc/replays/full-2025-isolated-features-20261005T185645Z`.
+All six segments passed raw identity, same-contract ATR, checked initial resets,
+raw availability preservation and non-future context checks. Inputs remained
+unchanged. Both persisted locks independently returned VERIFIED afterward.
+The VPS builder test file passed nine tests with 21 reported warnings.
+
+| Contract | Source rows | 2025 score candidates | Candidates missing PDH/PDL | Candidates missing daily availability |
+| --- | ---: | ---: | ---: | ---: |
+| NMZ24 | 75,315 | 0 | 0 | 0 |
+| NMH25 | 85,772 | 210 | 7 | 0 |
+| NMM25 | 86,668 | 195 | 2 | 2 |
+| NMU25 | 89,715 | 191 | 3 | 3 |
+| NMZ25 | 88,590 | 217 | 4 | 4 |
+| NMH26 | 14,955 | 33 | 4 | 4 |
+| Total | 441,015 | 846 | 20 | 13 |
+
+2025 contains 352,125 rows by UTC timestamp year. Every score candidate has
+ATR and 15m/30m/1h/4h availability. Each segment's first 13 ATR rows are warmup.
+Daily bias is explicitly context-only in configuration; missing daily context
+alone does not establish a defective entry or authorize a new veto.
+
+Of the 20 candidates missing both prior-RTH levels, 19 failed the shared family
+confirmation gate. The remaining short continuation was March 18 at 13:38 UTC
+(09:38 ET). A read-only real v2 backtest on rebuilt NMM25 March 17–18 data
+produced zero trades. At 13:39 UTC its entry reference was 19798.5 and its
+decision was NO_TRADE, with exact rejections
+`structural_risk_too_large:92.00>25.00` and
+`tp1_market_objective_unavailable_before_primary_dol`.
+
+This closes that particular candidate diagnostic, not universal warmup eligibility
+or positive historical parity. The seven January 10 missing-prior-RTH candidates
+still need source coverage classification; do not assume roll warmup, a holiday
+or corrupted data. No forward fill or eligibility override was introduced.
+Outputs remain FEATURE_CANDIDATE_NOT_RESEARCH_READY pending sequence fidelity
+and corrected baseline checks. Historical findings here are transcribed from
+user-run terminal evidence; the actual Parquets are not available locally.

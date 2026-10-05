@@ -269,3 +269,26 @@ Both actual cache-runner CLIs and standalone input-lock verification passed on
 a fresh synthetic v2 fixture from clean committed code. Original source hashes
 were unchanged. Full regression after final code changes: **685 passed, 583
 warnings in 13.31s**. The next bounded VPS command is in docs/market_execution_v2.md.
+
+## Historical rebuild and sequence audit — 2026-10-05
+
+All five bounded historical contract-isolation diagnostics passed, followed by
+the full 441,015-row, six-contract feature-only build. Inputs stayed unchanged;
+both input/output locks independently verified on the VPS. Review retained
+352,125 UTC-year-2025 bars and found 846 score candidates. Of 20 candidates
+missing prior-RTH levels, 19 failed family confirmation; real v2 rejected the
+remaining March 18 short for 92-point structural risk and unavailable TP1.
+This is a diagnostic rejection, not performance or positive historical parity.
+See docs/isolated_feature_build.md for paths, counts and limitations.
+
+Four new characterization cases expose an old gap's retest confirming a new
+setup through real FVG projection, family sequence and shared entry-gate calls.
+Both directions/families reproduce the loss of gap identity. Focused tests:
+25 passed, 15 warnings; latest full suite: **721 passed, 621 compatibility
+warnings in 17.45s**. No production entry rules, raw files, old caches, scoring
+parameters or research archives changed. New feature outputs remain candidates.
+
+The research gate is still PARTIAL/BLOCKED by sequence fidelity and corrected
+baseline/historical parity checks. Do not repeat passed roll/build checks. The
+next task is the versioned object/chronology contract, then the locked baseline
+with actual fees and R5/R6 evidence reconciliation; R7 remains paused.

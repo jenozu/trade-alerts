@@ -6,6 +6,7 @@ They must be replaced with explicit parity contracts after semantic decisions.
 from datetime import timedelta
 import numpy as np
 import pandas as pd
+import pytest
 import run_pipeline as pipeline
 from backtest import run_backtest, load_strategy_config
 from data_clock import filter_as_of
@@ -16,6 +17,46 @@ from structure import _ordered_core_sequence, _ordered_fvg_confirmation
 from trade_planner import build_trade_plan
 from tests.test_backtest import _bars, _mark_long, _config as execution_config
 from tests.test_trade_planner import _state, _config as planner_config
+
+
+@pytest.mark.parametrize('direction,side', [('long', 'bullish'), ('short', 'bearish')])
+@pytest.mark.parametrize('family', ['reversal', 'continuation'])
+def test_unrelated_old_gap_retest_can_complete_production_confirmation(direction, side, family):
+    """Characterize an unresolved mismatch, not an approved entry contract.
+
+    The real FVG projection drops object identity. An old gap's retest can then
+    complete a new setup despite the new gap never having been retested.
+    """
+    from backtest import confirmed_setup_family
+    from fvg import attach_fvg_events_to_bars
+    from structure import add_fvg_structure_sequences, add_production_setup_sequences
+
+    bars = _bars(4)
+    bars['bar_complete'] = True
+    bars['new_entry_allowed'] = True
+    bars[f'{side}_fvg_created'] = [True, False, True, False]
+    tracked = pd.DataFrame([
+        dict(fvg_id=1, direction=side, creation_time=bars.timestamp.iloc[0],
+             retest_hold_time=bars.timestamp.iloc[3]),
+        dict(fvg_id=2, direction=side, creation_time=bars.timestamp.iloc[2],
+             retest_hold_time=pd.NaT),
+    ])
+    for column in ('first_touch_time', 'full_fill_time', 'inverse_fvg_time'):
+        tracked[column] = pd.NaT
+    projected = attach_fvg_events_to_bars(bars, tracked)
+    assert projected.loc[3, f'{side}_fvg_retest_hold']
+    assert pd.isna(tracked.loc[1, 'retest_hold_time'])
+    assert 'fvg_id' not in projected
+
+    if family == 'reversal':
+        projected[f'{side}_core_sequence'] = [False, False, True, True]
+        projected[f'{side}_core_sequence_completed'] = [False, False, True, False]
+        projected = add_fvg_structure_sequences(projected)
+    else:
+        projected[f'{side}_displacement_structure_break_event'] = [False, False, True, False]
+    result = add_production_setup_sequences(projected)
+    assert result.loc[3, f'{side}_{family}_entry_valid_event']
+    assert confirmed_setup_family(result.iloc[3], direction) == family
 
 
 def test_positive_plan_and_backtest_have_documented_price_and_confirmation_mismatches():

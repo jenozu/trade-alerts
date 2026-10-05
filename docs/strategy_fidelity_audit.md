@@ -238,3 +238,40 @@ the new version's separate stop/target implementation, not all historical/live
 fidelity: the actual VPS replay is pending, production alerts are not migrated,
 sequence-object linkage/same-row ambiguity and real cache roll isolation remain
 uncertified. The original mismatch tests remain historical audit coverage.
+
+## Historical rebuild and retest identity evidence — 2026-10-05
+
+All five bounded roll diagnostics and the full six-segment 2025 feature build
+passed. Both full-build locks independently verified on the VPS. See
+[isolated feature build](isolated_feature_build.md). New artifacts remain
+candidates, not certified research inputs. Real v2 rejected the rebuilt March 18
+missing-context candidate for 92-point structural risk and unavailable TP1,
+producing zero trades. This is rejection evidence, not positive-entry parity.
+
+Four new deterministic audit cases reproduce the retest-object mismatch for
+both directions and both families through real functions:
+
+1. Gap A exists before the new setup; gap B is created on the setup bar.
+2. Only A is retested afterward; B has no recorded retest.
+3. `fvg.attach_fvg_events_to_bars` projects A's retest to a directional boolean,
+   without retaining its `fvg_id` in the bar event schema.
+4. `add_fvg_structure_sequences` or `add_production_setup_sequences` consumes
+   the boolean and emits the new family's entry-valid event.
+5. `backtest.confirmed_setup_family` accepts it as family confirmation.
+
+The fixtures supply explicit tracked-gap records and call real projection,
+sequence and entry-gate functions without mocks. They do not claim raw OHLC gap
+detection or that the resulting candidate passes v2 risk/price requirements.
+These are characterization tests of an unresolved mismatch, not approval of it.
+
+Existing tests prove out-of-order MSS/displacement/sweep, pre-core-only FVG
+creation and same-bar continuation break/retest are rejected; appending future
+rows preserves past sequences. The additional defect is loss of retested-object
+identity. Same-row reversal ambiguity and separate continuation acceptance /
+post-retest micro-BOS remain independent unresolved findings.
+
+Next, bind creation/retest identity to the initiating setup under a versioned
+contract and test accepted/rejected cases while preserving old semantics.
+This audit changes no weights, entry rules, production or archives. Focused
+sequence/fidelity tests: 25 passed, 15 warnings. Full suite: **721 passed,
+621 reported compatibility warnings in 17.45s**.

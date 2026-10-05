@@ -135,3 +135,22 @@ state. A v2 replay can report accepted/rejected decisions and retain old modes.
 The research gate remains blocked pending actual historical replay, upstream
 sequence/rollover checks and production-adapter verification where applicable.
 This follow-up does not replace the inspection evidence or certify R5/R6 completion.
+
+## Current gate after the historical build — 2026-10-05
+
+The full 441,015-row source build passed all six contract segments and both
+persisted locks independently verified. Do not repeat it or the five bounded
+roll checks. Availability review found 846 score candidates: 20 lacked PDH/PDL,
+19 failed family confirmation and real v2 rejected the remaining March 18 case.
+See isolated_feature_build.md for exact counts and evidence boundaries.
+
+Four new both-direction/family audit cases prove an older gap's retest can
+confirm a newer setup whose new gap was never retested: event projection loses
+gap identity before the sequence gate. This remains a material fidelity finding.
+Same-row reversal and separate acceptance/micro-BOS also remain unresolved.
+Full suite: 721 passed, 621 warnings; characterization tests do not clear the gate.
+
+Next: resolve/test the versioned sequence contract, then prepare the locked
+corrected baseline from preserved candidates, inspect historical v2 decisions
+and realistic costs, and reconcile R5/R6 completion evidence. No more VPS commands
+are needed for March 18. Do not deploy or resume R7 on feature-build success alone.
