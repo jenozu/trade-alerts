@@ -3,12 +3,15 @@ from __future__ import annotations
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Any
+import json
 
 import numpy as np
 import pandas as pd
 import yaml
 
 from setup_family_contract import classify_setup_family
+from market_state import build_market_state
+from trade_planner import MARKET_EXECUTION_MODEL, build_market_execution_plan
 
 DEFAULT_STRATEGY_CONFIG = Path("config/strategy.yaml")
 REQUIRED_COLUMNS = {
@@ -25,6 +28,7 @@ REQUIRED_COLUMNS = {
 VALID_DIRECTIONS = {"long", "short"}
 LEGACY_EXECUTION_MODEL = "score_signal_v1"
 CONFIRMED_EXECUTION_MODEL = "market_after_retest_confirmation_v1"
+CONFIRMED_EXECUTION_MODELS = {CONFIRMED_EXECUTION_MODEL, MARKET_EXECUTION_MODEL}
 
 
 class BacktestError(RuntimeError):
@@ -169,13 +173,21 @@ def build_backtest_settings(config: dict[str, Any]) -> BacktestSettings:
         raise BacktestError("backtest.quantity must be a positive integer")
 
     execution_model = str(backtest.get("execution_model", LEGACY_EXECUTION_MODEL))
-    if execution_model not in {LEGACY_EXECUTION_MODEL, CONFIRMED_EXECUTION_MODEL}:
+    if execution_model not in {LEGACY_EXECUTION_MODEL, *CONFIRMED_EXECUTION_MODELS}:
         raise BacktestError(f"Unknown execution_model: {execution_model}")
-    if execution_model == CONFIRMED_EXECUTION_MODEL and (
+    if execution_model in CONFIRMED_EXECUTION_MODELS and (
         not backtest.get("entry_on_next_bar_open", True)
         or not backtest.get("use_completed_bars_only", True)
     ):
         raise BacktestError("Confirmed execution requires completed bars and next-bar-open entry")
+
+    if execution_model == MARKET_EXECUTION_MODEL and (
+        stop_loss.get("primary_method", "structural") != "structural"
+        or backtest.get("same_bar_stop_and_target_behavior", "stop_first") != "stop_first"
+        or trade_management.get("partial_exits_enabled", False)
+        or trade_management.get("move_to_breakeven_initially", False)
+    ):
+        raise BacktestError("Market execution v2 requires structural stops, stop-first resolution and full-position management")
 
     return BacktestSettings(
         execution_model=execution_model,
@@ -436,6 +448,31 @@ def resolve_same_bar_stop_target(
     return "none"
 
 
+def market_execution_decision(
+    data: pd.DataFrame, signal_index: int, direction: str,
+    config: dict[str, Any], settings: BacktestSettings,
+) -> dict[str, Any]:
+    """Build state only through confirmation; next open is the sole new price."""
+    row = data.iloc[signal_index]
+    next_row = data.iloc[signal_index + 1]
+    available = confirmation_available_at(row)
+    if (available is None or available > next_row["timestamp"]
+            or next_row["timestamp"] - row["timestamp"] != pd.Timedelta(minutes=1)):
+        return {"execution_model": MARKET_EXECUTION_MODEL, "candidate": None,
+                "direction": direction, "decision": "NO TRADE",
+                "rejections": ["confirmation_not_available_for_immediate_next_open"]}
+    state = build_market_state(
+        data.iloc[:signal_index + 1], as_of=available, generated_at=available,
+        symbol=str(config.get("market", {}).get("symbol", "MNQ")),
+        contract=safe_string(row, "contract"), strategy_config=config,
+    )
+    price = apply_entry_slippage(float(next_row["open"]), direction=direction, settings=settings)
+    return build_market_execution_plan(
+        state, config, direction=direction, entry_price=price,
+        entry_time=next_row["timestamp"],
+    )
+
+
 def simulate_trade(
     df: pd.DataFrame,
     *,
@@ -444,6 +481,7 @@ def simulate_trade(
     trade_id: int,
     config: dict[str, Any],
     settings: BacktestSettings,
+    execution_plan: dict[str, Any] | None = None,
 ) -> TradeResult | None:
     if direction not in VALID_DIRECTIONS:
         raise ValueError(f"Invalid direction: {direction}")
@@ -451,7 +489,7 @@ def simulate_trade(
         return None
 
     signal_row = df.iloc[signal_index]
-    if settings.execution_model == CONFIRMED_EXECUTION_MODEL:
+    if settings.execution_model in CONFIRMED_EXECUTION_MODELS:
         if confirmed_setup_family(signal_row, direction) is None:
             return None
 
@@ -462,7 +500,7 @@ def simulate_trade(
         # not a license to carry yesterday's signal into the next session.
         if entry_row["timestamp"] - signal_row["timestamp"] != pd.Timedelta(minutes=1):
             return None
-        if settings.execution_model == CONFIRMED_EXECUTION_MODEL:
+        if settings.execution_model in CONFIRMED_EXECUTION_MODELS:
             confirmation_time = confirmation_available_at(signal_row)
             if confirmation_time is None or confirmation_time > entry_row["timestamp"]:
                 return None
@@ -473,21 +511,27 @@ def simulate_trade(
         raw_entry = float(signal_row["close"])
 
     entry_price = apply_entry_slippage(raw_entry, direction=direction, settings=settings)
-    stop_price = determine_stop_price(
-        signal_row,
-        entry_price=entry_price,
-        direction=direction,
-        settings=settings,
-    )
+    market_candidate = None
+    if settings.execution_model == MARKET_EXECUTION_MODEL:
+        execution_plan = execution_plan or market_execution_decision(df, signal_index, direction, config, settings)
+        market_candidate = execution_plan["candidate"]
+        if market_candidate is None:
+            return None
+        stop_price = float(market_candidate["stop_loss"]["price"])
+    else:
+        stop_price = determine_stop_price(
+            signal_row, entry_price=entry_price, direction=direction, settings=settings)
     stop_distance = abs(entry_price - stop_price)
     if stop_distance <= 0:
         return None
 
-    tp1, tp2, tp3, tp4 = determine_targets(
-        entry_price=entry_price,
-        direction=direction,
-        settings=settings,
-    )
+    if market_candidate is not None:
+        tp1, tp2, tp3, tp4 = [
+            float(target["price"]) if (target := market_candidate["targets"][key]) else np.nan
+            for key in ("tp1", "tp2", "tp3", "tp4")]
+    else:
+        tp1, tp2, tp3, tp4 = determine_targets(
+            entry_price=entry_price, direction=direction, settings=settings)
     targets = [tp1, tp2, tp3, tp4]
 
     raw_score = float(signal_row[f"{direction}_raw_score"])
@@ -538,7 +582,8 @@ def simulate_trade(
                 raw_exit = bar_open
                 exit_reason = "stop"
             else:
-                tp_hits = [True] * 4
+                tp_hits = ([bool(np.isfinite(target)) for target in targets]
+                           if settings.execution_model == MARKET_EXECUTION_MODEL else [True] * 4)
                 raw_exit = tp4
                 exit_reason = "tp4"
             break
@@ -706,10 +751,20 @@ def run_backtest(df: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
     validate_input_dataframe(df)
     settings = build_backtest_settings(config)
     data = df.sort_values("timestamp").copy().reset_index(drop=True)
-    if settings.execution_model == CONFIRMED_EXECUTION_MODEL:
+    if settings.execution_model in CONFIRMED_EXECUTION_MODELS:
         validate_confirmation_inputs(data)
 
+    if settings.execution_model == MARKET_EXECUTION_MODEL:
+        if data.timestamp.duplicated().any():
+            raise BacktestError("Market execution v2 requires unique timestamps")
+        for name in ("bar_complete", "is_complete", "new_entry_allowed", "is_strategy_window",
+                     "long_candidate", "short_candidate"):
+            if name in data and not pd.api.types.is_bool_dtype(data[name]):
+                raise BacktestError(f"Market execution v2 requires boolean {name}")
+
     trades: list[TradeResult] = []
+    decisions: list[dict[str, Any]] = []
+    accepted_plans: list[dict[str, Any]] = []
     next_trade_id = 1
     blocked_until_index = -1
 
@@ -735,6 +790,15 @@ def run_backtest(df: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
         if not candidates:
             continue
 
+        plans = {}
+        if settings.execution_model == MARKET_EXECUTION_MODEL:
+            for direction in candidates:
+                plans[direction] = market_execution_decision(data, i, direction, config, settings)
+                decisions.append({"signal_time": row["timestamp"].isoformat(), **plans[direction]})
+            candidates = [direction for direction in candidates if plans[direction]["candidate"] is not None]
+            if not candidates:
+                continue
+
         if len(candidates) == 2:
             long_score = float(row["long_raw_score"])
             short_score = float(row["short_raw_score"])
@@ -753,24 +817,33 @@ def run_backtest(df: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
             trade_id=next_trade_id,
             config=config,
             settings=settings,
+            execution_plan=plans.get(direction),
         )
         if trade is None:
             continue
 
         trades.append(trade)
+        if settings.execution_model == MARKET_EXECUTION_MODEL:
+            accepted_plans.append(plans[direction])
         next_trade_id += 1
         if settings.maximum_one_open_trade:
             blocked_until_index = int(trade.exit_index if trade.exit_index is not None else i)
 
     if not trades:
-        return pd.DataFrame()
+        result = pd.DataFrame()
+        if settings.execution_model == MARKET_EXECUTION_MODEL:
+            result.attrs["execution_decisions"] = decisions
+        return result
     result = pd.DataFrame([asdict(trade) for trade in trades])
-    if settings.execution_model == CONFIRMED_EXECUTION_MODEL:
+    if settings.execution_model in CONFIRMED_EXECUTION_MODELS:
         result["execution_model"] = settings.execution_model
         result["setup_family"] = [confirmed_setup_family(data.iloc[trade.signal_index], trade.direction)
                                   for trade in trades]
         result["confirmation_time"] = [confirmation_available_at(data.iloc[trade.signal_index])
                                        for trade in trades]
+    if settings.execution_model == MARKET_EXECUTION_MODEL:
+        result["execution_plan"] = [json.dumps(plan, sort_keys=True, allow_nan=False) for plan in accepted_plans]
+        result.attrs["execution_decisions"] = decisions
     if settings.quantity != 1:
         # Keep legacy one-contract ledgers byte/schema compatible.
         result["quantity"] = settings.quantity

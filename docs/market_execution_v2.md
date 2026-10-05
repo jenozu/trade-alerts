@@ -61,3 +61,37 @@ contract evidence; a new isolated historical replay remains required.
 API checkpoint: focused planner suite 26 passed, 5 warnings; full regression
 666 passed, 443 warnings in 12.96 seconds. Existing zone-planner contracts remain
 green. The backtest integration is a subsequent sequential task.
+
+## Backtest integration
+
+`backtest.execution_model: market_after_retest_confirmation_v2` now calls this
+API from a real market-state snapshot containing only the confirmation prefix.
+Candidate rejection happens before selecting between eligible long/short scores;
+a rejected higher-scoring direction cannot suppress a valid opposite setup.
+The ledger stores the complete shared execution decision as `execution_plan`.
+The returned dataframe's `execution_decisions` attribute includes rejection
+reasons; both cache runners persist it as `execution_decisions.json`, including
+when no trade is accepted. This reports evaluated execution candidates, not
+every noncandidate bar or a guarantee that every accepted plan became a fill.
+
+The isolated runner accepts repeated `--execution-model` options. Its default
+still compares the old score model and confirmed v1. Selected versions are
+recorded in the immutable input lock; originals are verified after execution.
+V2 refuses fixed-stop, partial/breakeven and target-first configurations,
+duplicate timestamps and nonboolean completion/window/candidate metadata.
+An absent optional TP2 is stored as missing and cannot count as a touch even
+when an opening print crosses TP4.
+
+Integration verification adds 19 cases: real-state price parity for both
+directions/families, immutable inputs, risk rejection, future-extreme independence,
+completed-trade append invariance, target-gap observations, net costs, opposite
+direction eligibility and explicit replay decisions/settings. Focused related
+suite: 124 passed, 300 warnings. Full regression: 685 passed, 583 warnings.
+Increased warning count comes from exercising existing timedelta paths in the
+new fixtures; warnings remain reported compatibility debt.
+
+The production alert adapter still uses zone-based `build_trade_plan` hypotheses.
+This change provides the shared execution API; it does not silently migrate
+production or certify its future next-open observation/adapter. Real historical
+positive/rejected replay evidence and the remaining upstream sequence/rollover
+checks are still required before research resumes.

@@ -150,3 +150,31 @@ def test_invalid_sample_bounds_rejected(frozen, start, end):
     with pytest.raises(ValueError):
         replay(**frozen)
     assert not frozen["output_dir"].exists()
+
+
+def test_v2_replay_records_rejected_decisions_without_replacing_source(frozen):
+    strategy = frozen["source_root"] / "strategy.yaml"
+    cfg = yaml.safe_load(strategy.read_text())
+    cfg["stop_loss"]["primary_method"] = "structural"
+    strategy.write_text(yaml.safe_dump(cfg))
+    metadata_path = frozen["cache_dir"] / "cache_metadata.json"
+    metadata = json.loads(metadata_path.read_text())
+    metadata["strategy_config"]["sha256"] = sha256_file(strategy)
+    metadata_path.write_text(json.dumps(metadata))
+    frozen["execution_models"] = ["market_after_retest_confirmation_v2"]
+    before = {str(p): sha256_file(p) for p in frozen["source_root"].rglob("*") if p.is_file()}
+    summary = replay(**frozen)
+    assert summary["inputs_unchanged"]
+    assert summary["results"]["market_after_retest_confirmation_v2"]["trades"] == 0
+    output = frozen["output_dir"]
+    decisions = json.loads((output/"market_after_retest_confirmation_v2/execution_decisions.json").read_text())
+    assert decisions[0]["candidate"] is None and decisions[0]["rejections"]
+    lock = json.loads((output/"EXPERIMENT_INPUT_LOCK.json").read_text())
+    assert lock["identity"]["settings"]["execution"]["models"] == frozen["execution_models"]
+    assert before == {str(p): sha256_file(p) for p in frozen["source_root"].rglob("*") if p.is_file()}
+
+
+def test_replay_rejects_unknown_execution_model_before_writing(frozen):
+    with pytest.raises(ValueError, match="execution models"):
+        replay(**frozen, execution_models=["unknown"])
+    assert not frozen["output_dir"].exists()

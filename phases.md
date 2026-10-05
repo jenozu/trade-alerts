@@ -1344,3 +1344,11 @@ Stop/target/sequence fidelity and exact source-cache rollover isolation remain
 unresolved. See [docs/research_resume_readiness.md](docs/research_resume_readiness.md)
 for the ordered tasks and research-phase evidence gap. R7 remains paused; this
 does not rewrite historical phase completion records.
+
+### Shared market-execution v2 — 2026-10-05
+
+Added opt-in planner/backtest structural risk and liquidity-target parity at
+the executed market entry reference, with accepted/rejected decision evidence.
+See [docs/market_execution_v2.md](docs/market_execution_v2.md). Full regression:
+**685 passed, 583 warnings**. Legacy defaults, archives and production remain
+unchanged; historical replay and remaining upstream/adapter gate are pending.

@@ -222,3 +222,19 @@ obstacle eligibility, structural stop construction and target/management rules
 under the versioned execution contract. Do not lower thresholds to admit this
 example or classify the remaining fidelity gate as passed. Production and
 historical archive files were not modified by these diagnostics.
+
+## Shared market-execution follow-up — 2026-10-05
+
+The opt-in market_after_retest_confirmation_v2 now calls the planner's shared
+public market-entry decision API at the executed entry reference. Structural
+risk above the written 25-point maximum is rejected without fixed fallback;
+obstacles and liquidity objectives are evaluated from that same reference.
+Ledger decisions and isolated replay rejection reports are retained. See
+[market execution v2](market_execution_v2.md) for the contract, accepted/rejected
+synthetic parity evidence and terminal-runner limitations.
+
+Legacy hypotheses and both old execution models remain reproducible. This resolves
+the new version's separate stop/target implementation, not all historical/live
+fidelity: the actual VPS replay is pending, production alerts are not migrated,
+sequence-object linkage/same-row ambiguity and real cache roll isolation remain
+uncertified. The original mismatch tests remain historical audit coverage.

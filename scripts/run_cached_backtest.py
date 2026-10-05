@@ -16,6 +16,7 @@ from experiment_identity import build_input_lock, verify_input_lock, write_input
 from backtest import (  # noqa: E402
     CONFIRMED_EXECUTION_MODEL,
     LEGACY_EXECUTION_MODEL,
+    MARKET_EXECUTION_MODEL,
     calculate_backtest_metrics,
     run_backtest,
     save_backtest_outputs,
@@ -39,7 +40,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Run a backtest from a certified scored feature cache."
     )
-    parser.add_argument("--execution-model", choices=[LEGACY_EXECUTION_MODEL, CONFIRMED_EXECUTION_MODEL],
+    parser.add_argument("--execution-model", choices=[LEGACY_EXECUTION_MODEL, CONFIRMED_EXECUTION_MODEL, MARKET_EXECUTION_MODEL],
                         help="Override execution semantics; confirmed mode requires production sequence/event columns")
     parser.add_argument("--cache-dir", required=True)
     parser.add_argument("--input", required=True)
@@ -135,6 +136,9 @@ def main() -> None:
     trades = run_backtest(dataframe, strategy_config)
     verify_input_lock(lock, root=PROJECT_ROOT)
     output_dir.mkdir(parents=True, exist_ok=True)
+    if strategy_config.get("backtest", {}).get("execution_model") == MARKET_EXECUTION_MODEL:
+        (output_dir / "execution_decisions.json").write_text(
+            json.dumps(trades.attrs["execution_decisions"], indent=2, allow_nan=False) + "\n")
 
     if trades.empty:
         trades.to_csv(output_dir / "trades.csv", index=False)

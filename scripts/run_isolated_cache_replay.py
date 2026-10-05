@@ -16,11 +16,12 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from backtest import run_backtest, calculate_backtest_metrics, save_backtest_outputs
+from backtest import MARKET_EXECUTION_MODEL, run_backtest, calculate_backtest_metrics, save_backtest_outputs
 from experiment_identity import build_input_lock, verify_input_lock, write_input_lock
 from feature_cache import sha256_file
 
 MODES = ("score_signal_v1", "market_after_retest_confirmation_v1")
+VALID_MODES = (*MODES, MARKET_EXECUTION_MODEL)
 
 
 def checked_path(source_root, item):
@@ -92,7 +93,10 @@ def historical_timing(frame, completed_through):
 
 
 def replay(*, source_root, cache_dir, output_dir, completed_through, year,
-           evaluation_start=None, evaluation_end=None, repository=ROOT):
+           evaluation_start=None, evaluation_end=None, repository=ROOT, execution_models=None):
+    modes = tuple(execution_models) if execution_models is not None else MODES
+    if not modes or len(set(modes)) != len(modes) or any(mode not in VALID_MODES for mode in modes):
+        raise ValueError("Select distinct supported execution models")
     source_root = Path(source_root).resolve()
     repository = Path(repository).resolve()
     cache_dir = Path(cache_dir).resolve()
@@ -147,7 +151,7 @@ def replay(*, source_root, cache_dir, output_dir, completed_through, year,
     }
     provenance_path = output_dir / "REPLAY_PROVENANCE.json"
     provenance_path.write_text(json.dumps(provenance, indent=2) + "\n")
-    settings = {"execution": {"models": list(MODES), "producer_strategy": config,
+    settings = {"execution": {"models": list(modes), "producer_strategy": config,
                               "timing": provenance},
                 "cost": config.get("backtest", {}).get("commission", {}),
                 "slippage": config.get("backtest", {}).get("slippage", {})}
@@ -164,12 +168,15 @@ def replay(*, source_root, cache_dir, output_dir, completed_through, year,
         settings=settings, unavailable={"live_data_parity": "Diagnostic replay only"})
     write_input_lock(output_dir / "EXPERIMENT_INPUT_LOCK.json", lock)
     summaries = {}
-    for mode in MODES:
+    for mode in modes:
         effective = copy.deepcopy(config)
         effective.setdefault("backtest", {})["execution_model"] = mode
         trades = run_backtest(evaluated.copy(), effective)
         destination = output_dir / mode
         destination.mkdir()
+        if mode == MARKET_EXECUTION_MODEL:
+            (destination / "execution_decisions.json").write_text(
+                json.dumps(trades.attrs["execution_decisions"], indent=2, allow_nan=False) + "\n")
         if trades.empty:
             trades.to_csv(destination / "trades.csv", index=False)
         else:
@@ -193,11 +200,14 @@ def main():
     parser.add_argument("--year", type=int, required=True)
     parser.add_argument("--evaluation-start")
     parser.add_argument("--evaluation-end")
+    parser.add_argument("--execution-model", action="append", choices=VALID_MODES,
+                        help="Repeat to compare specific versions; default preserves legacy and confirmed v1")
     parser.add_argument("--acknowledge-historical-export-assumption", action="store_true", required=True)
     args = parser.parse_args()
     replay(source_root=args.source_root, cache_dir=args.cache_dir, output_dir=args.output_dir,
            completed_through=args.completed_through, year=args.year,
-           evaluation_start=args.evaluation_start, evaluation_end=args.evaluation_end)
+           evaluation_start=args.evaluation_start, evaluation_end=args.evaluation_end,
+           execution_models=args.execution_model)
 
 
 if __name__ == "__main__":

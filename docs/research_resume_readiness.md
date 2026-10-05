@@ -118,3 +118,13 @@ independent validation or accepting a production strategy. Their absence does
 not by itself prohibit explicitly labelled development interaction research;
 the present pause is justified by the unresolved fidelity/cache gate. Final
 candidate freezing belongs after development choices, not before all R7 work.
+
+## Subsequent implementation checkpoint
+
+The delegated next task implemented an opt-in shared market-execution planner
+and backtest path, documented in [market_execution_v2.md](market_execution_v2.md).
+Both-direction/family synthetic price parity is now tested through real market
+state. A v2 replay can report accepted/rejected decisions and retain old modes.
+The research gate remains blocked pending actual historical replay, upstream
+sequence/rollover checks and production-adapter verification where applicable.
+This follow-up does not replace the inspection evidence or certify R5/R6 completion.

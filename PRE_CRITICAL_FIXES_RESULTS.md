@@ -250,3 +250,17 @@ preserved experiment record before declaring R7 next. An untouched forward
 holdout remains required for independent validation and production acceptance;
 it is not by itself a prerequisite for development-only R7 experiments once the
 current fidelity/input gate is cleared.
+
+## Shared market-execution implementation — 2026-10-05
+
+Implemented market_after_retest_confirmation_v2 as an explicit opt-in version.
+It shares the planner's structural/obstacle/liquidity decision construction at
+the actual next-open entry reference, rejects structural risk over 25 points
+without fixed fallback, and preserves the TP4 full-position policy. Missing
+runner objectives are explicit rejections. Legacy versions remain unchanged.
+
+The API task was committed after 666 passing tests; the integration adds real
+market-state/backtest parity and isolated rejection reporting. Full regression:
+**685 passed, 583 warnings**. See docs/market_execution_v2.md. The gate remains
+PARTIAL/BLOCKED pending real VPS replay and upstream/adapter fidelity checks.
+No scoring weights, raw data, preserved caches or archives were changed.
