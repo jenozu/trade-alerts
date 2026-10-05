@@ -123,3 +123,26 @@ with 2025 directional score candidates through the actual shared family gate,
 then bounded v2 execution evidence. Remaining chronology findings still apply.
 Historical counts and lock findings are transcribed from user terminal screenshots;
 the source artifacts remain on the VPS and are not locally reproduced.
+
+### 2025 score / linked-confirmation overlap
+
+A subsequent read-only VPS check used `apply_sequence_contract` and the actual
+`backtest.confirmed_setup_family` gate on UTC-year-2025 directional candidates.
+It verified the linked-output lock before/after and wrote no files or trades.
+
+| Contract | Score-candidate rows | Long reversal | Short reversal | Long continuation | Short continuation |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| NMZ24 | 0 | 0 | 0 | 0 | 0 |
+| NMH25 | 210 | 2 | 1 | 0 | 0 |
+| NMM25 | 195 | 2 | 2 | 0 | 1 |
+| NMU25 | 191 | 0 | 1 | 0 | 1 |
+| NMZ25 | 217 | 1 | 0 | 1 | 1 |
+| NMH26 | 33 | 0 | 0 | 2 | 0 |
+| Total | 846 | 5 | 4 | 3 | 3 |
+
+The 15 eligible directional signals still require v2 structural risk, objectives,
+obstacles, timing/fill-window and market-state checks. They are not accepted
+plans, realized trades, P&L or independent validation. The next bounded diagnostic
+should evaluate these 15 signals through the shared market-execution decision
+API using completed same-contract prefixes and only the observed next open.
+Do not change thresholds to increase this sample or repeat the completed builds.

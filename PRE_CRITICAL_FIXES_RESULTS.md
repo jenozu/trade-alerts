@@ -326,3 +326,9 @@ Focused VPS suite: 23 passed, 95 warnings. See linked_sequence_contract.md for
 the exact output path and per-family counts. Those are full-history confirmation
 events, not score-eligible trades or historical execution parity. No rerun is
 needed; next inspect actual 2025 eligibility and bounded execution decisions.
+
+The actual 2025 overlap check now passed: 846 score-candidate rows produce 15
+linked eligible directional signals (9 reversal, 6 continuation), with output
+lock verified before/after. Per-contract/direction counts are retained in
+linked_sequence_contract.md. These are not accepted execution plans or trades;
+next evaluate the 15 signals through v2's shared risk/target decision API.
