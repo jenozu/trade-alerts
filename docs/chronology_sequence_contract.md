@@ -141,5 +141,13 @@ verified; research readiness pending`. Preserve the printed log/output path.
 No focused/full test rerun on VPS is needed before this already-tested diagnostic.
 
 Final local regression: **779 passed, 862 compatibility warnings in 23.24s**.
-The seven durable execution-audit tests passed with 67 warnings. Warnings remain
-reported NumPy timedelta compatibility debt, not suppressed validation evidence.
+The seven durable execution-audit tests passed with 67 warnings. Warnings include
+NumPy timedelta compatibility debt and DataFrame fragmentation performance
+warnings in the real-stage derivation; neither class was suppressed.
+
+Committed CLI `467742c` completed actual v2 derivation and execution audit on the
+real-stage two-contract synthetic build (180 retained bars). Both stages reported
+unchanged original inputs, and the audit verified both locks. This sample had
+zero eligible signals; accepted-path proof comes from the separate both-direction/
+family fixtures, not this empty synthetic CLI sample. Historical VPS execution
+is still required.
