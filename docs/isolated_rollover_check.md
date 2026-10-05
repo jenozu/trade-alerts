@@ -28,6 +28,11 @@ Validation: related suite **36 passed, 35 warnings**; full regression
 **708 passed, 605 warnings in 15.44s**. Additional warnings come from exercising
 existing NumPy timedelta paths in the new real-stage fixture. They remain reported.
 
+The actual CLI from clean committed code `73452de` passed on a synthetic
+two-contract fixture (90 bars each), with all reset/raw/ATR checks and standalone
+input-lock verification. This proves the CLI plumbing; it is not VPS historical
+evidence. The March VPS check below is the next required evidence.
+
 This is deliberately a **cold-start feature diagnostic**. It validates OHLCV,
 completion and identity, but does not apply the full research/live session-coverage
 eligibility gate, certify vendor corrections, prove all chronology/object linkage,
