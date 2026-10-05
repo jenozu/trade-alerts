@@ -121,6 +121,13 @@ candidate freezing belongs after development choices, not before all R7 work.
 
 ## Subsequent implementation checkpoint
 
+Later read-only VPS checks demonstrated cross-contract ATR contamination at all
+five rolls in the exact frozen 2025 cache. Raw/cache timestamp values align;
+their precision types differ. The January v2 rejection replay and its input lock
+passed, but research cannot resume on these features. See
+[rollover_cache_findings.md](rollover_cache_findings.md) for evidence, the preventive
+single-contract pipeline guard and the separate-artifact rebuild requirements.
+
 The delegated next task implemented an opt-in shared market-execution planner
 and backtest path, documented in [market_execution_v2.md](market_execution_v2.md).
 Both-direction/family synthetic price parity is now tested through real market
