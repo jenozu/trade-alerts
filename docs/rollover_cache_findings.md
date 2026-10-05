@@ -67,3 +67,8 @@ the January 29 short with structural risk 26.75 > 25, first-obstacle room
 0.75 < 25, and TP1 asymmetry 0.03 < 1.00. This is real rejection-path evidence,
 not a positive historical v2 execution or performance validation. The replay
 reused the frozen features described above and remains diagnostic only.
+
+The preventive guard subsequently passed 697 tests on the VPS (user-reported).
+The next bounded regeneration task is documented in
+[isolated_rollover_check.md](isolated_rollover_check.md); it precedes any full-year
+corrected-cache build. Original controls remain preserved.
