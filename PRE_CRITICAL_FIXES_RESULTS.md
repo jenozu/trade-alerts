@@ -264,3 +264,8 @@ market-state/backtest parity and isolated rejection reporting. Full regression:
 **685 passed, 583 warnings**. See docs/market_execution_v2.md. The gate remains
 PARTIAL/BLOCKED pending real VPS replay and upstream/adapter fidelity checks.
 No scoring weights, raw data, preserved caches or archives were changed.
+
+Both actual cache-runner CLIs and standalone input-lock verification passed on
+a fresh synthetic v2 fixture from clean committed code. Original source hashes
+were unchanged. Full regression after final code changes: **685 passed, 583
+warnings in 13.31s**. The next bounded VPS command is in docs/market_execution_v2.md.

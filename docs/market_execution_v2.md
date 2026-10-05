@@ -95,3 +95,59 @@ This change provides the shared execution API; it does not silently migrate
 production or certify its future next-open observation/adapter. Real historical
 positive/rejected replay evidence and the remaining upstream sequence/rollover
 checks are still required before research resumes.
+
+Actual CLI integration from clean local code commit bfdd055 passed for both
+the isolated and strict certified cache runners on a synthetic five-bar fixture.
+The isolated comparison produced one v1 and one v2 entry, retained the v2
+decision, verified both standalone input locks and left every source hash
+unchanged. This is tooling evidence, not historical performance or vendor parity.
+
+## Next VPS verification
+
+Use only the existing isolated checkout and sibling venv. Update that checkout
+without changing production:
+
+```bash
+cd "$HOME/trade-alerts-verify-YwIqEc/repo" &&
+git fetch origin research/pre-critical-integrity &&
+git merge --ff-only FETCH_HEAD &&
+../venv/bin/python -m pytest -q
+```
+
+After the tests pass, run the same January sample with both confirmed versions
+and a new output directory. This does not generate upstream features or overwrite
+the original cache:
+
+```bash
+trade_v2_output="$PWD/../replays/january-v2-$(date -u +%Y%m%dT%H%M%SZ)"
+../venv/bin/python scripts/run_isolated_cache_replay.py \
+  --source-root /docker/trade-alerts \
+  --cache-dir /docker/trade-alerts/data/cache/2025_warmup_92d \
+  --output-dir "$trade_v2_output" \
+  --completed-through 2026-01-02T00:00:00Z \
+  --year 2025 \
+  --evaluation-start 2025-01-01T00:00:00Z \
+  --evaluation-end 2025-02-01T00:00:00Z \
+  --execution-model market_after_retest_confirmation_v1 \
+  --execution-model market_after_retest_confirmation_v2 \
+  --acknowledge-historical-export-assumption &&
+../venv/bin/python scripts/lock_experiment_inputs.py \
+  --verify "$trade_v2_output/EXPERIMENT_INPUT_LOCK.json" &&
+../venv/bin/python - "$trade_v2_output" <<'PY'
+import json, sys
+from pathlib import Path
+folder = Path(sys.argv[1])
+summary = json.loads((folder / "REPLAY_SUMMARY.json").read_text())
+print("Inputs unchanged:", summary["inputs_unchanged"])
+for version, result in summary["results"].items():
+    print(version, "trades:", result["trades"])
+decisions = json.loads((folder / "market_after_retest_confirmation_v2/execution_decisions.json").read_text())
+for item in decisions:
+    print(item["signal_time"], item["direction"], item["decision"], item["rejections"])
+print("Outputs:", folder)
+PY
+```
+
+Retain the full decision JSON on the VPS and paste the compact final output.
+No download is required. A zero-entry v2 result with documented rejections is
+valid diagnostic evidence; do not lower thresholds to manufacture a positive.
