@@ -369,3 +369,11 @@ Latest full regression: **779 passed, 862 reported compatibility warnings in
 23.24 seconds**. No existing archive changes relative to starting main.
 The engineering tasks are locally proven; overall item 5 remains PARTIAL / NEEDS
 VPS VERIFICATION. This checkpoint does not authorize resuming R7 yet.
+
+Historical chronology job now completed on all six segments, with unchanged
+inputs and the audit's two locks verified according to supplied VPS terminal
+evidence. Result: **7 eligible signals, 0 accepted plans, 0 simulated trades**.
+The saved four-lock independent check and rejection review are next; no job
+rerun or score tuning is required. Details/path are in
+docs/chronology_sequence_contract.md. Historical accepted-path/cost proof is not
+established by this zero-trade diagnostic, so R7 remains paused.

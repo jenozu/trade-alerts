@@ -151,3 +151,23 @@ unchanged original inputs, and the audit verified both locks. This sample had
 zero eligible signals; accepted-path proof comes from the separate both-direction/
 family fixtures, not this empty synthetic CLI sample. Historical VPS execution
 is still required.
+
+## Historical VPS job completed — 2026-10-06 UTC
+
+User terminal screenshot `image(20261006-034255).png` reports successful chronology
+derivation and execution audit on all six segments. Job PID 116602 completed.
+Output root: `/root/trade-alerts-verify-YwIqEc/replays/chronology-2025-20261006T033846Z`.
+The verification checkout was `8d9eda131283847f167a4c9c45b9ecb55d1d1aca`.
+
+The `fvg_chronology_v2` execution summary reports **7 eligible directional
+signals, 0 accepted plans, 0 simulated trades and 0 executed-plan parity checks**.
+Derivation reports original inputs unchanged. Audit reports inputs unchanged
+and both locks verified. DataFrame-fragmentation warnings were emitted; there
+is no traceback in the supplied tail and both success markers are present.
+This is user-supplied historical evidence, not a locally reproduced VPS run.
+
+Do not rerun the job or tune thresholds to obtain trades. Next independently
+verify the four saved feature/execution locks in the unchanged verification
+checkout and inspect the saved per-segment summary and seven rejection decisions.
+No further pull is needed for that read-only check. Zero trades does not prove
+historical accepted-path parity or realistic-cost performance; R7 remains paused.

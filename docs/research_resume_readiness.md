@@ -195,3 +195,10 @@ reconciliation. Do not rerun finished studies merely to repair that record.
 See research_branch_reconciliation.md. Historical chronology decisions/accepted
 execution, realistic fees, remaining 2023/2024 producer-cache correspondence and
 review/merge remain external gates. R7 is still paused; old results are preserved.
+
+Historical VPS chronology derivation/audit subsequently completed on all six
+segments: 7 eligible directional signals, zero accepted plans/trades. The log
+reports unchanged inputs and both audit locks verified. Do not repeat that job.
+Next inspect saved rejection evidence and independently verify all four locks
+without updating the producing checkout. See chronology_sequence_contract.md.
+The zero-trade result leaves historical accepted-path proof outstanding.
