@@ -171,3 +171,27 @@ verify the four saved feature/execution locks in the unchanged verification
 checkout and inspect the saved per-segment summary and seven rejection decisions.
 No further pull is needed for that read-only check. Zero trades does not prove
 historical accepted-path parity or realistic-cost performance; R7 remains paused.
+
+### Independent four-lock verification and rejection review
+
+Screenshot `image(20261006-034457).png` independently verifies both feature locks
+and both execution locks against the unchanged producer checkout. All seven
+eligible signals are reversals (three long, four short); no continuation reaches
+score-eligible final confirmation in this diagnostic.
+
+| Contract | Signal UTC | Direction | Structural risk | Other rejection evidence |
+| --- | --- | --- | ---: | --- |
+| NMH25 | 2025-01-29 15:14 | short | 26.75 > 25 | First obstacle 0.75 < 25; TP1 asymmetry 0.03 < 1 |
+| NMH25 | 2025-02-07 15:20 | long | 27.50 > 25 | First obstacle 0.75 < 25; TP1 asymmetry 0.03 < 1 |
+| NMM25 | 2025-04-04 13:56 | short | 55.75 > 25 | First obstacle 2.25 < 25; TP1 asymmetry 0.04 < 1 |
+| NMM25 | 2025-04-07 13:50 | long | 307.25 > 25 | First obstacle 2.50 < 25; TP1 asymmetry 0.01 < 1; primary DOL asymmetry 0.79 < 1 |
+| NMM25 | 2025-05-07 13:30 | short | 46.50 > 25 | First obstacle 0.25 < 25; TP1 asymmetry 0.01 < 1 |
+| NMU25 | 2025-06-23 14:29 | short | Not evaluated | Immediate next-open fill at 10:30 ET is outside the fill-entry window |
+| NMZ25 | 2025-10-16 13:47 | long | 32.75 > 25 | First obstacle 19.25 < 25; TP1 asymmetry 0.59 < 1 |
+
+Six signals fail the unchanged structural cap; one fails timing before price-risk
+planning. The terminal output therefore accounts for all zero accepted plans.
+This closes the 2025 diagnostic/lock/rejection task without a replay or tuning.
+Next inventory preserved 2023/2024 artifacts and producer metadata read-only;
+do not rebuild them merely to inspect provenance. Actual fees and broader
+historical accepted-path evidence remain unverified.

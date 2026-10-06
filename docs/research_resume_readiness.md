@@ -202,3 +202,10 @@ reports unchanged inputs and both audit locks verified. Do not repeat that job.
 Next inspect saved rejection evidence and independently verify all four locks
 without updating the producing checkout. See chronology_sequence_contract.md.
 The zero-trade result leaves historical accepted-path proof outstanding.
+
+All four saved chronology/execution locks subsequently verified independently
+against the unchanged producer checkout. The seven signals are all reversals:
+six fail structural risk >25 points and one would fill at the excluded 10:30 ET
+boundary. Exact secondary obstacle/asymmetry reasons are retained in
+chronology_sequence_contract.md. The 2025 diagnostic task is closed; proceed to
+read-only 2023/2024 artifact/producer inventory, not another 2025 replay.

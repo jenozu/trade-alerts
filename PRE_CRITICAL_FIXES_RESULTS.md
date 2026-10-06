@@ -377,3 +377,10 @@ The saved four-lock independent check and rejection review are next; no job
 rerun or score tuning is required. Details/path are in
 docs/chronology_sequence_contract.md. Historical accepted-path/cost proof is not
 established by this zero-trade diagnostic, so R7 remains paused.
+
+Independent verification of all four feature/execution locks now passed on the
+unchanged producing VPS checkout. Rejection review accounts for all seven
+reversal signals: six exceed structural risk 25; one fills at the excluded
+10:30 ET boundary. Secondary obstacle/asymmetry reasons are documented. The
+2025 diagnostic is complete; next inspect preserved 2023/2024 metadata/artifacts
+read-only, without a rebuild or repeat of any completed 2025 check.
