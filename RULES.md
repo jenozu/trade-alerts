@@ -191,3 +191,17 @@ A research experiment is not complete until:
 5. the refinement roadmap records proven completion evidence;
 6. relevant tests pass;
 7. all code, tests, reports, trade-brain notes, and roadmap changes are committed and pushed.
+
+
+## 17. Explicit Experiment Execution
+
+Remote research automation must preserve a hard separation between code changes
+and experiment execution.
+
+- `push`, `commit`, `sync`, `prepare N`, `test`, and `next` do not authorize an experiment run.
+- Only an explicit user command equivalent to `run N` or `rerun N` authorizes a remote execution request.
+- Run requests may identify an experiment and request ID, but may not contain arbitrary shell commands.
+- Remote execution is limited to reviewed wrappers under `automation/experiments/EXP-NNN.sh`.
+- The VPS automation must refuse to overwrite an unexpectedly dirty tracked working tree.
+- The runner must record the Git SHA used for the experiment.
+- This command layer does not relax any no-look-ahead, testing, archive, or strategy-ambiguity requirement above.
