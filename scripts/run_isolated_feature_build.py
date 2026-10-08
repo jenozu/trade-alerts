@@ -101,19 +101,32 @@ def warmup_context(features):
     return result
 
 
-def build_features(*, source_root, cache_dir, output_dir, year, completed_through, repository=ROOT):
-    source_root, cache_dir, output_dir, repository = (
-        Path(p).resolve() for p in (source_root, cache_dir, output_dir, repository))
-    if not cache_dir.is_relative_to(source_root):
-        raise ValueError('Cache must be under source root')
+def build_features(*, source_root, output_dir, year, completed_through,
+                   cache_dir=None, source_manifest=None, repository=ROOT):
+    source_root, output_dir, repository = (
+        Path(p).resolve() for p in (source_root, output_dir, repository))
+    if (cache_dir is None) == (source_manifest is None):
+        raise ValueError('Choose exactly one cache directory or explicit source manifest')
+    meta_path = (Path(cache_dir).resolve() / 'cache_metadata.json'
+                 if cache_dir is not None else Path(source_manifest).resolve())
+    if not meta_path.is_relative_to(source_root):
+        raise ValueError('Cache or source manifest must be under source root')
     if output_dir.is_relative_to(source_root) or source_root.is_relative_to(output_dir):
         raise ValueError('Output must be separate from preserved source root')
     if output_dir.exists():
         raise FileExistsError('Use a fresh output directory')
-    meta_path = cache_dir / 'cache_metadata.json'
     meta_sha = sha256_file(meta_path)
     metadata = json.loads(meta_path.read_text())
-    differences = verify_producer(metadata, repository)
+    if source_manifest is None:
+        differences = verify_producer(metadata, repository)
+        provenance = 'verified_cache_producer_manifest'
+    else:
+        if (metadata.get('source_contract') != 'explicit_preserved_sources_v1'
+                or metadata.get('producer_provenance') != 'unavailable'
+                or 'git_sha' in metadata or 'feature_manifest' in metadata):
+            raise ValueError('Explicit source manifest must declare unavailable old producer provenance')
+        differences = None
+        provenance = 'unavailable'
     paths = {role: checked_path(source_root, metadata[role]) for role in
              ('input', 'scored_cache', 'strategy_config', 'sessions_config')}
     schema = pq.ParquetFile(paths['input']).schema_arrow.names
@@ -130,7 +143,8 @@ def build_features(*, source_root, cache_dir, output_dir, year, completed_throug
     if any(len(p) <= period for p in parts):
         raise ValueError('Every segment needs more than one ATR period')
     files = {'source_data': paths['input'], 'scored_cache_control': paths['scored_cache'],
-             'cache_metadata': meta_path, 'strategy': paths['strategy_config'],
+             ('cache_metadata' if source_manifest is None else 'source_manifest'): meta_path,
+             'strategy': paths['strategy_config'],
              'sessions': paths['sessions_config'], 'research_policy': repository / 'config/research_policy.yaml',
              'dependencies': repository / 'requirements.txt'}
     code = [*(repository / 'src').glob('*.py'), repository / 'run_pipeline.py',
@@ -143,7 +157,9 @@ def build_features(*, source_root, cache_dir, output_dir, year, completed_throug
         'completed_through': pd.Timestamp(completed_through).isoformat()}, 'cost': {}, 'slippage': {}}
     lock_args = dict(root=repository, years=sorted(set(raw.timestamp.dt.year)),
         contracts=raw.contract.unique().tolist(), counts={'bars': len(raw), 'candidates': None, 'trades': None},
-        settings=settings, unavailable={'research_readiness': STATUS})
+        settings=settings, unavailable={'research_readiness': STATUS,
+            **({'original_cache_producer': 'Unavailable; explicit sources are hashed, not retrospectively certified'}
+               if source_manifest is not None else {})})
     source_lock = build_input_lock(experiment_id='DIAGNOSTIC-FULL-INPUT-FEATURE-BUILD', files=files, **lock_args)
     if sha256_file(meta_path) != meta_sha:
         raise ValueError('Source metadata drift during preparation')
@@ -177,7 +193,8 @@ def build_features(*, source_root, cache_dir, output_dir, year, completed_throug
     report = {'status': STATUS, 'inputs_unchanged': True, 'source_rows': len(raw), 'evaluation_year': year,
         'evaluation_year_rows': int(raw.timestamp.dt.year.eq(year).sum()), 'segments': segments,
         'input_identity_sha256': source_lock['input_identity_sha256'],
-        'output_identity_sha256': output_lock['input_identity_sha256'], 'producer_commit': metadata['git_sha'],
+        'output_identity_sha256': output_lock['input_identity_sha256'],
+        'producer_commit': metadata.get('git_sha'), 'source_provenance': provenance,
         'feature_files_differing_from_producer': differences,
         'limitations': ['No backtest or research selection', 'No research cache certification or eligibility override',
             'Only source same-contract history; no invented pre-roll warmup',
@@ -194,8 +211,11 @@ def build_features(*, source_root, cache_dir, output_dir, year, completed_throug
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    for name in ('source-root', 'cache-dir', 'output-dir', 'completed-through'):
+    for name in ('source-root', 'output-dir', 'completed-through'):
         parser.add_argument('--' + name, required=True)
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument('--cache-dir')
+    source.add_argument('--source-manifest')
     parser.add_argument('--year', type=int, required=True)
     parser.add_argument('--acknowledge-historical-export-assumption', action='store_true', required=True)
     args = vars(parser.parse_args())

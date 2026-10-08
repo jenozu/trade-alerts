@@ -52,24 +52,42 @@ def test_availability_rejects_future_context_and_changed_raw_clock():
         verify_availability(raw, features)
 
 
-def test_full_input_build_real_stages_and_output_lock(tmp_path, monkeypatch):
+@pytest.mark.parametrize('source_mode', ['cache', 'explicit'])
+def test_full_input_build_real_stages_and_output_lock(tmp_path, monkeypatch, source_mode):
     source, cache = frozen_source(tmp_path)
+    if source_mode == 'explicit':
+        metadata = json.loads((cache / 'cache_metadata.json').read_text())
+        manifest = source / 'source_manifest.json'
+        manifest.write_text(json.dumps(dict(
+            source_contract='explicit_preserved_sources_v1',
+            producer_provenance='unavailable',
+            **{role: metadata[role] for role in
+               ('input', 'scored_cache', 'strategy_config', 'sessions_config')})))
     before = {str(p): sha256_file(p) for p in source.rglob('*') if p.is_file()}
     commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
     monkeypatch.setattr(experiment_identity, 'clean_git_commit', lambda _: commit)
     output = tmp_path / 'new'
     kwargs = dict(source_root=source, cache_dir=cache, output_dir=output,
                   year=2025, completed_through='2026-01-02T00:00:00Z')
+    if source_mode == 'explicit':
+        kwargs.pop('cache_dir')
+        kwargs['source_manifest'] = manifest
     report = build_features(**kwargs)
     assert report['status'] == 'FEATURE_CANDIDATE_NOT_RESEARCH_READY'
     assert report['source_rows'] == sum(s['rows'] for s in report['segments']) == 180
     assert report['inputs_unchanged']
+    if source_mode == 'explicit':
+        assert report['producer_commit'] is None
+        assert report['source_provenance'] == 'unavailable'
+        assert report['feature_files_differing_from_producer'] is None
     assert before == {str(p): sha256_file(p) for p in source.rglob('*') if p.is_file()}
     assert not (output / 'cache_metadata.json').exists()
     assert not list(output.rglob('trades.csv'))
     lock = json.loads((output / 'FEATURE_OUTPUT_LOCK.json').read_text())
     experiment_identity.verify_input_lock(lock, root=ROOT)
     assert 'code:scripts/run_isolated_feature_build.py' in lock['artifacts']
+    if source_mode == 'explicit':
+        assert 'source_manifest' in lock['artifacts']
     for s in report['segments']:
         raw = pd.read_parquet(output / s['raw_path'])
         features = pd.read_parquet(output / s['features_path'])
@@ -95,3 +113,36 @@ def test_output_safety_and_incomplete_source(tmp_path):
     with pytest.raises(ValueError, match='completed'):
         build_features(**common, output_dir=tmp_path / 'fresh')
     assert not (tmp_path / 'fresh').exists()
+
+
+@pytest.mark.parametrize('damage', ['producer', 'contract', 'hash', 'escape', 'both', 'neither'])
+def test_explicit_sources_fail_closed_before_output(tmp_path, damage):
+    source, cache = frozen_source(tmp_path)
+    old = json.loads((cache / 'cache_metadata.json').read_text())
+    metadata = dict(source_contract='explicit_preserved_sources_v1',
+                    producer_provenance='unavailable',
+                    **{role: old[role] for role in
+                       ('input', 'scored_cache', 'strategy_config', 'sessions_config')})
+    if damage == 'producer':
+        metadata['git_sha'] = old['git_sha']
+    elif damage == 'contract':
+        metadata['source_contract'] = 'unrecognized'
+    elif damage == 'hash':
+        metadata['input']['sha256'] = '0' * 64
+    elif damage == 'escape':
+        outside = tmp_path / 'outside.yaml'
+        original = source / metadata['strategy_config']['path']
+        outside.write_bytes(original.read_bytes())
+        metadata['strategy_config']['path'] = str(outside)
+    manifest = source / 'source_manifest.json'
+    manifest.write_text(json.dumps(metadata))
+    kwargs = dict(source_root=source, source_manifest=manifest,
+                  output_dir=tmp_path / 'new', year=2025,
+                  completed_through='2026-01-02T00:00:00Z')
+    if damage == 'both':
+        kwargs['cache_dir'] = cache
+    elif damage == 'neither':
+        kwargs.pop('source_manifest')
+    with pytest.raises(ValueError):
+        build_features(**kwargs)
+    assert not (tmp_path / 'new').exists()

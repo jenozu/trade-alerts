@@ -384,3 +384,40 @@ reversal signals: six exceed structural risk 25; one fills at the excluded
 10:30 ET boundary. Secondary obstacle/asymmetry reasons are documented. The
 2025 diagnostic is complete; next inspect preserved 2023/2024 metadata/artifacts
 read-only, without a rebuild or repeat of any completed 2025 check.
+
+## 2024 corrected diagnostic and 2023 source handling — 2026-10-08
+
+Supplied VPS terminal evidence confirms the separate 2024 contract-isolated
+build at `/root/trade-alerts-verify-YwIqEc/replays/isolated-2024-v_r21v9e/features`:
+441,600 source bars, 353,745 UTC-2024 bars, six segments. Both feature locks
+independently verified, every segment's ATR/level/sequence reset and availability
+checks passed, and all four original source roles plus original cache metadata
+remained unchanged. Preserved 2023 and 2024 feature controls both showed ATR
+crossing all five contract boundaries; regeneration is required for these new
+corrected diagnostics. Original archives and raw candles are preserved.
+
+The sibling `chronology` derivation and `execution` audit completed with unchanged
+inputs and verified locks. Two UTC-2024 reversal signals were eligible; neither
+was accepted. January 26 14:30 UTC long needed a 32-point structural stop,
+had only 0.25 points to the first obstacle and failed minimum asymmetry. June 24
+14:17 UTC short needed 27.5 points. Both exceed the frozen 25-point cap. Zero
+trades supplies rejection evidence, not historical accepted-path proof. R7 is
+still paused; no thresholds or risk rules were relaxed.
+
+2023 raw and preserved scored-control timestamps/contracts/OHLCV were compared:
+440,032 ordered unique bars, 2022-10-02 22:00 UTC through 2023-12-29 21:59 UTC,
+zero mismatches. Raw SHA-256:
+`d4be2d6668de6e341bbb860a50a89ba156dc5f92486199f68991642d3fb0248d`.
+No original 2023 cache producer metadata was found. The feature-build CLI now
+supports an explicit preserved-source manifest as an alternative to cache
+metadata. It requires hashed raw/control/strategy/session files under the source
+root and explicitly declares original producer provenance unavailable; it rejects
+invented producer identities. New build code, data and configs are fully locked.
+This does not retrospectively certify the old scored control. Existing cache
+producer verification remains unchanged. No 2023 build has run yet.
+
+Validation for this adapter: focused suite **16 passed, 31 warnings**; full
+regression **786 passed, 872 warnings in 47.90 seconds**. Warnings remain reported
+compatibility/performance warnings. The review branch remains separate from
+main. A read of current main found `cfa451884d3374ef40ed8d6daf56ef9e6a96a082`
+adding an EXP-001 VPS wrapper; this work neither edits nor runs that wrapper.
