@@ -3,9 +3,11 @@
 **Repository:** `jenozu/trade-alerts`  
 **Branch:** `main`  
 **Purpose:** Canonical implementation checklist for coordinating work across ChatGPT conversations, coding agents, and LLMs.  
-**Last organized:** 2026-09-04
+**Last organized:** 2026-10-09
 
 > Before doing any work, inspect the current repository and this checklist. Do not recreate working modules simply because an older roadmap lists them as future work.
+
+> **Repository-state rule (2026-10-09):** `main` is the stable source of truth and Voyages reads `main/phases.md`. Completed historical research from R5-R7 is reconciled into main as immutable evidence. Draft PR #7 (`research/pre-critical-integrity`) remains the active engineering/integrity branch; further strategy-selection research stays paused until that gate is cleared. See `REPOSITORY_STATE.md` and `refine-roadmap.md` before starting new work.
 
 ## How to use this file
 
@@ -1083,7 +1085,7 @@ Run the finished system without relying on it for live entries long enough to va
 - [ ] Entry-valid and invalidation events.
 - [ ] TP1–TP4 outcomes.
 - [ ] Session high/low.
-- [ ] MFE/MAE.
+- [x] MFE/MAE.
 - [ ] Final scenario outcome.
 
 ## Daily evaluation
@@ -1120,6 +1122,29 @@ Run the finished system without relying on it for live entries long enough to va
 
 Use the existing historical backtester plus shadow-mode results to calibrate thresholds without overfitting.
 
+## Research-refinement status
+
+This checklist summarizes the detailed `refine-roadmap.md` work so the canonical
+project roadmap and Voyages reflect completed research without duplicating every
+experiment-level checkbox.
+
+- [x] R1 baseline decomposition completed.
+- [x] R2 component contribution / ablation studies completed.
+- [x] R4 development scoring/threshold sweep completed; candidates retained only for later validation.
+- [x] R5 stop-loss research block completed; FIXED_15 and ATR_1.0 remain validation candidates only.
+- [x] R6 fixed-target / partial-exit research block completed; TP100 remains the control.
+- [x] R7.0 continuation-displacement interaction completed and rejected as a production qualification rule.
+- [ ] Clear the pre-critical integrity / execution-contract gate in draft PR #7 before further selection research.
+- [ ] Continue isolated R7 interaction experiments after the integrity gate.
+- [ ] R8 market-regime and day-type research.
+- [ ] R9 robustness tests.
+- [ ] R10 held-out / walk-forward validation.
+- [ ] R11 final candidate comparison and R12 production acceptance gates.
+
+Historical R5-R7 results are retained under their original producer semantics.
+They remain valid records of what was tested, but they do not certify the newer
+integrity-corrected execution contract.
+
 ## Existing infrastructure
 
 - [x] `src/backtest.py` exists.
@@ -1130,7 +1155,7 @@ Use the existing historical backtester plus shadow-mode results to calibrate thr
 - [x] Barchart historical support exists.
 - [x] ProjectX historical support exists.
 - [x] Exit-model analysis tooling exists.
-- [ ] Continue using these tools during earlier phases for replay/regression.
+- [x] Continue using these tools during earlier phases for replay/regression.
 
 ## Historical data discipline
 
@@ -1146,50 +1171,50 @@ Use the existing historical backtester plus shadow-mode results to calibrate thr
 - [ ] Bias accuracy.
 - [ ] Preferred-scenario accuracy.
 - [ ] Trigger precision.
-- [ ] Win rate.
+- [x] Win rate.
 - [ ] Average/median R.
-- [ ] Expectancy / profit factor.
-- [ ] TP1–TP4 hit rates.
+- [x] Expectancy / profit factor.
+- [x] TP1–TP4 hit rates.
 - [ ] Stop/no-trade rates.
 - [ ] MFE/MAE.
 - [ ] False sweep/breakout rates.
-- [ ] Performance by setup, score band, DOL, session context, direction, and volatility regime.
+- [x] Performance by setup, score band, DOL, session context, direction, and volatility regime.
 
 ## Parameters to calibrate
 
 - [ ] Displacement thresholds.
 - [ ] Signal-to-noise thresholds/weights.
 - [ ] Support/resistance confluence weights.
-- [ ] Scorer component weights.
+- [x] Scorer component weights.
 - [ ] Confidence bands.
 - [ ] DOL thresholds/weights.
 - [ ] Swing parameters.
 - [ ] FVG significance.
 - [ ] Volume/RVOL thresholds.
-- [ ] Stop buffers.
+- [x] Stop buffers.
 - [ ] Room-to-run filters.
-- [ ] Exit model.
+- [x] Exit model.
 - [ ] Target priorities.
 
 ## Calibration rules
 
-- [ ] Do not optimize solely for maximum historical profit.
-- [ ] Prefer stable parameters across regimes.
+- [x] Do not optimize solely for maximum historical profit.
+- [x] Prefer stable parameters across regimes.
 - [ ] Use walk-forward/out-of-sample evaluation.
 - [ ] Keep tuning/evaluation periods distinct.
 - [ ] Compare historical results to shadow-mode observations.
 - [ ] Higher score bands should outperform lower bands over meaningful samples.
-- [ ] Do not call score a probability until calibrated.
-- [ ] Preserve old configs/results for reproducibility.
+- [x] Do not call score a probability until calibrated.
+- [x] Preserve old configs/results for reproducibility.
 
 ## FVG performance optimization
 
-- [ ] Benchmark current FVG stage.
-- [ ] Create exact-output regression fixture.
-- [ ] Optimize implementation.
-- [ ] Prove output equivalence.
-- [ ] Re-run full suite.
-- [ ] Benchmark improved runtime.
+- [x] Benchmark current FVG stage.
+- [x] Create exact-output regression fixture.
+- [x] Optimize implementation.
+- [x] Prove output equivalence.
+- [x] Re-run full suite.
+- [x] Benchmark improved runtime.
 
 ## Done when
 
@@ -1197,7 +1222,7 @@ Use the existing historical backtester plus shadow-mode results to calibrate thr
 - [ ] Score bands show meaningful separation.
 - [ ] Parameters are stable out of sample.
 - [ ] Production config is versioned.
-- [ ] Baseline metrics are stored.
+- [x] Baseline metrics are stored.
 - [ ] Push checkpoint and update this file.
 
 ---
@@ -1287,23 +1312,16 @@ Never:
 
 # Current next action
 
-```bash
-cd /docker/trade-alerts
-source .venv/bin/activate
-git pull --ff-only
-git status
-pytest -q
+Do **not** restart earlier completed phases or R7.0.
 
-python scripts/collect_projectx.py --days 3
-```
+1. Treat `main` + `phases.md` as the stable project source of truth.
+2. Treat draft PR #7 / `research/pre-critical-integrity` as the only active
+   integration branch for the current execution-integrity gate.
+3. Finish the documented integrity/cost/source-correspondence work there and
+   run its targeted + full regression requirements.
+4. Merge the reviewed checkpoint into `main` only after the gate is satisfied.
+5. Sync Voyages after the merge.
+6. Only then preregister the next isolated R7 interaction.
 
-Then:
-
-- [ ] Record the full test count.
-- [ ] Confirm live ProjectX pull.
-- [ ] Confirm current contract.
-- [ ] Confirm fresh latest bar.
-- [ ] Confirm timestamped raw Parquet.
-- [ ] Confirm metadata snapshot.
-- [ ] Mark Phase 1 complete.
-- [ ] Begin Phase 2.
+See `REPOSITORY_STATE.md`, `refine-roadmap.md`, and the PR #7 readiness
+documentation before issuing new VPS research runs.

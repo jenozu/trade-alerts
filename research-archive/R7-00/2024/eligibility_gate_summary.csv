@@ -1,0 +1,3 @@
+direction,baseline_eligible_rows,reversal_proxy_rows,continuation_proxy_rows,continuation_with_displacement_rows,continuation_without_displacement_rows,candidate_rows_after_gate,excluded_rows
+long,493,438,55,49,6,487,6
+short,354,279,75,71,4,350,4

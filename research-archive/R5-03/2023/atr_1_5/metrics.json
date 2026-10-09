@@ -1,0 +1,39 @@
+{
+  "performance": {
+    "research_year": 2023,
+    "model": "ATR_1_5",
+    "trades": 372,
+    "wins": 98,
+    "win_rate": 0.26344086021505375,
+    "net_points": 750.3035714285706,
+    "expectancy_points": 2.016945084485405,
+    "expectancy_r": 0.13664094307581712,
+    "profit_factor": 1.1296712928243633,
+    "max_drawdown_points": 585.8214285714294,
+    "average_mae_points": 22.7002688172043,
+    "median_mae_points": 22.5,
+    "winner_average_mae_points": 10.08673469387755,
+    "winner_median_mae_points": 9.25,
+    "average_mfe_points": 36.307123655913976,
+    "stop_hit_rate": 0.7258064516129032,
+    "tp4_hit_rate": 0.11290322580645161,
+    "average_hold_minutes": 19.521505376344088
+  },
+  "stop_distance": {
+    "research_year": 2023,
+    "model": "ATR_1_5",
+    "trades": 372,
+    "mean_stop_points": 21.469182027649794,
+    "median_stop_points": 20.90625,
+    "p10_stop_points": 12.300000000000182,
+    "p90_stop_points": 30.144642857142394,
+    "minimum_stop_points": 4.392857142856883,
+    "maximum_stop_points": 52.339285714286234,
+    "pct_below_15": 0.1774193548387097,
+    "pct_below_20": 0.43010752688172044,
+    "pct_above_25": 0.260752688172043,
+    "pct_above_35": 0.056451612903225805
+  },
+  "atr_period": 14,
+  "atr_multiplier": 1.5
+}
