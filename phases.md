@@ -1135,7 +1135,9 @@ experiment-level checkbox.
 - [x] R6 fixed-target / partial-exit research block completed; TP100 remains the control.
 - [x] R7.0 continuation-displacement interaction completed and rejected as a production qualification rule.
 - [x] Complete and merge the qualified pre-critical integrity engineering / execution-audit checkpoint (PR #7; 800 tests passed; historical accepted-path and realistic-cost limits documented).
-- [ ] Preregister the next R7 control/candidate identities and review the corrected control's zero-trade result before executing selection research.
+- [x] Verify the corrected R7 control identity and zero-trade feasibility from archived evidence.
+- [ ] Inspect score-candidate qualification flags from existing 2023 chronology features.
+- [ ] Preregister a meaningful next R7 control/candidate comparison after qualification review.
 - [ ] Continue isolated R7 interaction experiments after the integrity gate.
 - [ ] R8 market-regime and day-type research.
 - [ ] R9 robustness tests.
@@ -1313,18 +1315,16 @@ Never:
 
 # Current next action
 
-The qualified integrity engineering checkpoint is merged via PR #7 at
-`4b947ebc3eca0f1e3e37af689e262cd622e67025`. All three corrected yearly
-execution diagnostics are archived; the final combined code passed 800 tests.
+The qualified integrity checkpoint is merged via PR #7. R7 preparation has
+resumed. Archived control feasibility is verified: the corrected control has
+zero accepted plans in all three development years. Statistical comparison of
+an additional eligibility filter would be uninformative.
 
-1. Prepare the next isolated R7 preregistration from reconciled R5/R6/R7.0 evidence.
-2. State the executable control and candidate contracts explicitly. The corrected
-   chronology/market-v2 diagnostic accepted zero trades in all three years;
-   preserved historical controls use different producer semantics.
-3. Do not change liquidity, target, score or risk rules merely to obtain trades.
-4. Document actual account fees before realistic net-performance claims.
-5. Execute an experiment only after an explicit run instruction under RULES.md
-   section 17. Preparation and push do not authorize a VPS experiment.
+Next: inspect score-candidate qualification flags from existing 2023 chronology
+features using a read-only VPS export. Work does not contain those feature files.
+See `docs/research/r7_next_step.md` and `docs/research/r7_control_coverage.json`.
 
-Do not rerun completed yearly builds or R5/R6/R7.0 studies. Deployment remains
-separate. Voyages reads this updated main checklist on its next refresh.
+Do not rebuild features, repeat completed audits/R5/R6/R7.0, substitute historical
+controls or change liquidity/risk rules just to produce trades. Deployment is
+separate. An experiment run requires an explicit instruction under RULES.md
+section 17 after the control and candidate are concretely prepared.

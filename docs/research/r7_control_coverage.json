@@ -1,0 +1,66 @@
+{
+  "conclusion": "Additional eligibility-only filters cannot create accepted plans from this zero-accepted-plan control; performance differences are not identifiable.",
+  "empty_control_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "limits": [
+    "Score rows and directional signals are different counting units.",
+    "Rejection categories overlap; their sum is not a signal count.",
+    "The full scored stream is absent; earlier qualification losses cannot be attributed here.",
+    "VPS-only upstream files are not rehashed by this archive check.",
+    "Historical controls with different semantics are not substituted."
+  ],
+  "selection_run_ready": false,
+  "status": "BLOCKED_EMPTY_CONTROL",
+  "years": [
+    {
+      "accepted_plans": 0,
+      "eligible_directional_signals": 7,
+      "input_identity_sha256": "7a90bc61756509efb027f60e7c9f70a5cfc5ccc4cd77671ffd302090ef7d3c18",
+      "output_identity_sha256": "31c2bfc82050c8e9ee1afb80acc039e6a0f74717134cc781972b9265ebdaf312",
+      "rejection_categories": {
+        "insufficient_room_to_first_obstacle": 7,
+        "insufficient_room_to_primary_dol": 1,
+        "poor_asymmetry_to_primary_dol": 1,
+        "poor_asymmetry_to_tp1": 6,
+        "structural_risk_too_large": 5,
+        "tp1_market_objective_unavailable_before_primary_dol": 1
+      },
+      "score_candidate_rows": 659,
+      "simulated_trades": 0,
+      "year": 2023
+    },
+    {
+      "accepted_plans": 0,
+      "eligible_directional_signals": 2,
+      "input_identity_sha256": "784e75cd452ab571e61530661955686f284b232f908c84ca3d5ed61e86a9f535",
+      "output_identity_sha256": "06e77cbec9cc5de1c6fa6d74d46f0296915b2f60ee6be8293d62caf4406dbb1c",
+      "rejection_categories": {
+        "insufficient_room_to_first_obstacle": 1,
+        "poor_asymmetry_to_tp1": 1,
+        "structural_risk_too_large": 2
+      },
+      "score_candidate_rows": 697,
+      "simulated_trades": 0,
+      "year": 2024
+    },
+    {
+      "accepted_plans": 0,
+      "eligible_directional_signals": 7,
+      "input_identity_sha256": "a2ed066465d7bb1f85c4e0a649f7d5873edfd40b42627f4009dcf16bc68ae441",
+      "output_identity_sha256": "7d6e07bc176ea813121de12cee803ef8e5f24575012017b46383430afa5328ee",
+      "rejection_categories": {
+        "insufficient_room_to_first_obstacle": 6,
+        "outside_fill_entry_window": 1,
+        "poor_asymmetry_to_primary_dol": 1,
+        "poor_asymmetry_to_tp1": 6,
+        "structural_risk_too_large": 6
+      },
+      "score_candidate_rows": 846,
+      "simulated_trades": 0,
+      "year": 2025
+    }
+  ]
+}

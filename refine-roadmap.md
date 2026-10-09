@@ -2277,8 +2277,10 @@ evidence; do not promote the rule.
 
 Important 2026-10-09 reconciliation note: this experiment remains a valid record
 under its preserved producer/baseline semantics. It does **not** certify the
-newer integrity-corrected execution contract being reviewed in draft PR #7.
-Further R7 selection research remains paused until that integrity gate is cleared.
+newer integrity-corrected execution contract merged through PR #7.
+R7 preparation resumed after that qualified engineering closeout; the corrected
+control has zero accepted plans, so statistical selection remains blocked.
+See `docs/research/r7_next_step.md` for the evidence and next read-only task.
 
 ### Implementation status
 
@@ -2300,6 +2302,21 @@ Further R7 selection research remains paused until that integrity gate is cleare
 - [ ] choose the next isolated R7 interaction only after the integrity gate clears.
 
 No production change is authorized by R7.0.
+
+---
+
+## R7 next-step control feasibility — 2026-10-09
+
+- [x] Identify the corrected control and keep historical producer semantics separate.
+- [x] Verify archived 2023–2025 control coverage and lock correspondence.
+- [x] Implement an explicit empty-control preflight; record the no-performance-evidence decision.
+- [ ] Inspect 2023 score-candidate qualification flags from existing VPS chronology features.
+- [ ] Resolve any demonstrated implementation mismatch or obtain an explicit strategy decision.
+- [ ] Preregister a meaningful isolated control/candidate comparison before an authorized run.
+
+The corrected control has 7 / 2 / 7 eligible signals and zero accepted plans.
+Do not repeat R7.0, silently substitute old controls or add a filter-only candidate
+whose control cannot trade. See `docs/research/r7_next_step.md`.
 
 ---
 

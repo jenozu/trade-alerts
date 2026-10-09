@@ -79,8 +79,11 @@ engineering checkpoint. Final regression: 800 passed, 872 warnings. Preserve
 its accepted-path, fee, upstream-provenance and deployment limits in
 `docs/integrity_closeout_20261009.md`. The liquidity-policy proposal is deferred.
 
-Next: prepare an isolated R7 preregistration, explicitly distinguishing the
-corrected zero-trade contract from preserved historical controls. Do not rerun
+R7 preparation has resumed. Its corrected-control feasibility check is recorded
+in `docs/research/r7_next_step.md`; additional eligibility filters cannot be
+evaluated on this zero-accepted-plan control. Next: inspect existing 2023
+score-candidate qualification flags via a read-only VPS export, then resolve
+any demonstrated mismatch before preregistering a meaningful comparison. Do not rerun
 R5/R6/R7.0. Remote experiment execution still requires an explicit run command
 under RULES.md section 17. No live deployment is implied.
 
