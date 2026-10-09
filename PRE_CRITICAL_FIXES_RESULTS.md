@@ -467,3 +467,13 @@ accepted-path evidence if available under the agreed contract, and certify
 actual fees plus the corrected baseline. **R7 remains paused.** This documentation
 checkpoint changes no code/config/artifact. Latest code regression remains
 **786 passed, 872 warnings**; no redundant full-suite run was performed.
+
+The next-step specification is now concrete in
+`docs/liquidity_policy_and_costs_proposal.md`: narrowly treat nearby internal
+equal-liquidity objectives as intermediate in both obstacle and TP selection,
+while preserving selected primary DOL, other obstacles, structural risk and
+management. This is a proposed opt-in modeling choice, not an implemented fix.
+The written sources do not supply an executable weak/strong level classifier.
+Actual MNQ fees require account/plan, all-in amount, currency, side/round-trip
+units and schedule evidence; none is supplied by the current zero-cost diagnostic.
+Both remaining inputs are identified without repeating completed VPS stages.
