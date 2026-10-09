@@ -74,6 +74,12 @@ the rule", not "the work is unfinished".
 
 ## Current approved next action
 
+The remaining-experiment preparation audit is recorded in
+`docs/research/experiment_preparation_status.md`. EXP-030 is already prepared;
+main assigns no definitions to EXP-031 onward. No new batch or execution is
+claimed. Continue from approved specifications and preserve the R7 diagnostic
+review dependency described below.
+
 PR #7 is merged and the canonical phases.md records the completed qualified
 engineering checkpoint. Final regression: 800 passed, 872 warnings. Preserve
 its accepted-path, fee, upstream-provenance and deployment limits in

@@ -3,7 +3,13 @@
 ## Experiments
 
 - [[Experiments/EXP-001-Score-Band-Analysis]] — completed diagnostic of score-band behavior across 2023–2025.
-- EXP-002 — Long vs. Short — next planned experiment in `refine-roadmap.md`.
+- EXP-002–EXP-011 and EXP-013–EXP-021 — historical results archived; preserve their original producer semantics.
+- EXP-012 — blocked by missing deterministic Order Block features.
+- EXP-030 — prepared R7 family-policy diagnostic; not executed.
+
+For the complete preparation inventory, blockers and continuation instructions,
+see `docs/research/experiment_preparation_status.md`. No five-experiment batch is
+specified after EXP-030 on the audited main checkpoint.
 
 ## Findings
 
