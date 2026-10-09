@@ -414,10 +414,56 @@ metadata. It requires hashed raw/control/strategy/session files under the source
 root and explicitly declares original producer provenance unavailable; it rejects
 invented producer identities. New build code, data and configs are fully locked.
 This does not retrospectively certify the old scored control. Existing cache
-producer verification remains unchanged. No 2023 build has run yet.
+producer verification remains unchanged. At this adapter checkpoint the 2023
+build had not run; its subsequently completed evidence is recorded below.
 
 Validation for this adapter: focused suite **16 passed, 31 warnings**; full
 regression **786 passed, 872 warnings in 47.90 seconds**. Warnings remain reported
 compatibility/performance warnings. The review branch remains separate from
 main. A read of current main found `cfa451884d3374ef40ed8d6daf56ef9e6a96a082`
 adding an EXP-001 VPS wrapper; this work neither edits nor runs that wrapper.
+
+## 2023 corrected diagnostic completed — 2026-10-09
+
+User-supplied VPS terminal evidence confirms the fresh build at
+`/root/trade-alerts-verify-YwIqEc/replays/isolated-2023-xgi4yfiw/features`.
+All 440,032 bars were processed, including 352,178 UTC-2023 evaluation bars.
+Six contract segments contain 69,915 / 85,079 / 88,569 / 88,334 / 90,195 /
+17,940 rows (NMZ22, NMH23, NMM23, NMU23, NMZ23, NMH24). Independent feature
+input/output lock verification passed, with raw identity, same-contract ATR,
+cold-start levels/sequences and causal availability checks on every segment.
+All four original source roles remained unchanged. Original scored-control
+producer provenance remains unavailable; new producer/input identity is locked.
+
+The sibling chronology derivation completed on six segments without changing
+inputs. The execution audit then completed with both locks verified:
+**7 eligible reversal signals, 0 accepted plans, 0 simulated trades, 0 historical
+executed-plan comparisons**. The disconnect shown after the returned shell prompt
+does not require any rebuild or audit rerun. See
+`docs/2023_corrected_diagnostic.md` for the seven decisions and obstacle evidence.
+
+Corrected diagnostics are now complete for 2023, 2024 and 2025: respectively
+7 / 2 / 7 eligible signals and zero accepted plans in each year. This proves
+the recorded rejection paths and isolated feature checks, not historical
+accepted execution, profitability, or live deployment readiness. Synthetic
+accepted-path parity tests remain separate evidence.
+
+The planner currently treats its nearest directional liquidity objective as
+the first obstacle, including internal equal highs/lows. Five of the seven
+2023 first obstacles are internal equal-liquidity levels only 0.25–1.75 points
+ahead. This matches the existing code policy; it is not sufficient evidence
+that the policy faithfully represents the intended strategy. No obstacle,
+target, score or risk rule was changed to manufacture accepted trades.
+
+Current main was read at `7a114345baf555f6652c7b1d6001ab9ad81d4697`.
+Its new context/bias/confirmation principles distinguish liquidity draws from
+reaction zones and do not specify executable obstacle classification criteria.
+That document supports reviewing this distinction, not silently selecting a
+new rule from historical results. It was not merged into the producing checkout.
+
+Remaining gates: resolve the obstacle/target semantic distinction explicitly,
+preserve small authoritative VPS evidence files in Git, establish historical
+accepted-path evidence if available under the agreed contract, and certify
+actual fees plus the corrected baseline. **R7 remains paused.** This documentation
+checkpoint changes no code/config/artifact. Latest code regression remains
+**786 passed, 872 warnings**; no redundant full-suite run was performed.
