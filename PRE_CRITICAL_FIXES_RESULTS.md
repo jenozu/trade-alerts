@@ -3,8 +3,8 @@
 ## Current assessment — 2026-10-09
 
 This assessment supersedes the earlier status tables and next-step proposals below.
-The required engineering work is implemented on the integrity review branch;
-closeout and publication are still pending. No new liquidity rule is required
+The required engineering work and qualified evidence closeout are merged on main
+via PR #7 (4b947ebc3eca0f1e3e37af689e262cd622e67025). No new liquidity rule is required
 for this checkpoint. Keep the current policy and record its fidelity limits.
 
 | Required task | Current assessment | Evidence and limits |
@@ -15,23 +15,24 @@ for this checkpoint. Keep the current policy and record its fidelity limits.
 | Fingerprints/source correspondence | Implemented; yearly diagnostics completed | Immutable input/output identities and contract-isolated 2023–2025 builds verified in supplied VPS evidence. Unavailable original 2023 producer provenance stays explicitly unavailable. Authoritative execution summaries, decisions, effective config and both locks for all three years are now archived; VPS-only upstream files remain outside local verification. |
 | Strategy fidelity audit | Audit and selected execution contract implemented; qualified evidence | Object-linked chronology and shared market planner/backtester accepted-path fixtures cover both directions/families. Historical diagnostics have 7 / 2 / 7 eligible signals and zero accepted trades; they prove rejection paths, not historical accepted execution or profitability. Production zone hypotheses are not migrated to the market-entry adapter. |
 
-Latest integrity-code full regression: **786 passed, 872 warnings**. This is the
-recorded test result for that code checkpoint, not a fresh certification of later
-integration-branch merges. Existing archives and production behavior are preserved.
+Final combined-code regression, including restored canonical automation:
+**800 passed, 872 warnings in 52.84 seconds**. Tested tree:
+`195f832c26c92677b6cca66902b0e1480c9c9606`. Final closeout/roadmap changes are
+documentation only. Existing archives and production behavior are preserved.
 
 The proposed internal-equal-liquidity policy is deferred and outside this
 engineering closeout. Do not change rules to manufacture accepted trades. Zero
 accepted trades is a valid diagnostic result with an explicit evidence boundary.
 
-**Next task:** reconcile the current integrated branch with this completed
-execution-evidence closeout, run checks appropriate to its merged changes, and
-prepare PR #7 for review with the limits above recorded. Authoritative 2023,
-2024 and 2025 execution exports are now verified and committed under
-`research-archive/EXP-INTEGRITY-{year}-DIAGNOSTIC/`. Both lock digests verify;
-summary, decisions and effective-config bytes match output-lock hashes; all
-68 producer code hashes match the integrity-code checkout. No yearly audit or
-feature build needs rerunning. R7 selection remains paused until closeout.
-Historical R5/R6/R7.0 evidence is already reconciled into main; do not repeat it.
+**Next task:** prepare the next isolated R7 preregistration with explicit
+executable control and candidate identities. The integrity checkpoint is merged;
+no yearly build, audit or regression rerun is required for this closeout.
+Authoritative 2023–2025 execution exports are archived under
+`research-archive/EXP-INTEGRITY-{year}-DIAGNOSTIC/`. Corrected diagnostics have
+zero accepted trades; preserved historical controls use different semantics.
+Preparation must acknowledge that boundary before statistical selection.
+Remote execution requires an explicit run instruction under RULES.md section 17.
+Historical R5/R6/R7.0 evidence is already reconciled; do not repeat it.
 
 ## Historical checkpoints (retained for provenance)
 
