@@ -79,6 +79,10 @@ The remaining-experiment preparation audit is recorded in
 main assigns no definitions to EXP-031 onward. No new batch or execution is
 claimed. Continue from approved specifications and preserve the R7 diagnostic
 review dependency described below.
+EXP-030's execution/setup checklist and proposed R7–R12 specification backlog
+are in `docs/research/exp030_readiness_and_backlog.md`. Code is prepared; SSH/VPS
+operational readiness is not yet verified. No new experiment or run request is
+created by this documentation.
 
 PR #7 is merged and the canonical phases.md records the completed qualified
 engineering checkpoint. Final regression: 800 passed, 872 warnings. Preserve

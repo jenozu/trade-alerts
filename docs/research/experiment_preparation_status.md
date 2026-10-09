@@ -92,6 +92,12 @@ do not regenerate research merely to fill it.
 
 ## Actual preparation blockers
 
+For EXP-030's operational prerequisites, personal setup checks, review handoff
+and the proposed (unapproved) R7–R12 specification backlog, see
+`exp030_readiness_and_backlog.md`. No future specifications are required before
+running the already prepared EXP-030 diagnostic. Backlog design can be drafted
+independently; runnable candidate definitions retain their review dependencies.
+
 The corrected control has zero accepted plans in all three development years.
 The approved diagnostic adds one qualification, but accepted execution and P&L
 are unknown. The current implementation document explicitly requires reviewing
