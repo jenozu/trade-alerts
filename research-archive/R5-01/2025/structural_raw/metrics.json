@@ -1,0 +1,37 @@
+{
+  "performance": {
+    "research_year": 2025,
+    "model": "STRUCTURAL_RAW",
+    "trades": 459,
+    "wins": 135,
+    "win_rate": 0.29411764705882354,
+    "net_points": -579.25,
+    "expectancy_points": -1.2619825708061003,
+    "expectancy_r": -0.008266951502207185,
+    "profit_factor": 0.9517884267254832,
+    "max_drawdown_points": 1315.0,
+    "average_mae_points": 39.877450980392155,
+    "median_mae_points": 30.75,
+    "winner_average_mae_points": 22.19814814814815,
+    "winner_median_mae_points": 14.0,
+    "average_mfe_points": 44.613289760348586,
+    "stop_hit_rate": 0.6666666666666666,
+    "tp4_hit_rate": 0.22004357298474944,
+    "average_hold_minutes": 16.66013071895425
+  },
+  "stop_distance": {
+    "research_year": 2025,
+    "model": "STRUCTURAL_RAW",
+    "trades": 459,
+    "mean_stop_points": 48.87418300653595,
+    "median_stop_points": 25.0,
+    "p10_stop_points": 7.900000000000002,
+    "p90_stop_points": 86.14999999999999,
+    "minimum_stop_points": 0.25,
+    "maximum_stop_points": 1102.25,
+    "pct_below_15": 0.1568627450980392,
+    "pct_below_20": 0.19172113289760348,
+    "pct_above_25": 0.49455337690631807,
+    "pct_above_35": 0.42919389978213507
+  }
+}

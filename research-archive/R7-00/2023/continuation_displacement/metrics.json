@@ -1,0 +1,68 @@
+{
+  "performance": {
+    "research_year": 2023,
+    "model": "CONTINUATION_DISPLACEMENT",
+    "trades": 335,
+    "win_rate": 0.32238805970149254,
+    "expectancy_points": 2.9992537313432837,
+    "expectancy_r": 0.12062676286828353,
+    "profit_factor": 1.179941795388404,
+    "net_points": 1004.75,
+    "max_drawdown_points": 495.0,
+    "average_mfe_points": 39.75671641791045,
+    "median_mfe_points": 27.5,
+    "average_mae_points": 24.4544776119403,
+    "median_mae_points": 26.5,
+    "tp1_hit_rate": 0.5164179104477612,
+    "tp2_hit_rate": 0.34626865671641793,
+    "tp3_hit_rate": 0.21492537313432836,
+    "tp4_hit_rate": 0.11641791044776119,
+    "stop_hit_rate": 0.6597014925373135,
+    "average_hold_minutes": 23.734328358208955
+  },
+  "control": {
+    "research_year": 2023,
+    "model": "CONTROL",
+    "trades": 344,
+    "win_rate": 0.3226744186046512,
+    "expectancy_points": 2.9156976744186047,
+    "expectancy_r": 0.11723796617487538,
+    "profit_factor": 1.1748910200523104,
+    "net_points": 1003.0,
+    "max_drawdown_points": 545.5,
+    "average_mfe_points": 39.7281976744186,
+    "median_mfe_points": 27.125,
+    "average_mae_points": 24.46511627906977,
+    "median_mae_points": 26.625,
+    "tp1_hit_rate": 0.5145348837209303,
+    "tp2_hit_rate": 0.34593023255813954,
+    "tp3_hit_rate": 0.21220930232558138,
+    "tp4_hit_rate": 0.11918604651162791,
+    "stop_hit_rate": 0.6598837209302325,
+    "average_hold_minutes": 23.712209302325583
+  },
+  "single_change": "Existing continuation-proxy candidates require same-direction recent displacement; reversal candidates unchanged.",
+  "setup_family_contract": "directional recent liquidity sweep => reversal; otherwise continuation proxy",
+  "gate_diagnostics": [
+    {
+      "direction": "long",
+      "baseline_eligible_rows": 467,
+      "reversal_proxy_rows": 396,
+      "continuation_proxy_rows": 71,
+      "continuation_with_displacement_rows": 63,
+      "continuation_without_displacement_rows": 8,
+      "candidate_rows_after_gate": 459,
+      "excluded_rows": 8
+    },
+    {
+      "direction": "short",
+      "baseline_eligible_rows": 399,
+      "reversal_proxy_rows": 332,
+      "continuation_proxy_rows": 67,
+      "continuation_with_displacement_rows": 52,
+      "continuation_without_displacement_rows": 15,
+      "candidate_rows_after_gate": 384,
+      "excluded_rows": 15
+    }
+  ]
+}

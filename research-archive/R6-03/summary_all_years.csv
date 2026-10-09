@@ -1,0 +1,7 @@
+research_year,model,trades,net_points,expectancy_points,profit_factor,max_drawdown_points
+2023,tp100_control,344,1003.00,2.9157,1.1749,545.50
+2023,equal_partials,344,831.75,2.4179,1.1784,372.19
+2024,tp100_control,388,66.25,0.1707,1.0095,1091.75
+2024,equal_partials,388,-277.44,-0.7150,0.9524,894.88
+2025,tp100_control,486,1103.25,2.2701,1.1220,758.50
+2025,equal_partials,486,99.44,0.2046,1.0138,666.12

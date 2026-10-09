@@ -1,0 +1,20 @@
+{
+  "research_year": 2023,
+  "model": "FIXED_30",
+  "trades": 327,
+  "wins": 120,
+  "win_rate": 0.3669724770642202,
+  "net_points": 1057.75,
+  "expectancy_points": 3.234709480122324,
+  "expectancy_r": 0.10782364933741084,
+  "profit_factor": 1.1739720394736841,
+  "max_drawdown_points": 658.0,
+  "average_mae_points": 27.945718654434252,
+  "median_mae_points": 31.0,
+  "winner_average_mae_points": 13.754166666666666,
+  "winner_median_mae_points": 12.25,
+  "average_mfe_points": 43.182721712538225,
+  "stop_hit_rate": 0.6085626911314985,
+  "tp4_hit_rate": 0.13149847094801223,
+  "average_hold_minutes": 27.40978593272171
+}
