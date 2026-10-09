@@ -26,6 +26,8 @@ base = {'timestamp', 'contract', 'open', 'high', 'low', 'close', 'volume',
 parts = []
 for segment in summary['segments']:
     path = Path(segment['features_path'])
+    if not path.is_absolute():
+        path = manifest.parent / path
     names = pq.read_schema(path).names
     columns = [name for name in names if name in base or any(
         word in name for word in ('linked_', 'core_sequence', 'liquidity_sweep',
