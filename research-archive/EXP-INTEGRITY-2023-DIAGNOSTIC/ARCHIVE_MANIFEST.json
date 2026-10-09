@@ -1,0 +1,45 @@
+{
+  "archived_file_count": 7,
+  "destination": "/workspace/scratch/90db9447a2d4/trade-alerts/research-archive/EXP-INTEGRITY-2023-DIAGNOSTIC",
+  "experiment": "EXP-INTEGRITY-2023-DIAGNOSTIC",
+  "files": [
+    {
+      "bytes": 3806,
+      "path": "EXECUTION_AUDIT_SUMMARY.json",
+      "sha256": "95fc1e317c32a17070ea9c68c55047f57311737f4fa297e0a0867fa4548df2a4"
+    },
+    {
+      "bytes": 51185,
+      "path": "EXECUTION_OUTPUT_LOCK.json",
+      "sha256": "8f0fae8637dd10056fb8821d09b64ea336dd84dd46a5f76c9cd9bc66a361e9d1"
+    },
+    {
+      "bytes": 50024,
+      "path": "EXPERIMENT_INPUT_LOCK.json",
+      "sha256": "e6d8556d749d00e55135322ffe22c308d73e1043edfff2bf886545c55ec0907e"
+    },
+    {
+      "bytes": 938,
+      "path": "EXPORT_VERIFICATION.json",
+      "sha256": "74b8b912cf6a8ba07740be0deda35215554ef47b0dbe57b4e721dc4f7c219d0a"
+    },
+    {
+      "bytes": 1546,
+      "path": "README.md",
+      "sha256": "c32cac70b732dfba2a906810e1d139496690a420b77a678253a9ad14dc5c5dff"
+    },
+    {
+      "bytes": 5086,
+      "path": "decisions.json",
+      "sha256": "3012ae85f50a11b4113751c6f5e41336dec9b042c6a4ca30261f970bcb603b5f"
+    },
+    {
+      "bytes": 9526,
+      "path": "effective_strategy.yaml",
+      "sha256": "80023e96285df73025bac3e84b3c74c3c5553e8c9b666f3a463e532103601c63"
+    }
+  ],
+  "max_file_bytes": 10485760,
+  "skipped": [],
+  "source": "/workspace/scratch/90db9447a2d4/evidence2023"
+}

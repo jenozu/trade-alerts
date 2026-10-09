@@ -298,3 +298,125 @@ def test_appending_future_bars_cannot_rewrite_an_already_completed_trade():
             assert right == pytest.approx(left), column
         else:
             assert right == left, column
+
+
+@pytest.mark.parametrize('direction', ['long', 'short'])
+@pytest.mark.parametrize('enabled,cost,unit,point_value,quantity,expected', [
+    (False, 2.0, 'points', 2.0, 1, 0.0),
+    (True, 0.0, 'points', 2.0, 1, 0.0),
+    (True, 1.5, 'points', 2.0, 1, 1.5),
+    (True, 3.0, 'dollars', 2.0, 10, 1.5),
+    (True, 30.0, 'dollars', 20.0, 3, 1.5),
+])
+def test_commission_net_points_r_and_position_quantity(direction, enabled, cost, unit, point_value, quantity, expected):
+    df = _bars(4)
+    (_mark_long if direction == 'long' else _mark_short)(df, 0)
+    df.loc[1:, 'close'] = 104.0 if direction == 'long' else 96.0
+    config = _config(slippage=True)
+    config['market'] = {'point_value': point_value}
+    config['backtest']['quantity'] = quantity
+    config['backtest']['commission'] = {'enabled': enabled, 'unit': unit, 'per_contract_round_trip': cost}
+    trade = run_backtest(df, config).iloc[0]
+    assert trade.gross_result_points == pytest.approx(3.5)
+    assert trade.commission_cost == expected
+    assert trade.net_result_points == pytest.approx(3.5 - expected)
+    assert trade.net_result_r == pytest.approx((3.5 - expected) / 25)
+    if quantity != 1:
+        assert trade.position_net_points == pytest.approx((3.5 - expected) * quantity)
+        assert trade.position_commission_points == expected * quantity
+
+
+@pytest.mark.parametrize('commission', [
+    {'unit': 'euros'}, {'per_contract_round_trip': -1},
+    {'per_contract_round_trip': float('nan')}, {'unit': 'dollars'},
+])
+def test_ambiguous_or_invalid_commission_fails_closed(commission):
+    from backtest import build_backtest_settings
+    config = _config()
+    config['backtest']['commission'].update(commission)
+    with pytest.raises(BacktestError):
+        build_backtest_settings(config)
+
+
+@pytest.mark.parametrize('quantity', [0, -1, 1.5, True])
+def test_invalid_position_quantity_is_rejected(quantity):
+    from backtest import build_backtest_settings
+    config = _config()
+    config['backtest']['quantity'] = quantity
+    with pytest.raises(BacktestError, match='quantity'):
+        build_backtest_settings(config)
+
+
+@pytest.mark.parametrize('direction,opening,high,low,expected', [
+    ('long', 60, 65, 55, 60), ('short', 140, 145, 135, 140),
+])
+def test_gap_through_stop_fills_at_adverse_open(direction, opening, high, low, expected):
+    df = _bars(4)
+    (_mark_long if direction == 'long' else _mark_short)(df, 0)
+    df.loc[2, ['open', 'high', 'low', 'close']] = [opening, high, low, opening]
+    trade = run_backtest(df, _config(slippage=True)).iloc[0]
+    assert trade.exit_reason == 'stop'
+    assert trade.exit_price_raw == expected
+    assert trade.exit_price == expected + (-0.25 if direction == 'long' else 0.25)
+
+
+@pytest.mark.parametrize('direction,opening,high,low,target', [
+    ('long', 220, 225, 70, 200), ('short', -20, 130, -25, 0),
+])
+def test_gap_through_terminal_target_is_known_before_intrabar_stop(direction, opening, high, low, target):
+    df = _bars(4)
+    (_mark_long if direction == 'long' else _mark_short)(df, 0)
+    df.loc[2, ['open', 'high', 'low', 'close']] = [opening, high, low, opening]
+    trade = run_backtest(df, _config(slippage=False)).iloc[0]
+    assert trade.exit_reason == 'tp4'
+    assert trade.exit_price_raw == target  # Conservative limit fill, no favorable gap improvement.
+    assert trade.maximum_target_reached == 4
+
+
+def test_next_observed_bar_across_session_gap_is_not_a_next_bar_entry():
+    df = _bars(3)
+    _mark_long(df, 0)
+    df.loc[1:, 'timestamp'] += pd.Timedelta(days=1)
+    assert run_backtest(df, _config(slippage=False)).empty
+
+
+def test_session_gap_beyond_holding_deadline_uses_last_observed_close():
+    df = _bars(4)
+    _mark_long(df, 0)
+    df.loc[2:, 'timestamp'] += pd.Timedelta(days=1)
+    df.loc[1, 'close'] = 103
+    df.loc[2:, 'low'] = 1
+    trade = run_backtest(df, _config(slippage=False)).iloc[0]
+    assert trade.exit_reason == 'max_holding_time'
+    assert trade.exit_index == 1
+    assert trade.exit_price_raw == 103
+    assert trade.mae_points == 1
+
+
+@pytest.mark.parametrize('direction', ['long', 'short'])
+def test_end_of_data_closes_full_position_with_adverse_exit_slippage(direction):
+    df = _bars(3)
+    (_mark_long if direction == 'long' else _mark_short)(df, 0)
+    trade = run_backtest(df, _config(slippage=True)).iloc[0]
+    assert trade.exit_reason == 'end_of_data'
+    assert trade.exit_index == 2
+    assert trade.gross_result_points == -0.5
+
+
+@pytest.mark.parametrize('direction', ['long', 'short'])
+def test_same_bar_terminal_target_and_stop_remains_stop_first_without_open_gap(direction):
+    df = _bars(3)
+    (_mark_long if direction == 'long' else _mark_short)(df, 0)
+    df.loc[1, ['high', 'low']] = [210, -10]
+    trade = run_backtest(df, _config(slippage=False)).iloc[0]
+    assert trade.exit_reason == 'stop'
+    assert trade.net_result_points == -25
+    assert not trade.tp4_hit
+
+
+def test_optional_missing_snr_does_not_break_backtest_report():
+    from backtest import performance_by_snr_bucket
+    df = _bars(3)
+    _mark_long(df, 0)
+    trades = run_backtest(df, _config(slippage=False))
+    assert performance_by_snr_bucket(trades).empty

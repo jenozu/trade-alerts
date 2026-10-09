@@ -1,0 +1,20 @@
+{
+  "status": "VERIFIED_EXPORTED_EVIDENCE",
+  "original_lock_identity_digests_verified": true,
+  "exported_output_hashes_verified": [
+    "EXECUTION_AUDIT_SUMMARY.json",
+    "decisions.json",
+    "effective_strategy.yaml"
+  ],
+  "matching_local_code_files": 68,
+  "summary_decision_counts_consistent": true,
+  "producer_git_commit": "8d9eda131283847f167a4c9c45b9ecb55d1d1aca",
+  "input_identity_sha256": "784e75cd452ab571e61530661955686f284b232f908c84ca3d5ed61e86a9f535",
+  "output_identity_sha256": "06e77cbec9cc5de1c6fa6d74d46f0296915b2f60ee6be8293d62caf4406dbb1c",
+  "limitations": [
+    "VPS-only raw/cache/config/source-lock paths were not reopened locally.",
+    "Original locks are retained byte-for-byte; no relocated or replacement producer identity was invented.",
+    "Recorded VPS lock verification is separate from this local exported-file verification.",
+    "No historical accepted execution or realistic fee claim."
+  ]
+}

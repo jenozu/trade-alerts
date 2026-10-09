@@ -12,7 +12,11 @@ import argparse
 import hashlib
 import json
 import shutil
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from experiment_identity import verify_input_lock
 
 ALLOWED_SUFFIXES = {
     ".md",
@@ -86,6 +90,7 @@ def archive_experiment(
     destination_root: Path,
     max_bytes: int = DEFAULT_MAX_BYTES,
     dry_run: bool = False,
+    input_lock: Path | None = None,
 ) -> dict[str, object]:
     experiment = experiment.strip().upper()
     if not experiment.startswith("EXP-"):
@@ -93,7 +98,15 @@ def archive_experiment(
     if not source.is_dir():
         raise FileNotFoundError(f"source directory does not exist: {source}")
 
+    lock = None
+    if input_lock is not None:
+        lock = json.loads(input_lock.read_text())
+        verify_input_lock(lock)
+        if lock["experiment_id"].upper() != experiment:
+            raise ValueError("Input lock experiment ID differs from archive")
     destination = destination_root / experiment
+    if lock is not None and destination.exists():
+        raise FileExistsError(f"Locked archive already exists: {destination}")
     accepted, skipped = collect_files(source, max_bytes)
 
     manifest_files: list[dict[str, object]] = []
@@ -121,6 +134,12 @@ def archive_experiment(
         "skipped": skipped,
     }
 
+    if lock is not None:
+        manifest["input_identity_sha256"] = lock["input_identity_sha256"]
+        if not dry_run:
+            destination.mkdir(parents=True, exist_ok=True)
+            (destination / "EXPERIMENT_INPUT_LOCK.json").write_text(
+                json.dumps(lock, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     if not dry_run:
         destination.mkdir(parents=True, exist_ok=True)
         manifest_path = destination / "ARCHIVE_MANIFEST.json"
@@ -131,6 +150,7 @@ def archive_experiment(
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--input-lock", required=True, type=Path, help="Verified experiment input lock")
     parser.add_argument("--experiment", required=True, help="Experiment ID, e.g. EXP-003")
     parser.add_argument("--source", required=True, type=Path, help="Working report directory")
     parser.add_argument(
@@ -158,6 +178,7 @@ def main() -> int:
         destination_root=args.destination_root,
         max_bytes=max_bytes,
         dry_run=args.dry_run,
+        input_lock=args.input_lock,
     )
 
     print(json.dumps(manifest, indent=2, sort_keys=True))

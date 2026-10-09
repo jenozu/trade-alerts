@@ -73,8 +73,11 @@ the rule", not "the work is unfinished".
 
 ## Current approved next action
 
-Finish PR #7's documented integrity, execution-contract, source-correspondence
-and realistic-cost requirements. Do not restart completed R5/R6/R7.0 studies.
+PR #7's engineering implementation and 2023–2025 execution-evidence archive
+closeout are verified; the checkpoint is ready for review with documented limits.
+See `docs/integrity_closeout_20261009.md`. Actual account fees are required before
+realistic net-performance claims, not accounting-engine verification. The optional
+liquidity-policy proposal is deferred. Do not restart completed R5/R6/R7.0 studies.
 After the reviewed integrity checkpoint is merged to `main`, sync Voyages and
 only then preregister the next isolated R7 interaction.
 

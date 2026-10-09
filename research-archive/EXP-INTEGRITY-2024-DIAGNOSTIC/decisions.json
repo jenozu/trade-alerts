@@ -1,0 +1,44 @@
+[
+  {
+    "contract": "NMH24",
+    "signal_time": "2024-01-26T14:30:00+00:00",
+    "direction": "long",
+    "family": "reversal",
+    "plan": {
+      "execution_model": "market_after_retest_confirmation_v2",
+      "as_of": "2024-01-26T14:31:00+00:00",
+      "direction": "long",
+      "entry_price": 17563.0,
+      "entry_time": "2024-01-26T14:31:00+00:00",
+      "decision": "NO TRADE",
+      "candidate": null,
+      "rejections": [
+        "structural_risk_too_large:32.00>25.00",
+        "insufficient_room_to_first_obstacle:0.25<25.00",
+        "poor_asymmetry_to_tp1:0.01<1.00"
+      ],
+      "sequence_contract": "fvg_chronology_v2",
+      "confirmation_fvg_id": "bullish:2024-01-26T14:29:00+00:00:9069"
+    }
+  },
+  {
+    "contract": "NMU24",
+    "signal_time": "2024-06-24T14:17:00+00:00",
+    "direction": "short",
+    "family": "reversal",
+    "plan": {
+      "execution_model": "market_after_retest_confirmation_v2",
+      "as_of": "2024-06-24T14:18:00+00:00",
+      "direction": "short",
+      "entry_price": 19952.25,
+      "entry_time": "2024-06-24T14:18:00+00:00",
+      "decision": "NO TRADE",
+      "candidate": null,
+      "rejections": [
+        "structural_risk_too_large:27.50>25.00"
+      ],
+      "sequence_contract": "fvg_chronology_v2",
+      "confirmation_fvg_id": "bearish:2024-06-24T14:16:00+00:00:1579"
+    }
+  }
+]

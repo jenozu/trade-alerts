@@ -16,7 +16,7 @@ SRC_DIRECTORY = PROJECT_ROOT / "src"
 if str(SRC_DIRECTORY) not in sys.path:
     sys.path.insert(0, str(SRC_DIRECTORY))
 
-from data_loader import DatasetMetadata, load_csv, save_parquet  # noqa: E402
+from data_loader import load_csv, save_parquet  # noqa: E402
 from data_clock import (  # noqa: E402
     filter_as_of,
     filter_resampled_results_as_of,
@@ -230,6 +230,30 @@ def save_run_metadata(metadata: dict[str, Any], filepath: Path) -> None:
         json.dump(metadata, file, indent=2, default=str)
 
 
+def require_single_contract_input(
+    dataframe: pd.DataFrame, *, requested_contract: str | None = None,
+) -> None:
+    """Do not feed an unadjusted stitched tape into stateful single-contract stages."""
+    if "rollover_segment" in dataframe and dataframe["rollover_segment"].nunique() > 1:
+        raise PipelineError(
+            "This is a single-contract pipeline. Use run_rollover_pipeline.py "
+            "to generate features independently for each rollover segment."
+        )
+    if "contract" not in dataframe:
+        return
+    labels = dataframe["contract"].astype("string")
+    known = labels.dropna().unique()
+    if len(known) > 1:
+        raise PipelineError(
+            "This is a single-contract pipeline. Mixed contracts require "
+            "independent feature generation through run_rollover_pipeline.py."
+        )
+    if len(known) and labels.isna().any():
+        raise PipelineError("Some contract labels are missing; isolation cannot be verified.")
+    if requested_contract is not None and len(known) and known[0] != requested_contract:
+        raise PipelineError("Requested contract conflicts with the input contract label.")
+
+
 def stage_load(
     *,
     input_file: Path,
@@ -238,24 +262,19 @@ def stage_load(
     contract: str | None,
     source_timezone: str,
 ) -> pd.DataFrame:
-    metadata = DatasetMetadata(
-        source=source,
-        symbol=symbol,
-        contract=contract,
-        source_timezone=source_timezone,
-        filename=input_file.name,
-    )
     if input_file.suffix.lower() in {".parquet", ".pq"}:
         dataframe = pd.read_parquet(input_file)
         dataframe = ensure_datetime_columns(dataframe)
-        dataframe["source"] = source
-        dataframe["symbol"] = symbol
-        if contract is not None:
-            dataframe["contract"] = contract
-        dataframe.attrs["source_filename"] = input_file.name
-        dataframe.attrs["source_timezone"] = source_timezone
     else:
-        dataframe = load_csv(input_file, metadata=metadata)
+        # Inspect original labels before metadata attachment could erase them.
+        dataframe = load_csv(input_file, source_timezone=source_timezone)
+    require_single_contract_input(dataframe, requested_contract=contract)
+    dataframe["source"] = source
+    dataframe["symbol"] = symbol
+    if contract is not None or "contract" not in dataframe:
+        dataframe["contract"] = contract
+    dataframe.attrs["source_filename"] = input_file.name
+    dataframe.attrs["source_timezone"] = source_timezone
     print(f"Loaded {len(dataframe):,} raw bars.")
     return dataframe
 
@@ -267,6 +286,7 @@ def stage_validate(
     normalized_directory: Path,
     sessions_config: dict[str, Any] | None = None,
 ) -> tuple[pd.DataFrame, Any]:
+    require_single_contract_input(dataframe)
     validation_directory = results_directory / "validation"
     report = validate_market_data(
         dataframe,
@@ -303,6 +323,7 @@ def stage_resample(
     processed_directory: Path,
     as_of: Any | None = None,
 ) -> dict[str, Any]:
+    require_single_contract_input(dataframe)
     output_directory = processed_directory / "timeframes"
     results = generate_standard_timeframes(dataframe)
     if as_of is not None:

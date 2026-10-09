@@ -479,6 +479,7 @@ def build_market_state(
             or "continuation_sequence" in column
             or "core_sequence" in column
             or "thesis_invalidated" in column
+            or "linked_" in column
         ),
     )
     state["displacement"] = _selected(row, lambda column: "displacement" in column)

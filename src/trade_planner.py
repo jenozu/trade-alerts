@@ -8,9 +8,13 @@ semantics that produced that state.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from setup_family_contract import classify_setup_family
+
+from dataclasses import dataclass, replace
+from datetime import datetime, timedelta
 import math
 from typing import Any, Mapping
+from zoneinfo import ZoneInfo
 
 
 PLANNER_SCHEMA_VERSION = "1.0.0"
@@ -388,6 +392,8 @@ def _attempt_candidate(
     state: Mapping[str, Any],
     direction: str,
     settings: PlannerSettings,
+    *,
+    execution_entry: float | None = None,
 ) -> tuple[dict[str, Any] | None, list[str]]:
     rejections: list[str] = []
     latest_price = _number(_mapping(state.get("instrument")).get("latest_price"))
@@ -410,6 +416,8 @@ def _attempt_candidate(
         if direction == "long"
         else float(entry_zone["lower"])
     )
+    if execution_entry is not None:
+        entry = execution_entry
 
     levels = _mapping(state.get("levels"))
     structure_source = (
@@ -497,12 +505,11 @@ def _attempt_candidate(
     liquidity = _mapping(state.get("liquidity"))
     directional = _directional_name(direction)
     opposite_sweep = "sell_side" if direction == "long" else "buy_side"
-    reversal_context = (
-        _truth(structure.get(f"{directional}_reversal_sequence"))
-        or _truth(liquidity.get(f"recent_{opposite_sweep}_sweep"))
-        or _truth(liquidity.get(f"{opposite_sweep}_liquidity_sweep"))
+    family = classify_setup_family(
+        reversal_sequence=_truth(structure.get(f"{directional}_reversal_sequence")),
+        opposite_recent_sweep=_truth(liquidity.get(f"recent_{opposite_sweep}_sweep")),
+        opposite_sweep=_truth(liquidity.get(f"{opposite_sweep}_liquidity_sweep")),
     )
-    family = "reversal" if reversal_context else "continuation"
     criteria, entry_valid = _confirmation_criteria(
         state, direction, family, trigger_exists=True
     )
@@ -538,7 +545,9 @@ def _attempt_candidate(
             "lower": float(entry_zone["lower"]),
             "upper": float(entry_zone["upper"]),
             "risk_entry_price": entry,
-            "basis": "conservative edge of deterministic trigger zone",
+            "basis": ("confirmed market entry including adverse slippage"
+                      if execution_entry is not None else
+                      "conservative edge of deterministic trigger zone"),
         },
         "structural_invalidation": {
             "source": structure_source,
@@ -604,6 +613,121 @@ def _attempt_candidate(
         },
     }
     return candidate, []
+
+
+MARKET_EXECUTION_MODEL = "market_after_retest_confirmation_v2"
+
+
+def _aware_execution_time(value: Any) -> datetime:
+    try:
+        result = datetime.fromisoformat(str(value))
+    except (TypeError, ValueError) as exc:
+        raise TradePlannerError("Execution timestamps must be timezone-aware ISO times") from exc
+    if result.tzinfo is None or result.utcoffset() is None:
+        raise TradePlannerError("Execution timestamps must be timezone-aware")
+    return result
+
+
+def build_market_execution_plan(
+    market_state: Mapping[str, Any],
+    strategy_config: Mapping[str, Any] | None = None,
+    *,
+    direction: str,
+    entry_price: float,
+    entry_time: Any,
+) -> dict[str, Any]:
+    """Evaluate a confirmed next-open entry using the shared planner rules.
+
+    State is frozen at completed confirmation; only the observed next open and
+    adverse slippage supply entry_price. Future candle extremes never enter this
+    decision. Legacy zone-based hypotheses remain a separate public API.
+    """
+    if direction not in {"long", "short"} or not isinstance(market_state, Mapping):
+        raise TradePlannerError("Market execution requires a state and long/short direction")
+    from linked_sequences import selected_contract, LEGACY
+    sequence_contract = selected_contract(strategy_config or {})
+    linked_identity = None
+    linked_missing = False
+    if sequence_contract != LEGACY:
+        structure = dict(_mapping(market_state.get('structure')))
+        linked_missing = structure.get('linked_sequence_contract') != sequence_contract
+        for linked_side in ('bullish', 'bearish'):
+            for linked_family in ('reversal', 'continuation'):
+                for suffix in ('sequence', 'entry_valid_event'):
+                    name = f'{linked_side}_linked_{linked_family}_{suffix}'
+                    linked_missing |= not isinstance(structure.get(name), bool)
+                    structure[f'{linked_side}_{linked_family}_{suffix}'] = structure.get(name) is True
+        market_state = dict(market_state, structure=structure)
+    price = _number(entry_price)
+    if price is None:
+        raise TradePlannerError("Market entry price must be finite")
+    fill = _aware_execution_time(entry_time)
+    as_of = _aware_execution_time(market_state.get("as_of"))
+    instrument = _mapping(market_state.get("instrument"))
+    label = _aware_execution_time(instrument.get("latest_bar_timestamp"))
+    available = _aware_execution_time(instrument.get("latest_bar_available_at"))
+    reasons: list[str] = []
+    if linked_missing:
+        reasons.append('object_linked_confirmation_evidence_required')
+    if (fill != label + timedelta(minutes=1) or available < label + timedelta(minutes=1)
+            or available > fill or available > as_of or as_of > fill):
+        reasons.append("confirmation_not_available_for_immediate_next_open")
+    local = fill.astimezone(ZoneInfo("America/New_York"))
+    minute = local.hour * 60 + local.minute
+    if not 570 <= minute < 630 or local.second or local.microsecond:
+        reasons.append("outside_fill_entry_window")
+    if str(_mapping(market_state.get("status")).get("code", "")).lower() == "no_analysis":
+        reasons.append("market_state_no_analysis")
+    if _mapping(_mapping(market_state.get("timeframes")).get("1m")).get("bar_complete") is not True:
+        reasons.append("completed_confirmation_required")
+    if _mapping(market_state.get("trade_candidates")).get(direction) is not True:
+        reasons.append("directional_score_candidate_required")
+    side = _directional_name(direction)
+    opposite = "sell_side" if direction == "long" else "buy_side"
+    structure = _mapping(market_state.get("structure"))
+    liquidity = _mapping(market_state.get("liquidity"))
+    family = classify_setup_family(
+        reversal_sequence=_truth(structure.get(f"{side}_reversal_sequence")),
+        opposite_recent_sweep=_truth(liquidity.get(f"recent_{opposite}_sweep")),
+        opposite_sweep=_truth(liquidity.get(f"{opposite}_liquidity_sweep")),
+    )
+    if sequence_contract != LEGACY:
+        linked_identity = structure.get(f'{side}_linked_{family}_fvg_id')
+        if not isinstance(linked_identity, str) or not linked_identity:
+            reasons.append('linked_retest_object_required')
+    if (structure.get(f"{side}_{family}_sequence") is not True
+            or structure.get(f"{side}_{family}_entry_valid_event") is not True):
+        reasons.append("fresh_confirmation_event_required")
+    candidate = None
+    settings = _settings(strategy_config or {})
+    settings = replace(settings, maximum_structural_risk=min(25.0, settings.preferred_risk_maximum))
+    if not reasons:
+        candidate, reasons = _attempt_candidate(
+            market_state, direction, settings, execution_entry=price)
+    if candidate is not None:
+        # A missing runner cannot silently become a fabricated fixed TP4 or
+        # a different exit policy. TP2 remains an optional observation.
+        if candidate["targets"]["tp4"] is None:
+            reasons.append("terminal_tp4_market_objective_unavailable")
+            candidate = None
+        else:
+            candidate["execution"] = {
+                "model": MARKET_EXECUTION_MODEL, "entry_time": fill.isoformat(),
+                "confirmation_time": available.isoformat(), "terminal_target": "tp4",
+                "management": "full_position_tp4_stop_or_timeout",
+            }
+            candidate["planned_invalidation_criteria"] = candidate["invalidation_criteria"]
+            candidate["invalidation_criteria"] = [candidate["invalidation_criteria"][0]]
+    result = {
+        "execution_model": MARKET_EXECUTION_MODEL, "as_of": as_of.isoformat(),
+        "direction": direction, "entry_price": price, "entry_time": fill.isoformat(),
+        "decision": DECISION_PLAN if candidate is not None else DECISION_NO_TRADE,
+        "candidate": candidate, "rejections": reasons,
+    }
+    if sequence_contract != LEGACY:
+        result['sequence_contract'] = sequence_contract
+        result['confirmation_fvg_id'] = linked_identity
+    return result
 
 
 def build_trade_plan(

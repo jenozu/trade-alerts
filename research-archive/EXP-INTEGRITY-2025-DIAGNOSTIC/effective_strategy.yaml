@@ -1,0 +1,435 @@
+analysis_timeframes:
+  context:
+  - 15m
+  - 30m
+  - 1h
+  - 4h
+  - 1d
+  execution:
+  - 1m
+  - 5m
+  master: 1m
+backtest:
+  commission:
+    enabled: false
+    per_contract_round_trip: 0.0
+  conservative_same_bar_resolution: true
+  entry_on_next_bar_open: true
+  execution_model: market_after_retest_confirmation_v2
+  same_bar_stop_and_target_behavior: stop_first
+  sequence_contract: fvg_chronology_v2
+  slippage:
+    enabled: true
+    points_per_entry: 0.25
+    points_per_exit: 0.25
+  use_completed_bars_only: true
+breakout_retest:
+  baseline_first: true
+  enabled: true
+  require_close_beyond_level: true
+  retest_required_for_primary_model: true
+causality:
+  current_session_excluded_from_time_of_day_rvol_baseline: true
+  higher_timeframe_requires_closed_bar: true
+  prohibit_future_information: true
+  session_final_level_available_only_after_window_close: true
+  swing_available_only_after_confirmation: true
+confluence_zones:
+  cluster_tolerance_points: 2.0
+  component_weights:
+    equal_liquidity: 14.0
+    equilibrium: 8.0
+    fvg_boundary: 14.0
+    htf_swing: 18.0
+    session_level: 14.0
+    vwap: 10.0
+  enabled: true
+  pivot_tolerance_points: 0.5
+  preserve_components: true
+  reaction_tolerance_points: 1.0
+  replace_snr: false
+  scoring:
+    displacement_max: 10.0
+    htf_alignment_max: 8.0
+    mitigation_max: 4.0
+    reaction_max: 10.0
+    volume_max: 8.0
+  source_score_cap: 60.0
+displacement:
+  atr_period: 14
+  body_lookback: 20
+  close_extreme_fraction: 0.25
+  enabled: true
+  minimum_body_atr_multiple: 0.8
+  minimum_body_median_multiple: 1.8
+  relative_volume_confirmation:
+    enabled: false
+    minimum_rvol: 1.25
+  require_directional_close: true
+draw_on_liquidity:
+  candidate_sources:
+  - external_swings
+  - pdh_pdl
+  - pmh_pml
+  - asia_high_low
+  - onh_onl
+  - loh_lol
+  - weekly_high_low
+  - equal_highs_lows
+  - fair_value_gaps
+  decision_threshold: 3.0
+  enabled: true
+  evidence_weights:
+    displacement: 1.0
+    fvg_context: 0.5
+    higher_timeframe_bias: 2.0
+    opposing_liquidity_sweep: 1.5
+    premium_discount: 1.0
+    structure_context: 1.0
+    target_available: 1.0
+  minimum_score_edge: 1.0
+  minimum_target_distance_points: 25.0
+entry_model:
+  primary_sequence:
+  - important_level
+  - breakout_close
+  - retest
+  - hold
+  - confirmation
+  signal_known_at_bar_close: true
+events:
+  score_change_threshold: 8
+fvg:
+  detection:
+    minimum_gap_atr_fraction: 0.0
+    minimum_gap_ticks: 1
+    require_displacement_candle: false
+  enabled: true
+  inverse_fvg:
+    enabled: true
+    require_close_through_original_fvg: true
+  mitigation:
+    full_fill_percentage: 1.0
+    invalidate_on_full_fill: false
+    track_fill_percentage: true
+    track_first_touch: true
+  production:
+    atr_period: 14
+    causal_state_from_available_at: true
+    htf_timeframes:
+    - 15m
+    - 30m
+    - 1h
+    - 4h
+    preserve_raw_associations: true
+    timeframes:
+    - 5m
+    - 15m
+    - 30m
+    - 1h
+    - 4h
+  retest:
+    enabled: true
+    maximum_bars_after_creation: 20
+    require_close_hold: true
+higher_timeframe_bias:
+  daily_role: context_only
+  enabled: true
+  intraday:
+    timeframes:
+    - 1h
+    - 30m
+    - 15m
+    weights:
+      15m: 1
+      1h: 3
+      30m: 2
+  macro:
+    timeframes:
+    - 4h
+    - 1d
+    weights:
+      1d: 1
+      4h: 2
+  output_values:
+  - bullish
+  - bearish
+  - neutral
+  timeframes:
+  - 15m
+  - 30m
+  - 1h
+  - 4h
+  - 1d
+liquidity:
+  enabled: true
+  registry:
+    approach_ticks: 4
+    break_ticks: 1
+    importance:
+      ash: 3
+      asl: 3
+      external_equal_high: 5
+      external_equal_low: 5
+      external_swing_high: 4
+      external_swing_low: 4
+      internal_equal_high: 4
+      internal_equal_low: 4
+      internal_swing_high: 2.5
+      internal_swing_low: 2.5
+      loh: 3
+      lol: 3
+      onh: 4
+      onl: 4
+      pdh: 5
+      pdl: 5
+      pmh: 4
+      pml: 4
+      week_high: 5
+      week_low: 5
+  sweep:
+    minimum_penetration_ticks: 1
+    recent_context_bars: 10
+    require_close_back_through_level: true
+  tracked_levels:
+  - pdh
+  - pdl
+  - pmh
+  - pml
+  - onh
+  - onl
+  - loh
+  - lol
+  - ash
+  - asl
+  - week_high
+  - week_low
+  - internal_swings
+  - external_swings
+  - equal_highs
+  - equal_lows
+market:
+  point_value: 2.0
+  symbol: MNQ
+  tick_size: 0.25
+metadata:
+  config_version: 0.1.0-reconstructed
+  note: Reconstructed-compatible configuration; raw 0-100 score is a confluence score,
+    not a calibrated win probability.
+  score_is_probability: false
+  strategy_name: MNQ Historical Research and Backtesting Framework
+metrics:
+  track_mae: true
+  track_mfe: true
+  track_r_multiples: true
+  track_tp_milestones: true
+pd_arrays:
+  enabled: true
+  integration:
+    dol: true
+    mutate_htf_bias: false
+    scorer: true
+  maximum_tracking_bars: 50
+  order_blocks:
+    enabled: false
+    role: secondary
+    status: disabled_until_reliable
+  recent_context_bars: 10
+  semantics:
+    ifvg_creation: original FVG disrespect converts it to opposite-direction IFVG
+    ifvg_disrespect: close through far side against IFVG direction
+    ifvg_respect: inverse zone touched and close holds on IFVG directional side
+    original_fvg_disrespect: close through far side of original FVG
+    original_fvg_respect: zone touched and close holds on original directional side
+  supply_demand:
+    enabled: false
+    status: not_yet_deterministically_defined
+premium_discount:
+  enabled: true
+  equilibrium_fraction: 0.5
+relative_volume:
+  context:
+    lookback_bars: 5
+    pullback_low_volume_ratio: 1.0
+    pullback_trend_bars: 3
+  enabled: true
+  initial_signal_threshold: 1.5
+  percentile:
+    lookback_bars: 20
+    minimum_periods: 20
+  rolling:
+    baseline_uses_previous_bars_only: true
+    lookback_bars: 20
+    minimum_periods: 20
+  time_of_day:
+    baseline_uses_previous_sessions_only: true
+    lookback_sessions: 20
+    minimum_sessions: 5
+  zscore_threshold: 2.0
+room_to_target:
+  enabled: true
+  minimum_points: 25.0
+score_bands:
+  a_plus_plus:
+    maximum: 100
+    minimum: 90
+  developing:
+    maximum: 69
+    minimum: 55
+  high_probability:
+    maximum: 89
+    minimum: 80
+  near_trigger:
+    maximum: 79
+    minimum: 70
+  no_trade:
+    maximum: 39
+    minimum: 0
+  watch:
+    maximum: 54
+    minimum: 40
+scoring:
+  clamp:
+    maximum: 100
+    minimum: 0
+  enabled: true
+  hard_disable:
+    invalidated_thesis: true
+    outside_entry_window: true
+    unhealthy_data: true
+  harmonization:
+    calibration:
+      enabled: false
+      status: deferred_until_feature_set_complete
+    minimum_directional_confluence_score: 40.0
+    production_snr_directional_conflict: false
+    required_positive_weight_total: 100
+  interpretation: raw_confluence_score_not_probability
+  penalties:
+    data_quality_warning: -20
+    failed_retest: -15
+    higher_timeframe_conflict: -20
+    major_obstacle: -15
+    snr_conflict: -10
+    stale_setup: -10
+  positive_weights:
+    displacement: 12
+    draw_on_liquidity: 10
+    fvg_or_retest: 8
+    higher_timeframe_bias: 10
+    key_location: 8
+    liquidity_sweep: 14
+    premium_discount: 4
+    relative_volume: 6
+    room_to_target: 6
+    signal_to_noise: 10
+    structure_shift: 12
+snr:
+  atr_period: 14
+  causal_merge:
+    higher_timeframe_values_available_only_after_bar_close: true
+  definition: absolute_net_movement_over_atr
+  enabled: true
+  initial_thresholds:
+    developing_minimum: 0.8
+    strong_minimum: 1.2
+    weak_maximum: 0.8
+  lookback_bars: 5
+  path_efficiency:
+    definition: absolute_net_movement_over_total_travelled_movement
+    enabled: true
+  production_role:
+    expose_raw_components: true
+    morning_confidence:
+      developing_modifier_points: 0.0
+      enabled: true
+      maximum_bonus_points: 5.0
+      maximum_penalty_points: 5.0
+      strong_quality_minimum: 0.7
+      weak_quality_maximum: 0.35
+    role: confidence_quality_modifier
+    standalone_direction_predictor: false
+  slope_bars: 3
+  timeframes:
+    15m:
+      atr_period: 14
+      lookback_bars: 5
+      slope_bars: 3
+    1m:
+      atr_period: 14
+      lookback_bars: 5
+      slope_bars: 3
+    5m:
+      atr_period: 14
+      lookback_bars: 5
+      slope_bars: 3
+stop_loss:
+  fixed_research_values_points:
+  - 15
+  - 20
+  - 25
+  - 30
+  - 35
+  preferred_initial_range_points:
+    maximum: 25
+    minimum: 20
+  primary_method: structural
+  structural:
+    buffer_points: 2.0
+structure:
+  bos:
+    enabled: true
+    require_confirmed_swing: true
+  break_buffer_points: 0.25
+  break_method: close
+  choch:
+    enabled: true
+    structure_scope: internal
+  enabled: true
+  mss:
+    enabled: true
+    require_confirmed_swing: true
+    require_displacement:
+      enabled: false
+    require_prior_liquidity_event: false
+  wick_breaks:
+    count_as_confirmation: false
+    record: true
+swings:
+  confirmation:
+    causal_only: true
+    use_pivot_only_after_right_bars_close: true
+  enabled: true
+  equal_levels:
+    tolerance_ticks: 2
+  external:
+    left_bars: 5
+    right_bars: 5
+  internal:
+    left_bars: 2
+    right_bars: 2
+  strength:
+    definition: confirmed_pivot_prominence
+  timeframe: 1m
+take_profit:
+  number_of_targets: 4
+  preferred_initial:
+    tp1_points: 25
+    tp2_points: 50
+    tp3_points: 75
+    tp4_points: 100
+  track_as_milestones: true
+trade_management:
+  maximum_holding_minutes: 60
+  maximum_one_open_trade: true
+  move_to_breakeven_initially: false
+  partial_exits_enabled: false
+vwap:
+  enabled: true
+  expose_recent_cross: true
+  price_source: typical_price_hlc3
+  reset_session: globex
+  reset_time_et: '18:00'
+  slope_bars: 3
+  timezone: America/New_York
+  volume_weighted: true
