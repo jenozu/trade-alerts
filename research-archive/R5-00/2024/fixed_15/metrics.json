@@ -1,0 +1,20 @@
+{
+  "research_year": 2024,
+  "model": "FIXED_15",
+  "trades": 432,
+  "wins": 76,
+  "win_rate": 0.17592592592592593,
+  "net_points": 269.0,
+  "expectancy_points": 0.6226851851851852,
+  "expectancy_r": 0.04151234567901253,
+  "profit_factor": 1.049844814008431,
+  "max_drawdown_points": 770.25,
+  "average_mae_points": 19.067708333333332,
+  "median_mae_points": 18.75,
+  "winner_average_mae_points": 7.082236842105263,
+  "winner_median_mae_points": 6.875,
+  "average_mfe_points": 28.84201388888889,
+  "stop_hit_rate": 0.8171296296296297,
+  "tp4_hit_rate": 0.09953703703703703,
+  "average_hold_minutes": 12.275462962962964
+}

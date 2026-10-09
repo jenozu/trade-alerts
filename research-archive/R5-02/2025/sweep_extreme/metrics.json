@@ -1,0 +1,44 @@
+{
+  "performance": {
+    "research_year": 2025,
+    "model": "SWEEP_EXTREME",
+    "trades": 481,
+    "wins": 127,
+    "win_rate": 0.26403326403326405,
+    "net_points": 370.0,
+    "expectancy_points": 0.7692307692307693,
+    "expectancy_r": -0.07965704116967826,
+    "profit_factor": 1.0344434359654635,
+    "max_drawdown_points": 1106.5,
+    "average_mae_points": 34.604469854469855,
+    "median_mae_points": 29.0,
+    "winner_average_mae_points": 19.866141732283463,
+    "winner_median_mae_points": 13.25,
+    "average_mfe_points": 41.08471933471934,
+    "stop_hit_rate": 0.7172557172557172,
+    "tp4_hit_rate": 0.20374220374220375,
+    "average_hold_minutes": 13.16839916839917
+  },
+  "stop_distance": {
+    "research_year": 2025,
+    "model": "SWEEP_EXTREME",
+    "trades": 481,
+    "mean_stop_points": 39.62837837837838,
+    "median_stop_points": 25.0,
+    "p10_stop_points": 9.25,
+    "p90_stop_points": 69.0,
+    "minimum_stop_points": 0.75,
+    "maximum_stop_points": 1068.75,
+    "pct_below_15": 0.1704781704781705,
+    "pct_below_20": 0.2182952182952183,
+    "pct_above_25": 0.3866943866943867,
+    "pct_above_35": 0.2869022869022869
+  },
+  "coverage": {
+    "rows": 441015,
+    "rows_with_recent_sell_sweep_extreme": 168466,
+    "rows_with_recent_buy_sweep_extreme": 170839
+  },
+  "lookback_bars": 10,
+  "buffer_points": 2.0
+}
