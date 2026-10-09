@@ -59,23 +59,36 @@ reversal. This is consistent with the written family precedence and shared API;
 it is not a demonstrated implementation mismatch or evidence of a valid missed
 trade. No family fallback or trading-rule change is made.
 
-## Next required evidence
+## Completed causal-window diagnosis and next decision
 
-Candidate-only flags omit the preceding noncandidate minute bars, so they cannot
-explain why the causal sequence engine is mostly inactive. Obtain two narrow
-read-only windows from the existing 2023 chronology Parquets: the first long
-candidate (2023-01-03 14:34 UTC), and the overlapping-family short candidate
-(2023-08-24 13:45 UTC), with 30 preceding minutes each. These are diagnostic
-samples, not representative performance estimates or complete FVG-lifecycle proof.
+The requested export is received and archived at
+`research-archive/EXP-INTEGRITY-2023-CAUSAL-WINDOWS`. Both 31-minute windows are
+consecutive completed bars with start-plus-one-minute availability. All three
+candidate rows agree with the previous export. The production chronology core
+loop, observed with the object-linkage boundary stubbed, has no completed reversal
+core in either window. Full FVG objects were not supplied; this is not a lifecycle
+replay or a proof covering all 640 inactive yearly candidates.
 
-Run the command in `docs/research/r7_causal_window_export.md` from the isolated
-VPS checkout. It only reads existing files and prints an encoded text payload.
-No feature rebuild, new execution simulation or yearly test repeat is required.
-Source Parquets remain on the VPS and cannot be independently inspected here.
+January 3: the earlier sell-side sweep expires, and the new sweep shares a minute
+with displacement/MSS, which does not satisfy the earlier-sweep requirement.
+August 24: the early MSS precedes the later displacement, no subsequent MSS
+completes that core, and the newest sweep has no later raw displacement/MSS. The
+13:45 continuation nevertheless confirms, but existing family precedence selects
+reversal. These samples match the documented rules; no code fix is established.
 
-Fix only proven implementation mismatches. Any rule relaxation, new liquidity
-classifier or different executable control is a separately named strategy decision
-under RULES.md section 6; no such decision is inferred from zero trades.
+Stop requesting the same diagnostic flags or rerunning yearly builds. The next
+step is a strategy decision, not another data repair: review the concrete isolated
+`confirmation_first_family_v1` proposal in
+`docs/research/r7_family_policy_proposal.md`. It would select a fully confirmed
+continuation when no fully confirmed reversal is ready, retaining reversal
+precedence when both confirm. On the supplied 2023 flags it adds only one qualified
+candidate (seven to eight); plan acceptance and profitability remain unknown.
+
+The proposal is not implemented or selected. It is a qualification diagnostic
+variant, not a statistical performance experiment. RULES.md section 6 requires a
+strategy decision before implementing different trade eligibility. Keep all risk,
+obstacle, score, target and chronology requirements unchanged. No additional VPS
+export is required for this decision. Full meaningful R7 selection remains pending.
 
 ## Execution boundary
 
@@ -99,3 +112,11 @@ validated against two temporary Parquets: 62 window rows round-trip and outside
 rows are excluded. No production code changed, so the 805-test suite was not
 repeated. The temporary pandas fixture emitted one NumPy timedelta deprecation
 warning; no fixture or generated data was committed.
+
+Causal-window validation: 62 rows decoded; uniqueness, completion, availability,
+window continuity and all three overlapping candidate rows checked; real chronology
+core loop inspected with an explicitly stubbed linkage boundary; all archive
+hashes verified. Proposal-only flag arithmetic preserves the seven existing
+qualifications and adds one continuation. No executable production code changed;
+the last full code baseline remains 805 passed, 872 warnings, without a redundant
+suite rerun.

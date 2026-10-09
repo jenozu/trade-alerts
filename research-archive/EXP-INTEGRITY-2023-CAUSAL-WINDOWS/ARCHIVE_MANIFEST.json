@@ -1,0 +1,25 @@
+{
+  "archived_file_count": 3,
+  "destination": "/workspace/scratch/90db9447a2d4/integrated-checkout/research-archive/EXP-INTEGRITY-2023-CAUSAL-WINDOWS",
+  "experiment": "EXP-INTEGRITY-2023-CAUSAL-WINDOWS",
+  "files": [
+    {
+      "bytes": 1962,
+      "path": "CAUSAL_WINDOW_REPORT.json",
+      "sha256": "1e91b1c7fb54fcc7c29f09ac7c788d9e5e848eb8914a078606f55bd8081f2d45"
+    },
+    {
+      "bytes": 2817,
+      "path": "README.md",
+      "sha256": "524304739db03000095a06153b019408fbb37f6a6f46f9fdaf1056147885b32a"
+    },
+    {
+      "bytes": 20463,
+      "path": "causal_windows_export.txt",
+      "sha256": "225e2228eae1fd5cfae2627d5c6f1dcdd638fb25c0f6b2305b97b31ad98139d3"
+    }
+  ],
+  "max_file_bytes": 10485760,
+  "skipped": [],
+  "source": "/workspace/scratch/90db9447a2d4/r7_window_evidence"
+}

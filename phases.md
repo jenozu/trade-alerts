@@ -1137,7 +1137,8 @@ experiment-level checkbox.
 - [x] Complete and merge the qualified pre-critical integrity engineering / execution-audit checkpoint (PR #7; 800 tests passed; historical accepted-path and realistic-cost limits documented).
 - [x] Verify the corrected R7 control identity and zero-trade feasibility from archived evidence.
 - [x] Inspect and archive 2023 score-candidate qualification flags; seven signal/FVG identities reproduced.
-- [ ] Inspect two causal minute windows from existing chronology features to explain inactive sequences.
+- [x] Inspect and archive two causal minute windows; sampled nonqualification matches current rules.
+- [ ] Decide the proposed research-only confirmation-first family policy before implementation.
 - [ ] Preregister a meaningful next R7 control/candidate comparison after qualification review.
 - [ ] Continue isolated R7 interaction experiments after the integrity gate.
 - [ ] R8 market-regime and day-type research.
@@ -1321,12 +1322,14 @@ resumed. Archived control feasibility is verified: the corrected control has
 zero accepted plans in all three development years. Statistical comparison of
 an additional eligibility filter would be uninformative.
 
-The 2023 qualification export is verified and archived: 640 candidates have no
-selected-family sequence, 12 have no fresh event, and seven qualify exactly as
-archived. No implementation mismatch is demonstrated by those flags. Next:
-inspect two preceding minute windows using the read-only command in
-`docs/research/r7_causal_window_export.md`. Work does not contain the source files.
-See `docs/research/r7_next_step.md` and `docs/research/r7_control_coverage.json`.
+The 2023 candidate flags and two causal minute windows are verified and archived.
+The sampled nonqualification matches current chronology/family rules; no defect
+is demonstrated in these samples. Next: review the research-only
+`confirmation_first_family_v1` proposal in
+`docs/research/r7_family_policy_proposal.md` before changing eligibility. It adds
+one qualified candidate in the supplied 2023 flags; planner acceptance and P&L
+are unknown. No more of the same VPS exports are required for this decision.
+See `docs/research/r7_next_step.md` for evidence and limits.
 
 Do not rebuild features, repeat completed audits/R5/R6/R7.0, substitute historical
 controls or change liquidity/risk rules just to produce trades. Deployment is

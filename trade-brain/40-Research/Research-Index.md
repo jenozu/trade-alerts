@@ -32,3 +32,11 @@ minute windows from existing VPS features, including noncandidate rows.
 See `docs/research/r7_next_step.md` and immutable
 `research-archive/EXP-INTEGRITY-2023-QUALIFICATION/QUALIFICATION_REPORT.json`.
 Historical R7.0 remains completed and rejected; do not rerun it.
+
+The subsequent 62-row causal-window archive explains the two endpoint cases under
+current documented rules; it establishes no sampled implementation defect. A
+concrete confirmation-first family diagnostic proposal is pending strategy approval
+in `docs/research/r7_family_policy_proposal.md`. Its 2023 flag arithmetic adds one
+qualified continuation, not an accepted trade or profitability result. Current
+rules and historical evidence are preserved; no further same-kind export is needed
+before that decision.

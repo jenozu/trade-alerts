@@ -83,11 +83,14 @@ R7 preparation has resumed. Its corrected-control feasibility check is recorded
 in `docs/research/r7_next_step.md`; additional eligibility filters cannot be
 evaluated on this zero-accepted-plan control. The 2023 flags are now archived
 and the current APIs reproduce all seven
-archived signal/FVG identities. Most candidates lack an active selected-family
-sequence; no mismatch is demonstrated by the candidate-only export. Next: inspect
-two preceding minute windows from existing VPS features using
-`docs/research/r7_causal_window_export.md`, then resolve any proven mismatch before
-preregistering a meaningful comparison. Do not rerun
+archived signal/FVG identities. Two causal minute windows are now archived and
+sampled nonqualification follows current rules; no implementation defect is
+established by these samples. Next: review the research-only confirmation-first
+family policy proposal in `docs/research/r7_family_policy_proposal.md`. It changes
+trade eligibility and requires a strategy decision before implementation. No
+further same-kind VPS export is needed for that decision. Statistical performance
+selection remains pending; no acceptance or P&L is established for the one added
+candidate in proposal-only flag arithmetic. Do not rerun
 R5/R6/R7.0. Remote experiment execution still requires an explicit run command
 under RULES.md section 17. No live deployment is implied.
 

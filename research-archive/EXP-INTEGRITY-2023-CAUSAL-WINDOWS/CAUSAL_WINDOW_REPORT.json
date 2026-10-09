@@ -1,0 +1,62 @@
+{
+  "all_completed": true,
+  "all_three_window_candidate_flag_rows_match_previous_export": true,
+  "analysis_code_base_main": "e4ee30639b4e463827a2d5446bac36743727bf17",
+  "attachment_sha256": "4e02e42c885cf6809ba30d1441b515bb47179fd4eb806befb5555d7297055c15",
+  "decoded_bytes": 321641,
+  "decoded_json_sha256": "6c7829d46e77a17ef69924f58de2162c74e92d2acc68097836bb17209ca4cbfa",
+  "proposed_confirmation_first_family_v1": {
+    "accepted_plans": null,
+    "added_candidates": [
+      {
+        "direction": "short",
+        "family": "continuation",
+        "timestamp": "2023-08-24T13:45:00.000Z"
+      }
+    ],
+    "current_qualified_candidates": 7,
+    "pnl": null,
+    "proposed_qualified_candidates": 8,
+    "status": "UNAPPROVED_FLAG_ARITHMETIC_ONLY",
+    "trades": null
+  },
+  "rows": 62,
+  "start_labelled_availability_valid": true,
+  "status": "SAMPLED_QUALIFICATION_EXPLAINED_NO_IMPLEMENTATION_MISMATCH_DEMONSTRATED",
+  "verification_limits": [
+    "Production reversal core loop was observed with the object-linkage boundary stubbed; full FVG lifecycle replay was not performed.",
+    "Two diagnostic windows do not establish the reasons for all 640 inactive candidates.",
+    "VPS Parquet bytes were not independently rehashed locally.",
+    "A proposed qualification count is not evidence of a newly accepted trade or improvement."
+  ],
+  "windows": [
+    {
+      "chronology_core_completions": {
+        "bearish": 0,
+        "bullish": 0
+      },
+      "contract": "NMH23",
+      "day": "2023-01-03",
+      "endpoint_core_active": {
+        "bearish": false,
+        "bullish": false
+      },
+      "missing_minutes": 0,
+      "rows": 31
+    },
+    {
+      "chronology_core_completions": {
+        "bearish": 0,
+        "bullish": 0
+      },
+      "contract": "NMU23",
+      "day": "2023-08-24",
+      "endpoint_core_active": {
+        "bearish": false,
+        "bullish": false
+      },
+      "missing_minutes": 0,
+      "rows": 31
+    }
+  ]
+}

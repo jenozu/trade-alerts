@@ -2311,7 +2311,8 @@ No production change is authorized by R7.0.
 - [x] Verify archived 2023–2025 control coverage and lock correspondence.
 - [x] Implement an explicit empty-control preflight; record the no-performance-evidence decision.
 - [x] Inspect and archive 2023 score-candidate qualification flags; production APIs reproduce all seven signal/FVG identities.
-- [ ] Inspect two causal minute windows to explain inactive sequence generation; source files remain VPS-only.
+- [x] Inspect and archive two causal minute windows; sampled nonqualification follows documented chronology/family rules.
+- [x] Prepare a concrete research-only confirmation-first family proposal with observed flag impact and explicit limits.
 - [ ] Resolve any demonstrated implementation mismatch or obtain an explicit strategy decision.
 - [ ] Preregister a meaningful isolated control/candidate comparison before an authorized run.
 
