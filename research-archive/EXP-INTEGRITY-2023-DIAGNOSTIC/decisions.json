@@ -1,0 +1,156 @@
+[
+  {
+    "contract": "NMH23",
+    "signal_time": "2023-02-28T14:42:00+00:00",
+    "direction": "long",
+    "family": "reversal",
+    "plan": {
+      "execution_model": "market_after_retest_confirmation_v2",
+      "as_of": "2023-02-28T14:43:00+00:00",
+      "direction": "long",
+      "entry_price": 12086.25,
+      "entry_time": "2023-02-28T14:43:00+00:00",
+      "decision": "NO TRADE",
+      "candidate": null,
+      "rejections": [
+        "structural_risk_too_large:47.00>25.00",
+        "insufficient_room_to_first_obstacle:0.25<25.00",
+        "poor_asymmetry_to_tp1:0.01<1.00"
+      ],
+      "sequence_contract": "fvg_chronology_v2",
+      "confirmation_fvg_id": "bullish:2023-02-28T14:41:00+00:00:15014"
+    }
+  },
+  {
+    "contract": "NMU23",
+    "signal_time": "2023-06-23T14:02:00+00:00",
+    "direction": "short",
+    "family": "reversal",
+    "plan": {
+      "execution_model": "market_after_retest_confirmation_v2",
+      "as_of": "2023-06-23T14:03:00+00:00",
+      "direction": "short",
+      "entry_price": 15018.5,
+      "entry_time": "2023-06-23T14:03:00+00:00",
+      "decision": "NO TRADE",
+      "candidate": null,
+      "rejections": [
+        "insufficient_room_to_first_obstacle:0.25<25.00",
+        "poor_asymmetry_to_tp1:0.01<1.00"
+      ],
+      "sequence_contract": "fvg_chronology_v2",
+      "confirmation_fvg_id": "bearish:2023-06-23T14:01:00+00:00:2824"
+    }
+  },
+  {
+    "contract": "NMZ23",
+    "signal_time": "2023-10-02T13:48:00+00:00",
+    "direction": "short",
+    "family": "reversal",
+    "plan": {
+      "execution_model": "market_after_retest_confirmation_v2",
+      "as_of": "2023-10-02T13:49:00+00:00",
+      "direction": "short",
+      "entry_price": 14933.25,
+      "entry_time": "2023-10-02T13:49:00+00:00",
+      "decision": "NO TRADE",
+      "candidate": null,
+      "rejections": [
+        "structural_risk_too_large:29.75>25.00",
+        "insufficient_room_to_first_obstacle:3.08<25.00",
+        "poor_asymmetry_to_tp1:0.26<1.00"
+      ],
+      "sequence_contract": "fvg_chronology_v2",
+      "confirmation_fvg_id": "bearish:2023-10-02T13:47:00+00:00:4363"
+    }
+  },
+  {
+    "contract": "NMZ23",
+    "signal_time": "2023-10-11T14:24:00+00:00",
+    "direction": "long",
+    "family": "reversal",
+    "plan": {
+      "execution_model": "market_after_retest_confirmation_v2",
+      "as_of": "2023-10-11T14:25:00+00:00",
+      "direction": "long",
+      "entry_price": 15328.75,
+      "entry_time": "2023-10-11T14:25:00+00:00",
+      "decision": "NO TRADE",
+      "candidate": null,
+      "rejections": [
+        "insufficient_room_to_first_obstacle:1.75<25.00",
+        "poor_asymmetry_to_tp1:0.08<1.00"
+      ],
+      "sequence_contract": "fvg_chronology_v2",
+      "confirmation_fvg_id": "bullish:2023-10-11T14:21:00+00:00:6315"
+    }
+  },
+  {
+    "contract": "NMZ23",
+    "signal_time": "2023-10-19T13:32:00+00:00",
+    "direction": "long",
+    "family": "reversal",
+    "plan": {
+      "execution_model": "market_after_retest_confirmation_v2",
+      "as_of": "2023-10-19T13:33:00+00:00",
+      "direction": "long",
+      "entry_price": 15107.5,
+      "entry_time": "2023-10-19T13:33:00+00:00",
+      "decision": "NO TRADE",
+      "candidate": null,
+      "rejections": [
+        "structural_risk_too_large:30.25>25.00",
+        "insufficient_room_to_first_obstacle:1.00<25.00",
+        "poor_asymmetry_to_tp1:0.03<1.00"
+      ],
+      "sequence_contract": "fvg_chronology_v2",
+      "confirmation_fvg_id": "bullish:2023-10-19T13:31:00+00:00:7806"
+    }
+  },
+  {
+    "contract": "NMZ23",
+    "signal_time": "2023-11-30T15:05:00+00:00",
+    "direction": "short",
+    "family": "reversal",
+    "plan": {
+      "execution_model": "market_after_retest_confirmation_v2",
+      "as_of": "2023-11-30T15:06:00+00:00",
+      "direction": "short",
+      "entry_price": 15943.25,
+      "entry_time": "2023-11-30T15:06:00+00:00",
+      "decision": "NO TRADE",
+      "candidate": null,
+      "rejections": [
+        "structural_risk_too_large:47.75>25.00",
+        "insufficient_room_to_primary_dol:24.50<25.00",
+        "insufficient_room_to_first_obstacle:24.50<25.00",
+        "tp1_market_objective_unavailable_before_primary_dol"
+      ],
+      "sequence_contract": "fvg_chronology_v2",
+      "confirmation_fvg_id": "bearish:2023-11-30T15:03:00+00:00:15871"
+    }
+  },
+  {
+    "contract": "NMH24",
+    "signal_time": "2023-12-21T15:15:00+00:00",
+    "direction": "long",
+    "family": "reversal",
+    "plan": {
+      "execution_model": "market_after_retest_confirmation_v2",
+      "as_of": "2023-12-21T15:16:00+00:00",
+      "direction": "long",
+      "entry_price": 16888.75,
+      "entry_time": "2023-12-21T15:16:00+00:00",
+      "decision": "NO TRADE",
+      "candidate": null,
+      "rejections": [
+        "structural_risk_too_large:47.25>25.00",
+        "insufficient_room_to_first_obstacle:0.75<25.00",
+        "poor_asymmetry_to_tp1:0.02<1.00",
+        "poor_asymmetry_to_primary_dol:0.85<1.00"
+      ],
+      "sequence_contract": "fvg_chronology_v2",
+      "confirmation_fvg_id": "bullish:2023-12-21T15:14:00+00:00:2192"
+    }
+  }
+]

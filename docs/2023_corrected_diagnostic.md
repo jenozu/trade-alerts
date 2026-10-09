@@ -71,3 +71,16 @@ implemented. The old contracts and these diagnostics must remain reproducible.
 No tests/builds need repeating for this documentation update. The latest code
 suite remains 786 passed with 872 warnings. R7 strategy-selection remains paused
 pending the remaining fidelity, costs and baseline gates.
+
+## Authoritative execution evidence archived — 2026-10-09
+
+The supplied terminal export has been decoded and preserved under
+`research-archive/EXP-INTEGRITY-2023-DIAGNOSTIC/`. Both lock identity digests
+verify, all three exported outputs match their recorded SHA-256 hashes and sizes,
+68 producer code-file hashes match the integrity checkout, and segment counts
+and all seven rejection decisions reconcile with the summary. The archive
+manifest verifies all seven copied files. VPS-only source paths have not been
+reopened locally; this verification does not claim historical accepted-path
+parity, realistic fees or research readiness. No completed pipeline was rerun.
+
+2024 and 2025 authoritative execution exports remain to be archived.
