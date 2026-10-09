@@ -1,0 +1,25 @@
+{
+  "archived_file_count": 3,
+  "destination": "/workspace/scratch/90db9447a2d4/integrated-checkout/research-archive/EXP-INTEGRITY-2023-QUALIFICATION",
+  "experiment": "EXP-INTEGRITY-2023-QUALIFICATION",
+  "files": [
+    {
+      "bytes": 4768,
+      "path": "QUALIFICATION_REPORT.json",
+      "sha256": "1210921dc20d9dbb21d60df415f28aea5d60780e21ec7e8e356010b89d52dd21"
+    },
+    {
+      "bytes": 2093,
+      "path": "README.md",
+      "sha256": "06c8cab7bbaa261f9ffcd903a99f1af24719d3a058e3e0b1ae163e7473e6a9cb"
+    },
+    {
+      "bytes": 10399,
+      "path": "qualification_export.txt",
+      "sha256": "b1b97410191775954fc547d6a70e38f14464db098c7f810bd7d6633b54012b3c"
+    }
+  ],
+  "max_file_bytes": 10485760,
+  "skipped": [],
+  "source": "/workspace/scratch/90db9447a2d4/r7_qualification_evidence"
+}

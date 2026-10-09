@@ -1,0 +1,133 @@
+{
+  "all_complete_and_in_entry_window": true,
+  "analysis_code_base_main": "203ddfe2bfd3b085f555fe0956e970fb88fc3f62",
+  "archived_signal_and_fvg_identity_parity": true,
+  "candidate_rows": 659,
+  "continuation_events_suppressed_by_documented_reversal_precedence": [
+    {
+      "bar_complete": true,
+      "bearish_linked_continuation_acceptance_time": "2023-08-24T13:43:00+00:00",
+      "bearish_linked_continuation_entry_valid_event": true,
+      "bearish_linked_continuation_fvg_id": "bearish:2023-08-24T13:43:00+00:00:15075",
+      "bearish_linked_continuation_micro_bos_level": 15212.25,
+      "bearish_linked_continuation_retest_time": "2023-08-24T13:44:00+00:00",
+      "bearish_linked_continuation_sequence": true,
+      "bearish_linked_reversal_entry_valid_event": false,
+      "bearish_linked_reversal_fvg_id": null,
+      "bearish_linked_reversal_sequence": false,
+      "bullish_linked_continuation_acceptance_time": null,
+      "bullish_linked_continuation_entry_valid_event": false,
+      "bullish_linked_continuation_fvg_id": null,
+      "bullish_linked_continuation_micro_bos_level": null,
+      "bullish_linked_continuation_retest_time": null,
+      "bullish_linked_continuation_sequence": false,
+      "bullish_linked_reversal_entry_valid_event": false,
+      "bullish_linked_reversal_fvg_id": null,
+      "bullish_linked_reversal_sequence": false,
+      "buy_side_liquidity_sweep": false,
+      "contract": "NMU23",
+      "is_strategy_window": true,
+      "linked_sequence_contract": "fvg_chronology_v2",
+      "long_candidate": false,
+      "new_entry_allowed": true,
+      "recent_buy_side_sweep": true,
+      "recent_sell_side_sweep": false,
+      "sell_side_liquidity_sweep": false,
+      "short_candidate": true,
+      "timestamp": "2023-08-24T13:45:00.000Z"
+    }
+  ],
+  "contract_counts": {
+    "NMH23": 127,
+    "NMH24": 20,
+    "NMM23": 161,
+    "NMU23": 183,
+    "NMZ23": 168
+  },
+  "decoded_json_bytes": 784173,
+  "decoded_json_sha256": "9ca518d4514b2b5862ba89adaabc3b4799ca3d247f1cc87322883f89edea9ec2",
+  "direction_breakdown": {
+    "long": {
+      "family_continuation": 50,
+      "family_reversal": 313,
+      "missing_selected_sequence": 353,
+      "no_fresh_selected_event": 6,
+      "qualified": 4
+    },
+    "short": {
+      "family_continuation": 43,
+      "family_reversal": 253,
+      "missing_selected_sequence": 287,
+      "no_fresh_selected_event": 6,
+      "qualified": 3
+    }
+  },
+  "exclusive_earliest_failure_counts": {
+    "missing_selected_sequence": 640,
+    "no_fresh_selected_event": 12,
+    "qualified": 7
+  },
+  "limits": [
+    "Only exported candidate flags independently checked; VPS feature files were not independently rehashed.",
+    "Filtered candidate rows cannot establish full causal sequence generation or FVG lifecycle correctness.",
+    "No OHLC/market context supplied for a new plan or P&L calculation.",
+    "No claim of missed valid trade, profitable opportunity or statistical selection readiness."
+  ],
+  "qualified": [
+    {
+      "confirmation_fvg_id": "bullish:2023-02-28T14:41:00+00:00:15014",
+      "contract": "NMH23",
+      "direction": "long",
+      "family": "reversal",
+      "signal_time": "2023-02-28T14:42:00+00:00"
+    },
+    {
+      "confirmation_fvg_id": "bearish:2023-06-23T14:01:00+00:00:2824",
+      "contract": "NMU23",
+      "direction": "short",
+      "family": "reversal",
+      "signal_time": "2023-06-23T14:02:00+00:00"
+    },
+    {
+      "confirmation_fvg_id": "bearish:2023-10-02T13:47:00+00:00:4363",
+      "contract": "NMZ23",
+      "direction": "short",
+      "family": "reversal",
+      "signal_time": "2023-10-02T13:48:00+00:00"
+    },
+    {
+      "confirmation_fvg_id": "bullish:2023-10-11T14:21:00+00:00:6315",
+      "contract": "NMZ23",
+      "direction": "long",
+      "family": "reversal",
+      "signal_time": "2023-10-11T14:24:00+00:00"
+    },
+    {
+      "confirmation_fvg_id": "bullish:2023-10-19T13:31:00+00:00:7806",
+      "contract": "NMZ23",
+      "direction": "long",
+      "family": "reversal",
+      "signal_time": "2023-10-19T13:32:00+00:00"
+    },
+    {
+      "confirmation_fvg_id": "bearish:2023-11-30T15:03:00+00:00:15871",
+      "contract": "NMZ23",
+      "direction": "short",
+      "family": "reversal",
+      "signal_time": "2023-11-30T15:05:00+00:00"
+    },
+    {
+      "confirmation_fvg_id": "bullish:2023-12-21T15:14:00+00:00:2192",
+      "contract": "NMH24",
+      "direction": "long",
+      "family": "reversal",
+      "signal_time": "2023-12-21T15:15:00+00:00"
+    }
+  ],
+  "selected_family_counts": {
+    "continuation": 93,
+    "reversal": 566
+  },
+  "source_attachment_sha256": "a7ce5186b12295d9205e2091a70eb53e18a1def77c70f6dc341d0328095c9e7a",
+  "status": "QUALIFICATION_REPRODUCED_NO_IMPLEMENTATION_MISMATCH_DEMONSTRATED"
+}

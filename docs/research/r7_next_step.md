@@ -39,20 +39,43 @@ performance evidence. Zero trades is not automatically a bug or justification
 to lower requirements. Previously archived profitable controls use different
 entry/sequence/stop/target semantics and cannot resolve this issue by substitution.
 
+## Completed qualification diagnosis
+
+The received 2023 export was decoded, checked and archived as
+`research-archive/EXP-INTEGRITY-2023-QUALIFICATION`. All 659 candidates are unique,
+completed, within the entry window and on the expected contract segments. The
+current production qualification APIs reproduce the archived seven signal keys,
+families and confirmation FVG identities exactly.
+
+| Earliest qualification outcome | Rows |
+| --- | ---: |
+| Selected family has no active sequence | 640 |
+| Selected family has active sequence but no fresh confirmation event | 12 |
+| Qualified signal | 7 |
+
+Family selection gives 566 reversals and 93 continuations. One short candidate on
+2023-08-24 at 13:45 UTC has a continuation event but recent buy-side sweep selects
+reversal. This is consistent with the written family precedence and shared API;
+it is not a demonstrated implementation mismatch or evidence of a valid missed
+trade. No family fallback or trading-rule change is made.
+
 ## Next required evidence
 
-Inspect the score-candidate rows from existing 2023 chronology features, starting
-with completion/window flags, directional sweep/family precedence and linked
-sequence/event flags. Use a read-only export, not another feature build or
-execution simulation. Source feature files reside on the VPS and are not present
-in Work. Local analysis of that export can identify the qualification stages
-responsible for lost opportunities; the sixteen archived decisions already
-explain the final planner rejections.
+Candidate-only flags omit the preceding noncandidate minute bars, so they cannot
+explain why the causal sequence engine is mostly inactive. Obtain two narrow
+read-only windows from the existing 2023 chronology Parquets: the first long
+candidate (2023-01-03 14:34 UTC), and the overlapping-family short candidate
+(2023-08-24 13:45 UTC), with 30 preceding minutes each. These are diagnostic
+samples, not representative performance estimates or complete FVG-lifecycle proof.
 
-First determine whether this is expected qualification or an implementation
-mismatch. Fix only proven mismatches. Any rule relaxation, new liquidity classifier
-or different executable control is a separately named strategy decision under
-RULES.md section 6; it is not authorized by the desire to obtain trades.
+Run the command in `docs/research/r7_causal_window_export.md` from the isolated
+VPS checkout. It only reads existing files and prints an encoded text payload.
+No feature rebuild, new execution simulation or yearly test repeat is required.
+Source Parquets remain on the VPS and cannot be independently inspected here.
+
+Fix only proven implementation mismatches. Any rule relaxation, new liquidity
+classifier or different executable control is a separately named strategy decision
+under RULES.md section 6; no such decision is inferred from zero trades.
 
 ## Execution boundary
 
@@ -68,3 +91,11 @@ Focused preflight/identity tests: 14 passed. Full combined suite: **805 passed,
 identity are rejected before a coverage claim. The actual immutable three-year
 archives produce BLOCKED_EMPTY_CONTROL; CLI exit code 2 is expected for that
 result. No new feature generation or statistical backtest was run.
+
+The qualification evidence passes decoded payload SHA-256, three archive file
+hashes, candidate schema/count/uniqueness checks, and exact production API signal
+and FVG identity reproduction. The documented read-only export command was
+validated against two temporary Parquets: 62 window rows round-trip and outside
+rows are excluded. No production code changed, so the 805-test suite was not
+repeated. The temporary pandas fixture emitted one NumPy timedelta deprecation
+warning; no fixture or generated data was committed.

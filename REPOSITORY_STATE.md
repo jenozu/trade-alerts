@@ -81,9 +81,13 @@ its accepted-path, fee, upstream-provenance and deployment limits in
 
 R7 preparation has resumed. Its corrected-control feasibility check is recorded
 in `docs/research/r7_next_step.md`; additional eligibility filters cannot be
-evaluated on this zero-accepted-plan control. Next: inspect existing 2023
-score-candidate qualification flags via a read-only VPS export, then resolve
-any demonstrated mismatch before preregistering a meaningful comparison. Do not rerun
+evaluated on this zero-accepted-plan control. The 2023 flags are now archived
+and the current APIs reproduce all seven
+archived signal/FVG identities. Most candidates lack an active selected-family
+sequence; no mismatch is demonstrated by the candidate-only export. Next: inspect
+two preceding minute windows from existing VPS features using
+`docs/research/r7_causal_window_export.md`, then resolve any proven mismatch before
+preregistering a meaningful comparison. Do not rerun
 R5/R6/R7.0. Remote experiment execution still requires an explicit run command
 under RULES.md section 17. No live deployment is implied.
 

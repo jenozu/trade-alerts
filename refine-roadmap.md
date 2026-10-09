@@ -2310,7 +2310,8 @@ No production change is authorized by R7.0.
 - [x] Identify the corrected control and keep historical producer semantics separate.
 - [x] Verify archived 2023–2025 control coverage and lock correspondence.
 - [x] Implement an explicit empty-control preflight; record the no-performance-evidence decision.
-- [ ] Inspect 2023 score-candidate qualification flags from existing VPS chronology features.
+- [x] Inspect and archive 2023 score-candidate qualification flags; production APIs reproduce all seven signal/FVG identities.
+- [ ] Inspect two causal minute windows to explain inactive sequence generation; source files remain VPS-only.
 - [ ] Resolve any demonstrated implementation mismatch or obtain an explicit strategy decision.
 - [ ] Preregister a meaningful isolated control/candidate comparison before an authorized run.
 

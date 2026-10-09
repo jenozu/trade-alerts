@@ -17,3 +17,18 @@ See [[Findings/FINDINGS-INDEX]].
 - Segment findings by year/regime and direction where relevant.
 - Treat small samples as preliminary.
 - Validate accepted improvements out-of-sample or walk-forward before production changes.
+
+## Current R7 preparation — 2026-10-09
+
+The integrity-corrected control has zero accepted plans across 2023–2025. The
+2023 read-only qualification diagnosis reproduces seven archived signal keys,
+families and confirmation FVG identities. Of 659 candidates, 640 have no active
+selected-family sequence, 12 have no fresh event, and seven qualify. One
+continuation event is suppressed by documented reversal precedence; this alone
+establishes no implementation mismatch or missed valid trade. No rule relaxation
+or filter-only performance experiment is selected. Next evidence: two causal
+minute windows from existing VPS features, including noncandidate rows.
+
+See `docs/research/r7_next_step.md` and immutable
+`research-archive/EXP-INTEGRITY-2023-QUALIFICATION/QUALIFICATION_REPORT.json`.
+Historical R7.0 remains completed and rejected; do not rerun it.

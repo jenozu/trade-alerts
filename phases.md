@@ -1136,7 +1136,8 @@ experiment-level checkbox.
 - [x] R7.0 continuation-displacement interaction completed and rejected as a production qualification rule.
 - [x] Complete and merge the qualified pre-critical integrity engineering / execution-audit checkpoint (PR #7; 800 tests passed; historical accepted-path and realistic-cost limits documented).
 - [x] Verify the corrected R7 control identity and zero-trade feasibility from archived evidence.
-- [ ] Inspect score-candidate qualification flags from existing 2023 chronology features.
+- [x] Inspect and archive 2023 score-candidate qualification flags; seven signal/FVG identities reproduced.
+- [ ] Inspect two causal minute windows from existing chronology features to explain inactive sequences.
 - [ ] Preregister a meaningful next R7 control/candidate comparison after qualification review.
 - [ ] Continue isolated R7 interaction experiments after the integrity gate.
 - [ ] R8 market-regime and day-type research.
@@ -1320,8 +1321,11 @@ resumed. Archived control feasibility is verified: the corrected control has
 zero accepted plans in all three development years. Statistical comparison of
 an additional eligibility filter would be uninformative.
 
-Next: inspect score-candidate qualification flags from existing 2023 chronology
-features using a read-only VPS export. Work does not contain those feature files.
+The 2023 qualification export is verified and archived: 640 candidates have no
+selected-family sequence, 12 have no fresh event, and seven qualify exactly as
+archived. No implementation mismatch is demonstrated by those flags. Next:
+inspect two preceding minute windows using the read-only command in
+`docs/research/r7_causal_window_export.md`. Work does not contain the source files.
 See `docs/research/r7_next_step.md` and `docs/research/r7_control_coverage.json`.
 
 Do not rebuild features, repeat completed audits/R5/R6/R7.0, substitute historical
