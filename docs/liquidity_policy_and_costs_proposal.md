@@ -1,5 +1,15 @@
 # Remaining fidelity decisions: liquidity policy and actual costs
 
+**Scope correction — 2026-10-09:** This proposal is deferred and is not a required
+Manus engineering fix or a prerequisite to documenting the integrity checkpoint.
+The current liquidity policy remains unchanged. No proposed rule is implemented.
+Actual account fees are required before claiming realistic net performance; they
+are not a blocker to accounting-engine verification or archiving completed
+diagnostics. The earlier proposed gates below are retained as proposal history,
+not as the current work order. See the current assessment in
+`research_resume_readiness.md` for the next task.
+
+
 Status: proposed specification, not an implemented or frozen strategy contract.
 Prepared 2026-10-09 after reviewing the seven corrected 2023 rejection records.
 No historical profitability or 2026 outcome was used to choose this proposal.
