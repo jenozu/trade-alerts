@@ -1085,7 +1085,7 @@ Run the finished system without relying on it for live entries long enough to va
 - [ ] Entry-valid and invalidation events.
 - [ ] TP1–TP4 outcomes.
 - [ ] Session high/low.
-- [x] MFE/MAE.
+- [ ] MFE/MAE.
 - [ ] Final scenario outcome.
 
 ## Daily evaluation
@@ -1176,7 +1176,7 @@ integrity-corrected execution contract.
 - [x] Expectancy / profit factor.
 - [x] TP1–TP4 hit rates.
 - [ ] Stop/no-trade rates.
-- [ ] MFE/MAE.
+- [x] MFE/MAE.
 - [ ] False sweep/breakout rates.
 - [x] Performance by setup, score band, DOL, session context, direction, and volatility regime.
 
