@@ -1416,6 +1416,30 @@ Before calling the score calibrated:
 
 ---
 
+## R4.6 completed evidence — 2026-09-30
+
+- [x] True chronological threshold replay implemented with frozen threshold-70 parity gating.
+- [x] Thresholds 70 / 75 / 80 / 85 reviewed across 2023 / 2024 / 2025.
+- [x] Baseline, Conservative, Evidence Tilt, and Redundancy Reduced scoring candidates reviewed.
+- [x] Year-by-year statistical review archived under `research-archive/R4-06/`.
+- [x] No production scoring, entries, stops, targets, or setup rules changed.
+
+Key findings:
+
+- Baseline threshold increases were not stable across years; 2024 remained negative at 75/80/85.
+- Evidence Tilt 80: 559 combined trades, +2432.00 net points, +4.3506 points/trade, positive expectancy in every year.
+- Redundancy Reduced 85: 283 combined trades, +2098.00 net points, +7.4134 points/trade, positive expectancy in every year.
+- Conservative remained negative in 2024 at every tested threshold.
+- Higher thresholds were not perfectly monotonic, so threshold alone is not a sufficient strategy improvement.
+
+R4.6 decision: **INVESTIGATE — NO PRODUCTION CHANGE**.
+
+Carry Evidence Tilt 80 and Redundancy Reduced 85 forward only as later validation candidates.
+
+Do not combine these score candidates with target, stop, or entry changes inside an isolated parameter-family experiment.
+
+---
+
 # 9. Phase R5 — Stop-loss research
 
 Do not optimize exits until entry/setup behavior has first been understood, but stop behavior should be analyzed before final strategy certification.
@@ -1454,7 +1478,392 @@ Do not widen stops merely to increase win rate.
 
 ---
 
+## R5.0 — Fixed-stop sweep
+
+This is the first isolated R5 experiment. It deliberately tests only the
+roadmap-defined fixed-stop family before adding structural/sweep/volatility
+variants, so stop research does not become a multi-parameter search.
+
+Models:
+
+- CONTROL — untouched current stop behavior: structural stop only when the
+  valid structural distance is inside 20–25 points, otherwise 25-point fallback;
+- FIXED_15;
+- FIXED_20;
+- FIXED_25;
+- FIXED_30;
+- FIXED_35.
+
+Frozen:
+
+- baseline score weights and threshold-70 eligibility;
+- setup qualification and directional logic;
+- entry timing and price/slippage behavior;
+- TP1/TP2/TP3/TP4 logic;
+- session/time rules;
+- maximum hold;
+- one-open-trade-at-a-time behavior.
+
+Method:
+
+- replay the full chronological scored feature stream, never a filtered trade
+  ledger;
+- require exact CONTROL parity with the frozen R4.5 baseline before trusting any
+  fixed-stop variant;
+- run and inspect 2023 first, then 2024 and 2025 separately;
+- allow trade count to change naturally because stop duration can change later
+  opportunity availability under the one-open-trade rule.
+
+Primary outputs:
+
+- trade count, win rate, expectancy points/R, PF, net points and max drawdown;
+- average/median MAE and MAE of eventual winners;
+- baseline-winner survival at 15/20/25/30/35 points;
+- stop/TP4 rates;
+- reversal vs continuation results using the established EXP-003 setup-family
+  contract (directional liquidity_sweep context);
+- year-by-year stability before any pooled interpretation.
+
+Implementation:
+
+- [x] `scripts/run_r5_fixed_stop_sweep.py`
+- [x] `tests/test_r5_fixed_stop_sweep.py`
+- [x] targeted unit tests;
+- [x] 2023 replay + exact control parity;
+- [x] review 2023 before running 2024/2025;
+- [x] 2024 replay + exact control parity;
+- [x] 2025 replay + exact control parity;
+- [x] archive completed results with hashes under `research-archive/R5-00/`;
+- [x] decide whether any fixed stop deserves later validation;
+- [x] only then evaluate supported structural/sweep-extreme/ATR/capped variants.
+
+R5.0 completed evidence — 2026-09-30:
+
+- Exact untouched CONTROL parity passed in all three years: 344 / 388 / 486 trades.
+- FIXED_15 was positive in every research year and produced the strongest combined fixed-stop result:
+  - 2023: 391 trades, +1,023.75 net points, +2.6183 pts/trade, +0.1746R, PF 1.2204, DD 498.25.
+  - 2024: 432 trades, +269.00 net points, +0.6227 pts/trade, +0.0415R, PF 1.0498, DD 770.25.
+  - 2025: 544 trades, +1,864.75 net points, +3.4278 pts/trade, +0.2285R, PF 1.2734, DD 631.00.
+  - Combined: 1,367 trades, +3,157.50 net points, approximately +2.310 pts/trade.
+- Fixed-stop combined net points:
+  - 15: +3,157.50;
+  - 20: +1,945.75;
+  - 25: +2,153.50;
+  - 30: +1,714.75;
+  - 35: +1,733.75.
+- Untouched CONTROL combined reference: 1,218 trades, +2,172.50 net points, approximately +1.784 pts/trade.
+- FIXED_30 led 2023 raw net points but turned negative in 2024; FIXED_20 and FIXED_35 also turned negative in 2024.
+- Baseline-winner survival at 15 points was 75/111 (2023), 76/106 (2024), and 83/121 (2025): 234/338 combined, about 69.2%.
+- The 15-point advantage therefore did not come from preserving more eventual baseline winners. Earlier stop-outs changed trade duration and subsequent opportunity availability under the one-open-trade rule.
+- In 2025, FIXED_15 remained positive in both setup families: continuation +617.25 points across 85 trades and reversal +1,247.50 across 459 trades.
+
+R5.0 decision: **INVESTIGATE — FIXED_15 ADVANCES AS THE FIXED-STOP CANDIDATE; NO PRODUCTION CHANGE.**
+
+The research years are not a production acceptance test. Carry FIXED_15 forward only into later robustness / held-out validation. Continue R5 with structural-stop research before sweep-extreme or volatility/ATR variants.
+
+No production setting changes are authorized from these research years alone.
+
+---
+
+## R5.1 — Structural-stop sweep
+
+R5.0 found that FIXED_15 is the strongest fixed-stop candidate across the three
+research years, but it is not a production change. R5.1 now isolates the
+roadmap-defined structural-stop family before any sweep-extreme or volatility /
+ATR research.
+
+Models:
+
+- CONTROL — untouched current behavior: structural stop only when the valid
+  causal structure distance is inside 20–25 points, otherwise fixed 25;
+- STRUCTURAL_RAW — use the first valid causal internal/external structural stop
+  at any positive distance, otherwise fixed 25 fallback;
+- STRUCTURAL_CAP_25 — use the valid structural stop when risk is <=25 points,
+  otherwise fixed 25 fallback.
+
+Frozen:
+
+- baseline score weights and threshold-70 eligibility;
+- setup qualification and directional logic;
+- entry timing and price/slippage behavior;
+- TP1/TP2/TP3/TP4 logic;
+- session/time rules;
+- maximum hold;
+- one-open-trade-at-a-time behavior.
+
+Method:
+
+- full chronological replay from the scored feature stream;
+- exact untouched CONTROL parity required before trusting variants;
+- 2023 reviewed first, then 2024 and 2025 separately;
+- trade count may change naturally through path dependence;
+- no production configuration is modified.
+
+Additional diagnostics:
+
+- mean / median / p10 / p90 stop distance;
+- minimum / maximum stop distance;
+- percentage of realized stops below 15 and 20 points;
+- percentage above 25 and 35 points;
+- setup-family segmentation;
+- normal R5 performance / MAE / drawdown metrics.
+
+Implementation:
+
+- [x] research-only stop modes added without changing default CONTROL semantics;
+- [x] `scripts/run_r51_structural_stop_sweep.py`;
+- [x] `tests/test_r51_structural_stop_sweep.py`;
+- [x] targeted unit tests;
+- [x] 2023 replay + exact control parity;
+- [x] review 2023 before running 2024/2025;
+- [x] 2024 replay + exact control parity;
+- [x] 2025 replay + exact control parity;
+- [x] archive results with hashes under `research-archive/R5-01/`;
+- [x] cross-year decision.
+
+R5.1 completed evidence — 2026-10-01:
+
+- Exact untouched CONTROL parity passed in 2023 / 2024 / 2025.
+- STRUCTURAL_RAW combined net: -1,232.75 points versus +2,172.50 CONTROL.
+- STRUCTURAL_RAW p90 stop distance widened from 57.25 (2023) to 61.00 (2024) to 86.15 (2025), with materially worse drawdown.
+- STRUCTURAL_CAP_25 combined net: +1,978.00 points, below the +2,172.50 CONTROL.
+- STRUCTURAL_CAP_25 was +971.00 / -46.00 / +1,053.00 by year.
+- The capped variant remained much healthier than uncapped structure, but did not improve the untouched control across the research years.
+
+R5.1 decision: **REJECT STRUCTURAL_RAW; DO NOT ADVANCE STRUCTURAL_CAP_25 OVER CONTROL; NO PRODUCTION CHANGE.**
+
+Do not compare or combine R5.1 with FIXED_15 inside the same replay. FIXED_15 remains
+the only R5 candidate carried forward so far, for later robustness / held-out validation.
+
+---
+
+## R5.2 — Sweep-extreme stop
+
+R5.2 isolates the roadmap-defined sweep-extreme family using only causal data
+already present in the full scored stream.
+
+Definition:
+
+- LONG -> use the low of the most recent sell-side liquidity-sweep bar;
+- SHORT -> use the high of the most recent buy-side liquidity-sweep bar;
+- reuse the existing 2-point stop buffer outside that wick extreme;
+- use the existing 10-bar recent-sweep window;
+- if no valid recent directional sweep extreme exists, fall back to fixed 25.
+
+The recent extreme is reconstructed causally from current/past bars only. It is
+not inferred from future price action.
+
+Frozen:
+
+- baseline score weights and threshold-70 eligibility;
+- setup qualification and direction;
+- entry timing and slippage;
+- TP1/TP2/TP3/TP4;
+- session/time rules;
+- maximum hold;
+- one-open-trade behavior.
+
+Method:
+
+- full chronological replay;
+- exact untouched CONTROL parity gate first;
+- inspect 2023 before 2024/2025;
+- report normal R5 metrics plus stop-distance distribution and setup family;
+- no production change from research years.
+
+Implementation:
+
+- [x] research-only `sweep_extreme` stop mode;
+- [x] `scripts/run_r52_sweep_extreme_stop.py`;
+- [x] `tests/test_r52_sweep_extreme_stop.py`;
+- [x] targeted unit tests;
+- [x] 2023 replay + exact control parity;
+- [x] review 2023;
+- [x] 2024 replay + exact control parity;
+- [x] 2025 replay + exact control parity;
+- [x] archive with hashes under `research-archive/R5-02/`;
+- [x] cross-year decision.
+
+R5.2 completed evidence — 2026-10-01:
+
+- Exact untouched CONTROL parity passed in 2023 / 2024 / 2025.
+- SWEEP_EXTREME net points by year: +549.75 / -40.00 / +370.00.
+- Combined SWEEP_EXTREME net: +879.75 versus +2,172.50 CONTROL.
+- Stop-distance p90 widened to 46.00 / 47.53 / 69.00 points.
+- Maximum drawdown was materially worse than control in the observed years.
+- 2023 setup-family review showed the largest deterioration in the dominant reversal family.
+
+R5.2 decision: **REJECT SWEEP_EXTREME AS A GENERAL STOP MODEL — NO PRODUCTION CHANGE.**
+
+FIXED_15 remains the only R5 candidate carried forward so far for later robustness / held-out validation.
+
+---
+
+## R5.3 — ATR / volatility-adjusted stop
+
+R5.3 is the final isolated stop-family experiment in Phase R5.
+
+Models:
+
+- CONTROL — untouched current stop logic;
+- ATR_1_0 — 14-bar 1m ATR x 1.0;
+- ATR_1_5 — 14-bar 1m ATR x 1.5;
+- ATR_2_0 — 14-bar 1m ATR x 2.0.
+
+ATR is calculated causally from the signal bar and prior completed bars using
+true range. The strategy enters on the next bar, so the current signal-bar ATR
+is available without lookahead. If ATR is unavailable or invalid, use the
+existing fixed-25 fallback.
+
+Frozen:
+
+- baseline score weights and threshold-70 eligibility;
+- setup qualification and direction;
+- entry timing and slippage;
+- TP1/TP2/TP3/TP4;
+- session/time rules;
+- maximum hold;
+- one-open-trade behavior.
+
+Method:
+
+- full chronological replay;
+- exact untouched CONTROL parity gate before trusting any ATR result;
+- inspect 2023 first, then 2024 and 2025 separately;
+- report normal R5 metrics, stop-distance distribution, and setup-family split;
+- do not tune additional nearby ATR multipliers on these research years.
+
+Implementation:
+
+- [x] research-only ATR stop support;
+- [x] `scripts/run_r53_atr_stop.py`;
+- [x] `tests/test_r53_atr_stop.py`;
+- [x] targeted unit tests;
+- [x] 2023 replay + exact control parity;
+- [x] review 2023;
+- [x] 2024 replay + exact control parity;
+- [x] 2025 replay + exact control parity;
+- [x] archive with hashes under `research-archive/R5-03/`;
+- [x] final R5 cross-family decision and Phase R5 closure.
+
+R5.3 completed evidence — 2026-10-02:
+
+- Exact untouched CONTROL parity passed in 2023 / 2024 / 2025.
+- ATR_1_0:
+  - 2023: 401 trades, +985.02 net, +2.4564 pts/trade, +0.2079R, PF 1.2145, DD 457.18.
+  - 2024: 431 trades, +511.04 net, +1.1857 pts/trade, +0.0929R, PF 1.0917, DD 852.04.
+  - 2025: 511 trades, +1,702.93 net, +3.3325 pts/trade, +0.1925R, PF 1.1942, DD 936.96.
+  - Combined: 1,343 trades, +3,198.98 net points, approximately +2.382 pts/trade.
+- ATR_1_5 combined: 1,211 trades, +1,996.57 net points, approximately +1.649 pts/trade.
+- ATR_2_0 combined: 1,122 trades, +1,340.64 net points, approximately +1.195 pts/trade; it turned materially negative in 2024.
+- ATR_1_0 was positive in all three years and improved expectancy-R / PF versus CONTROL in each year, though annual drawdown was not uniformly lower.
+
+R5.3 decision: **INVESTIGATE — ATR_1_0 ADVANCES AS THE VOLATILITY-STOP CANDIDATE; NO PRODUCTION CHANGE.**
+
+### Phase R5 final cross-family conclusion
+
+Completed stop families:
+
+- R5.0 fixed stops — FIXED_15 advances;
+- R5.1 structural / capped structural — STRUCTURAL_RAW rejected; STRUCTURAL_CAP_25 does not advance;
+- R5.2 sweep-extreme — rejected as a general stop model;
+- R5.3 ATR / volatility-adjusted — ATR_1_0 advances.
+
+Cross-family research-period reference:
+
+- CONTROL: 1,218 trades, +2,172.50 net points, approximately +1.784 pts/trade.
+- FIXED_15: 1,367 trades, +3,157.50 net points, approximately +2.310 pts/trade.
+- ATR_1_0: 1,343 trades, +3,198.98 net points, approximately +2.382 pts/trade.
+
+Phase R5 decision: **COMPLETE — CARRY FIXED_15 AND ATR_1_0 FORWARD TO LATER ROBUSTNESS / HELD-OUT VALIDATION; NO PRODUCTION STOP CHANGE.**
+
+Do not select between FIXED_15 and ATR_1_0 from the 2023–2025 research years alone. Their trade-path differences, drawdown behavior, parameter sensitivity, transaction costs, and unseen-data performance must be tested in the later robustness and validation phases.
+
+---
+
 # 10. Phase R6 — Exit / trade-management experiments
+
+## R6.0 — Fixed full-target sweep (first isolated exit experiment)
+
+Before testing partial exits or break-even management, isolate the user's current
+full-target question without changing any other parameter family.
+
+Compare:
+
+```text
+Full TP 50 points
+Full TP 75 points
+Full TP 100 points — frozen control
+```
+
+Frozen during this experiment:
+
+- baseline score weights;
+- threshold-70 eligibility;
+- entry/setup logic;
+- current stop logic;
+- session and time rules;
+- one-open-trade behavior;
+- slippage;
+- maximum holding time.
+
+Important: current baseline stop logic is **structural when the valid structure
+stop falls inside the configured 20–25 point range, otherwise 25-point
+fallback**. R6.0 must not force every stop to exactly 25 points because that
+would mix stop research with target research. A true fixed-25 stop belongs in
+Phase R5 as a separate experiment.
+
+Method:
+
+- use the full scored chronological feature stream;
+- do not filter already executed trades;
+- TP100 must reproduce the frozen baseline ledger trade-for-trade;
+- changing target distance is allowed to alter later trade availability because
+  the strategy permits only one open trade at a time;
+- evaluate each year independently before pooled interpretation.
+
+Primary metrics:
+
+- trades;
+- win rate;
+- expectancy points / R;
+- PF;
+- net points;
+- max drawdown;
+- stop-hit rate;
+- full-target exit rate;
+- MFE / MAE;
+- average hold time;
+- cross-year stability.
+
+Implementation:
+
+- [x] `scripts/run_r6_fixed_target_sweep.py`
+- [x] `tests/test_r6_fixed_target_sweep.py`
+- [x] run targeted tests;
+- [x] run 2023 / 2024 / 2025 full chronological replays;
+- [x] review cross-year results;
+- [ ] archive with hashes;
+- [x] decide whether 50 / 75 / 100 proceeds to validation.
+
+This is not a new competing checklist. It is the first controlled experiment
+inside the already-planned R6 exit-management family.
+
+
+R6.0 completed evidence — 2026-09-30:
+
+- TP100 parity passed in 2023 / 2024 / 2025.
+- TP50 combined descriptive total: 1,324 trades, +1,451.50 points, +1.0963 points/trade.
+- TP75 combined descriptive total: 1,260 trades, +1,064.00 points, +0.8444 points/trade.
+- TP100 combined descriptive total: 1,218 trades, +2,172.50 points, +1.7837 points/trade.
+- TP50 increased win rate and reduced worst annual drawdown, but turned 2024 negative and materially reduced 2025 net points.
+- TP75 did not provide a stable improvement.
+
+R6.0 decision: **KEEP TP100 AS CURRENT CONTROL — NO PRODUCTION CHANGE.**
+
+The TP50 result supports testing partial realization / runner management next rather than replacing the full-position target.
+
+
 
 This experiment family was intentionally deferred until after untouched baseline establishment.
 
@@ -1533,6 +1942,130 @@ Do not choose the exit model solely because it has the highest win rate.
 
 ---
 
+## R6.1 — TP50 partial realization + TP100 runner
+
+R6.0 showed that a full TP50 exit increased win rate but sacrificed too much
+upside overall. R6.1 therefore tests whether the strategy can realize part of
+the move at 50 points while preserving exposure to the existing 100-point
+runner.
+
+Models:
+
+- CONTROL — current 100% TP100 baseline (parity gate only);
+- P50_RUNNER — 50% at +50, remaining 50% to +100, original stop retained;
+- P50_BE_RUNNER — 50% at +50, remaining 50% to +100, runner stop moves to
+  break-even beginning on the next bar.
+
+Frozen:
+
+- baseline score and threshold-70 eligibility;
+- setup/entry logic;
+- initial stop logic;
+- time/session rules;
+- slippage;
+- maximum hold;
+- one-open-trade behavior.
+
+The no-BE variant isolates partial realization. The BE variant then measures
+the incremental effect of break-even management instead of bundling both
+changes without attribution.
+
+Implementation:
+
+- [x] `scripts/run_r61_tp50_runner.py`
+- [x] `tests/test_r61_tp50_runner.py`
+- [x] targeted unit tests;
+- [x] 2023 replay + control parity;
+- [x] 2024 replay + control parity;
+- [x] 2025 replay + control parity;
+- [x] archive and cross-year decision.
+
+R6.2 completed evidence — 2026-09-30:
+
+- TP100 control parity passed in all three years.
+- 25% TP50 + 75% TP100 runner: +1,854.68 combined net points.
+- 25% TP50 + 75% TP100 BE runner: +2,006.36 combined net points.
+- TP100 control: +2,172.50 combined net points.
+- The BE runner improved the plain runner in all three years and reduced annual drawdown in all three years.
+- It beat the TP100 control in 2023 and 2024, but surrendered too much 2025 upside.
+
+R6.2 decision: **INVESTIGATE — NO PRODUCTION CHANGE.**
+
+Avoid further nearby partial-size tuning on the same sample. Move to the already-planned equal-partials exit model next.
+
+
+---
+
+## R6.2 — Smaller TP50 partial (25%) + TP100 runner
+
+R6.1 showed that taking 50% off at +50 consistently reduced drawdown but
+sacrificed too much TP100 upside. R6.2 isolates partial size by reducing the
+realized fraction to 25% and preserving 75% for the existing +100 target.
+
+Models:
+
+- CONTROL — current TP100 baseline (parity gate only);
+- P25_RUNNER — 25% at +50, 75% to +100, original stop retained;
+- P25_BE_RUNNER — 25% at +50, 75% to +100, next-bar break-even on runner.
+
+All scoring, eligibility, setup, entry, initial-stop, time/session, slippage,
+maximum-hold and one-position-at-a-time behavior remains frozen.
+
+Implementation:
+
+- [x] `scripts/run_r62_p25_tp50_runner.py`
+- [x] `tests/test_r62_p25_tp50_runner.py`
+- [x] targeted tests;
+- [x] 2023 replay + control parity;
+- [x] 2024 replay + control parity;
+- [x] 2025 replay + control parity;
+- [x] archive and cross-year decision.
+
+---
+
+## R6.3 — Equal partials across TP1–TP4
+
+R6.2 produced the strongest partial-exit candidate so far, but nearby partial-size
+tuning is now stopped to avoid parameter mining.
+
+R6.3 moves to the distinct roadmap-defined EXIT-C model:
+
+```text
+25% at TP1 (+25)
+25% at TP2 (+50)
+25% at TP3 (+75)
+25% at TP4 (+100)
+```
+
+No break-even or trailing behavior is added. The original stop remains active
+for the remaining position. This isolates distributed profit realization from
+stop-management changes.
+
+Implementation:
+
+- [x] `scripts/run_r63_equal_partials.py`
+- [x] `tests/test_r63_equal_partials.py`
+- [x] targeted tests;
+- [x] 2023 replay + control parity;
+- [x] 2024 replay + control parity;
+- [x] 2025 replay + control parity;
+- [x] archive and cross-year decision.
+
+
+R6.3 completed evidence — 2026-09-30:
+
+- TP100 control parity passed in 2023 / 2024 / 2025.
+- Equal partials: +653.75 combined net points / +0.5367 points per trade.
+- TP100 control: +2,172.50 combined net points / +1.7837 points per trade.
+- Equal partials reduced maximum drawdown in all three years but materially reduced expectancy and net profit.
+- 2024 turned negative and 2025 lost most of the TP100 upside.
+
+R6.3 decision: **REJECT AS DEFAULT EXIT MODEL — NO PRODUCTION CHANGE.**
+
+Close the current fixed-target/partial-exit block. Keep TP100 as the control and move to Phase R5 stop-loss research rather than further tuning partial sizes on the same sample.
+
+---
+
 # 11. Phase R7 — Interaction experiments
 
 Only after individual components are understood should combinations be tested.
@@ -1564,6 +2097,209 @@ At each addition record:
 - year-by-year stability.
 
 This identifies where additional confirmation stops helping and begins over-filtering.
+
+The conceptual sequence above is not an instruction to force every component
+into one stack. R7 interactions must be chosen from completed R1-R4 evidence,
+must use causally available historical fields, and must preserve attribution.
+
+## R7.0 — Continuation-proxy + same-direction displacement
+
+### Audit basis
+
+R1-R4 evidence does not support beginning R7 with the full conceptual stack.
+
+Key constraints from completed research:
+
+- continuation trades outperformed reversals overall in all three research
+  years, but the family interaction is important and does not justify removing
+  reversals;
+- a global displacement requirement is not supported: displacement was
+  regime-dependent overall and did not improve reversal trades as a universal
+  condition;
+- the continuation + displacement interaction was materially stronger than
+  continuation without displacement in the archived baseline and the sign of
+  that advantage was consistent across all three years:
+  - 2023: with displacement 22 trades, +11.68 pts/trade, PF 1.79 versus
+    24 trades, -3.50 pts/trade, PF 0.81 without;
+  - 2024: with displacement 29 trades, +15.03 pts/trade, PF 1.92 versus
+    31 trades, +5.06 pts/trade, PF 1.33 without;
+  - 2025: with displacement 39 trades, +7.40 pts/trade, PF 1.41 versus
+    40 trades, +1.04 pts/trade, PF 1.05 without;
+- retest cannot be the first R7 requirement because EXP-008/EXP-021 did not
+  establish a causal pre-entry retest condition for the existing baseline.
+  A true wait-for-retest experiment requires alternate-entry simulation;
+- HTF bias was regime-dependent rather than a universal hard filter;
+- DOL was heavily selection-confounded in the surviving baseline;
+- premium/discount and SNR were non-monotonic;
+- broad RVOL and room-to-target measures were not clean enough to justify the
+  first interaction gate;
+- Order Block research remains unavailable because deterministic historical OB
+  fields do not exist.
+
+### Hypothesis
+
+The current continuation-proxy family may contain low-quality breaks that lack
+the directional impulse expected from a genuine continuation. Requiring
+same-direction recent displacement for continuation-proxy signals may improve
+trade quality while leaving the independently different reversal family
+untouched.
+
+### Single controlled change
+
+Use the established EXP-003 deterministic family contract:
+
+```text
+directional recent liquidity sweep present -> reversal proxy
+no directional recent liquidity sweep      -> continuation proxy
+```
+
+Candidate rule:
+
+```text
+reversal proxy:
+    unchanged
+
+continuation proxy:
+    require same-direction recent displacement
+```
+
+Specifically:
+
+- LONG continuation proxy -> require `recent_bullish_displacement`;
+- SHORT continuation proxy -> require `recent_bearish_displacement`;
+- LONG reversal proxy remains identified by `recent_sell_side_sweep`;
+- SHORT reversal proxy remains identified by `recent_buy_side_sweep`.
+
+This is a setup-qualification interaction only. It does not change how
+displacement itself is calculated.
+
+### Historical capability / causality
+
+Required fields are already persisted in the full scored historical feature
+stream and were feature-matched in completed EXP-007 / EXP-009 research:
+
+- `recent_sell_side_sweep`;
+- `recent_buy_side_sweep`;
+- `recent_bullish_displacement`;
+- `recent_bearish_displacement`.
+
+The unchanged backtester already consumes these directional sweep/displacement
+states when writing trade context. No proxy is invented. The R7.0 runner must
+fail closed if these fields are unavailable.
+
+Important limitation: "continuation proxy" means the same deterministic
+no-directional-sweep family used by EXP-003. It does not prove that every
+historical signal completed every conceptual break/retest/hold state.
+
+### Frozen during R7.0
+
+- untouched baseline score weights;
+- threshold-70 eligibility;
+- score component values;
+- entry timing and next-bar-open execution;
+- slippage assumptions;
+- untouched CONTROL stop logic;
+- TP1 / TP2 / TP3 / TP4 distances and TP100 full-position exit;
+- session window and time rules;
+- maximum holding time;
+- one-open-trade-at-a-time behavior;
+- reversal qualification.
+
+Do not use FIXED_15, ATR_1.0, Evidence Tilt 80, Redundancy Reduced 85, or any
+R6 exit candidate in R7.0. Those remain separate later validation candidates.
+
+### Method
+
+- replay the full chronological scored feature stream;
+- do not filter an already-executed trade ledger;
+- require exact frozen CONTROL parity before trusting the candidate;
+- alter only the existing candidate eligibility flags on a copied scored stream;
+- preserve one-open-trade path dependence so rejected/accepted candidates may
+  naturally change later trade availability;
+- run 2023 first and review it before 2024;
+- only then run 2024, review it, and finally run 2025;
+- do not make a pooled decision until all three years have been reviewed.
+
+Primary outputs:
+
+- trade count;
+- win rate;
+- expectancy points / R;
+- profit factor;
+- net points;
+- maximum drawdown;
+- average / median MFE;
+- average / median MAE;
+- TP1 / TP2 / TP3 / TP4 hit rates;
+- stop-hit rate;
+- average hold time;
+- direction segmentation;
+- setup-family segmentation;
+- pre-path eligibility/exclusion diagnostics.
+
+### Completed R7.0 evidence — 2026-10-02
+
+All three full chronological replays passed exact frozen CONTROL parity.
+
+| Year | Model | Trades | Expectancy pts | PF | Net pts | Max DD |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| 2023 | CONTROL | 344 | +2.9157 | 1.1749 | +1003.00 | 545.50 |
+| 2023 | CONTINUATION_DISPLACEMENT | 335 | +2.9993 | 1.1799 | +1004.75 | 495.00 |
+| 2024 | CONTROL | 388 | +0.1707 | 1.0095 | +66.25 | 1091.75 |
+| 2024 | CONTINUATION_DISPLACEMENT | 381 | +0.1319 | 1.0074 | +50.25 | 1016.00 |
+| 2025 | CONTROL | 486 | +2.2701 | 1.1220 | +1103.25 | 758.50 |
+| 2025 | CONTINUATION_DISPLACEMENT | 475 | +2.1179 | 1.1138 | +1006.00 | 758.50 |
+
+Three-year comparison:
+
+- CONTROL: 1,218 trades, +2,172.50 net points, +1.7837 pts/trade.
+- CONTINUATION_DISPLACEMENT: 1,191 trades, +2,061.00 net points,
+  +1.7305 pts/trade.
+- Candidate versus CONTROL: -27 trades, -111.50 net points, and
+  -0.0532 pts/trade.
+- Drawdown improved by 50.50 points in 2023 and 75.75 points in 2024,
+  and was unchanged in 2025.
+- Expectancy and PF improved slightly in 2023, then deteriorated in 2024
+  and 2025.
+
+The earlier ledger interaction did not reproduce as a stable causal
+qualification improvement once applied to the full chronological candidate
+stream with one-open-trade path dependence.
+
+### R7.0 decision
+
+**REJECT AS A PRODUCTION QUALIFICATION CHANGE.**
+
+The gate reduced some annual drawdown but failed the primary stability test.
+It produced lower combined net profit and lower pooled expectancy than CONTROL,
+with weaker expectancy/PF in two of three years. Preserve the result as research
+evidence; do not promote the rule.
+
+Important 2026-10-09 reconciliation note: this experiment remains a valid record
+under its preserved producer/baseline semantics. It does **not** certify the
+newer integrity-corrected execution contract being reviewed in draft PR #7.
+Further R7 selection research remains paused until that integrity gate is cleared.
+
+### Implementation status
+
+- [x] verified `research/r53-atr-stop` equals R5 closure commit
+      `cbf7dff` and is the correct R7 base;
+- [x] created isolated branch
+      `research/r70-continuation-displacement`;
+- [x] added research runner
+      `scripts/run_r7_continuation_displacement.py`;
+- [x] added targeted tests
+      `tests/test_r7_continuation_displacement.py`;
+- [x] ran targeted tests on the VPS;
+- [x] ran 2023 full chronological replay and exact CONTROL parity gate;
+- [x] reviewed 2023;
+- [x] ran and reviewed 2024;
+- [x] ran and reviewed 2025;
+- [x] archived completed R7.0 outputs with SHA256 manifest;
+- [x] recorded the cross-year R7.0 decision;
+- [ ] choose the next isolated R7 interaction only after the integrity gate clears.
+
+No production change is authorized by R7.0.
 
 ---
 

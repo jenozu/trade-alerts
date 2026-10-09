@@ -41,3 +41,22 @@ not an exact-output replacement for those controls. Archive checks prove retaine
 bytes, not that old results certify the corrected strategy or an untouched holdout.
 R7 remains paused pending the current integrity gate. Main and existing archive
 bytes in the integrity checkout remain unchanged.
+
+
+## Repository unification update — 2026-10-09
+
+The completed R5.0-R5.3, R6.0-R6.3 and R7.0 archive directories have now been
+reconciled out of the preserved research lineage into the canonical repository
+history using their existing Git tree objects. No archive bytes were regenerated
+or rewritten.
+
+R7.0's stale checklist has also been reconciled from its retained outputs:
+all three frozen CONTROL parity gates passed, the three yearly candidate runs
+completed, the R7-00 SHA256 manifest exists, and the cross-year decision is
+**reject as a production qualification change**. The result remains historical
+evidence under its original producer semantics; it does not clear the newer
+integrity-corrected execution contract.
+
+The historical research branches remain preserved until the active integrity
+PR is merged and a final branch-cleanup audit confirms that no unique evidence
+or implementation work is stranded.
