@@ -1,0 +1,121 @@
+{
+  "status": "LINKED_EXECUTION_DIAGNOSTIC_NOT_RESEARCH_READY",
+  "research_ready": false,
+  "sequence_contract": "fvg_chronology_v2",
+  "year_utc": 2025,
+  "inputs_unchanged": true,
+  "source_rows": 441015,
+  "score_candidate_rows": 846,
+  "eligible_directional_signals": 7,
+  "accepted_plans": 0,
+  "simulated_trades": 0,
+  "executed_plan_parity_checked": 0,
+  "rejection_counts": {
+    "structural_risk_too_large:26.75>25.00": 1,
+    "insufficient_room_to_first_obstacle:0.75<25.00": 2,
+    "poor_asymmetry_to_tp1:0.03<1.00": 2,
+    "structural_risk_too_large:27.50>25.00": 1,
+    "structural_risk_too_large:55.75>25.00": 1,
+    "insufficient_room_to_first_obstacle:2.25<25.00": 1,
+    "poor_asymmetry_to_tp1:0.04<1.00": 1,
+    "structural_risk_too_large:307.25>25.00": 1,
+    "insufficient_room_to_first_obstacle:2.50<25.00": 1,
+    "poor_asymmetry_to_tp1:0.01<1.00": 2,
+    "poor_asymmetry_to_primary_dol:0.79<1.00": 1,
+    "structural_risk_too_large:46.50>25.00": 1,
+    "insufficient_room_to_first_obstacle:0.25<25.00": 1,
+    "outside_fill_entry_window": 1,
+    "structural_risk_too_large:32.75>25.00": 1,
+    "insufficient_room_to_first_obstacle:19.25<25.00": 1,
+    "poor_asymmetry_to_tp1:0.59<1.00": 1
+  },
+  "segments": [
+    {
+      "contract": "NMZ24",
+      "rows": 75315,
+      "score_candidate_rows": 0,
+      "eligible_directional_signals": 0,
+      "accepted_plans": 0,
+      "simulated_trades": 0
+    },
+    {
+      "contract": "NMH25",
+      "rows": 85772,
+      "score_candidate_rows": 210,
+      "eligible_directional_signals": 2,
+      "accepted_plans": 0,
+      "simulated_trades": 0
+    },
+    {
+      "contract": "NMM25",
+      "rows": 86668,
+      "score_candidate_rows": 195,
+      "eligible_directional_signals": 3,
+      "accepted_plans": 0,
+      "simulated_trades": 0
+    },
+    {
+      "contract": "NMU25",
+      "rows": 89715,
+      "score_candidate_rows": 191,
+      "eligible_directional_signals": 1,
+      "accepted_plans": 0,
+      "simulated_trades": 0
+    },
+    {
+      "contract": "NMZ25",
+      "rows": 88590,
+      "score_candidate_rows": 217,
+      "eligible_directional_signals": 1,
+      "accepted_plans": 0,
+      "simulated_trades": 0
+    },
+    {
+      "contract": "NMH26",
+      "rows": 14955,
+      "score_candidate_rows": 33,
+      "eligible_directional_signals": 0,
+      "accepted_plans": 0,
+      "simulated_trades": 0
+    }
+  ],
+  "effective_backtest": {
+    "execution_model": "market_after_retest_confirmation_v2",
+    "use_completed_bars_only": true,
+    "entry_on_next_bar_open": true,
+    "conservative_same_bar_resolution": true,
+    "same_bar_stop_and_target_behavior": "stop_first",
+    "commission_enabled": false,
+    "commission_round_trip": 0.0,
+    "commission_unit": "points",
+    "point_value": 2.0,
+    "quantity": 1,
+    "slippage_enabled": true,
+    "entry_slippage_points": 0.25,
+    "exit_slippage_points": 0.25,
+    "maximum_holding_minutes": 60,
+    "maximum_one_open_trade": true,
+    "stop_method": "structural",
+    "structural_stop_buffer_points": 2.0,
+    "fixed_stop_values": [
+      15.0,
+      20.0,
+      25.0,
+      30.0,
+      35.0
+    ],
+    "preferred_fixed_stop_min": 20.0,
+    "preferred_fixed_stop_max": 25.0,
+    "tp1_points": 25.0,
+    "tp2_points": 50.0,
+    "tp3_points": 75.0,
+    "tp4_points": 100.0,
+    "number_of_targets": 4
+  },
+  "limitations": [
+    "Costs are recorded frozen settings, not verified actual fees",
+    "Accepted standalone decisions may not execute due to side tie/one-position policy",
+    "No historical accepted-path proof when simulated_trades is zero",
+    "Development diagnostic only; no optimization or research readiness certification"
+  ]
+}

@@ -83,4 +83,6 @@ manifest verifies all seven copied files. VPS-only source paths have not been
 reopened locally; this verification does not claim historical accepted-path
 parity, realistic fees or research readiness. No completed pipeline was rerun.
 
-2024 and 2025 authoritative execution exports remain to be archived.
+2024 and 2025 authoritative execution exports were subsequently verified and
+archived under matching EXP-INTEGRITY-2024-DIAGNOSTIC and
+EXP-INTEGRITY-2025-DIAGNOSTIC directories.

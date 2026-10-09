@@ -12,7 +12,7 @@ for this checkpoint. Keep the current policy and record its fidelity limits.
 | Commission/net accounting | Implemented and tested | Explicit units, quantity and net R; disabled-cost compatibility. Actual account fees are needed for realistic net-performance claims, not to verify the accounting engine. |
 | Execution invariants | Implemented and tested for the selected contract | Immediate next-minute entry, adverse stop gaps, conservative target gaps and ambiguity handling. Missing-path fills and session liquidation remain documented limitations, not certified capabilities. |
 | Dataset discipline | Complete classification | 2023–2025 are development; 2026 is pseudo out of sample; true forward evidence starts after a model freeze. No true forward freeze is claimed. |
-| Fingerprints/source correspondence | Implemented; yearly diagnostics completed | Immutable input/output identities and contract-isolated 2023–2025 builds verified in supplied VPS evidence. Unavailable original 2023 producer provenance stays explicitly unavailable. Small authoritative VPS files still need durable archiving. |
+| Fingerprints/source correspondence | Implemented; yearly diagnostics completed | Immutable input/output identities and contract-isolated 2023–2025 builds verified in supplied VPS evidence. Unavailable original 2023 producer provenance stays explicitly unavailable. Authoritative execution summaries, decisions, effective config and both locks for all three years are now archived; VPS-only upstream files remain outside local verification. |
 | Strategy fidelity audit | Audit and selected execution contract implemented; qualified evidence | Object-linked chronology and shared market planner/backtester accepted-path fixtures cover both directions/families. Historical diagnostics have 7 / 2 / 7 eligible signals and zero accepted trades; they prove rejection paths, not historical accepted execution or profitability. Production zone hypotheses are not migrated to the market-entry adapter. |
 
 Latest integrity-code full regression: **786 passed, 872 warnings**. This is the
@@ -23,12 +23,15 @@ The proposed internal-equal-liquidity policy is deferred and outside this
 engineering closeout. Do not change rules to manufacture accepted trades. Zero
 accepted trades is a valid diagnostic result with an explicit evidence boundary.
 
-**Next task:** preserve the existing VPS summaries, decisions, effective config
-and lock manifests as small authoritative evidence; do not rebuild features or
-rerun completed yearly audits. Then reconcile the integrated branch, run checks
-appropriate to its merged changes, and close PR #7 with the limits above recorded.
-R7 selection remains paused until that closeout. Historical R5/R6/R7.0 evidence
-has already been reconciled into main; do not repeat those studies.
+**Next task:** reconcile the current integrated branch with this completed
+execution-evidence closeout, run checks appropriate to its merged changes, and
+prepare PR #7 for review with the limits above recorded. Authoritative 2023,
+2024 and 2025 execution exports are now verified and committed under
+`research-archive/EXP-INTEGRITY-{year}-DIAGNOSTIC/`. Both lock digests verify;
+summary, decisions and effective-config bytes match output-lock hashes; all
+68 producer code hashes match the integrity-code checkout. No yearly audit or
+feature build needs rerunning. R7 selection remains paused until closeout.
+Historical R5/R6/R7.0 evidence is already reconciled into main; do not repeat it.
 
 ## Historical checkpoints (retained for provenance)
 
