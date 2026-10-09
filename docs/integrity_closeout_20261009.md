@@ -1,9 +1,9 @@
 # Integrity engineering closeout — 2026-10-09
 
 Decision: implementation, qualified fidelity audit and yearly execution-evidence
-archiving are complete on the review branch. PR #7 is ready for review; it is
-not a deployment or permission to start a selection experiment. Main publication
-and roadmap sync remain separate next actions.
+archiving are complete on the review branch. PR #7 is merged at 4b947ebc3eca0f1e3e37af689e262cd622e67025; this is
+not a deployment or permission to start a selection experiment. The canonical main roadmap now records the completed qualified checkpoint.
+Voyages reads it on the next app refresh; the displayed app state was not inspected.
 
 ## Validation
 
@@ -60,7 +60,8 @@ Existing defaults, producer histories and frozen research results are preserved.
 
 ## Next action
 
-Review and merge PR #7's qualified engineering checkpoint, then sync the roadmap.
+PR #7 is merged and its completion is recorded in main/phases.md.
+Prepare the next isolated R7 preregistration before any new selection run.
 Do not deploy automatically. R5/R6/R7.0 are already reconciled on main and must
 not be repeated. Before any next R7 selection run, preregister its executable
 control and candidate identities and acknowledge the zero-trade corrected

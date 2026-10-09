@@ -7,7 +7,7 @@
 
 > Before doing any work, inspect the current repository and this checklist. Do not recreate working modules simply because an older roadmap lists them as future work.
 
-> **Repository-state rule (2026-10-09):** `main` is the stable source of truth and Voyages reads `main/phases.md`. Completed historical research from R5-R7 is reconciled into main as immutable evidence. Draft PR #7 (`research/pre-critical-integrity`) remains the active engineering/integrity branch; further strategy-selection research stays paused until that gate is cleared. See `REPOSITORY_STATE.md` and `refine-roadmap.md` before starting new work.
+> **Repository-state rule (2026-10-09):** `main` is the stable source of truth and Voyages reads `main/phases.md`. Historical R5–R7 evidence is reconciled. PR #7 is merged: the qualified integrity engineering checkpoint and 2023–2025 execution-evidence archive are complete. See `docs/integrity_closeout_20261009.md` for validation and limits before preparing new research.
 
 ## How to use this file
 
@@ -1134,7 +1134,8 @@ experiment-level checkbox.
 - [x] R5 stop-loss research block completed; FIXED_15 and ATR_1.0 remain validation candidates only.
 - [x] R6 fixed-target / partial-exit research block completed; TP100 remains the control.
 - [x] R7.0 continuation-displacement interaction completed and rejected as a production qualification rule.
-- [ ] Clear the pre-critical integrity / execution-contract gate in draft PR #7 before further selection research.
+- [x] Complete and merge the qualified pre-critical integrity engineering / execution-audit checkpoint (PR #7; 800 tests passed; historical accepted-path and realistic-cost limits documented).
+- [ ] Preregister the next R7 control/candidate identities and review the corrected control's zero-trade result before executing selection research.
 - [ ] Continue isolated R7 interaction experiments after the integrity gate.
 - [ ] R8 market-regime and day-type research.
 - [ ] R9 robustness tests.
@@ -1312,18 +1313,18 @@ Never:
 
 # Current next action
 
-Do **not** restart earlier completed phases or R7.0.
+The qualified integrity engineering checkpoint is merged via PR #7 at
+`4b947ebc3eca0f1e3e37af689e262cd622e67025`. All three corrected yearly
+execution diagnostics are archived; the final combined code passed 800 tests.
 
-1. Treat `main` + `phases.md` as the stable project source of truth.
-2. Treat draft PR #7 / `research/pre-critical-integrity` as the only active
-   integration branch for the current execution-integrity gate.
-3. Review the completed integrity engineering and yearly execution-evidence
-   closeout in `docs/integrity_closeout_20261009.md`; the integrated tree passed
-   786 tests. Account fees and historical accepted-path limits are documented,
-   and the optional liquidity-policy proposal is deferred.
-4. Merge the reviewed checkpoint into `main` only after the gate is satisfied.
-5. Sync Voyages after the merge.
-6. Only then preregister the next isolated R7 interaction.
+1. Prepare the next isolated R7 preregistration from reconciled R5/R6/R7.0 evidence.
+2. State the executable control and candidate contracts explicitly. The corrected
+   chronology/market-v2 diagnostic accepted zero trades in all three years;
+   preserved historical controls use different producer semantics.
+3. Do not change liquidity, target, score or risk rules merely to obtain trades.
+4. Document actual account fees before realistic net-performance claims.
+5. Execute an experiment only after an explicit run instruction under RULES.md
+   section 17. Preparation and push do not authorize a VPS experiment.
 
-See `REPOSITORY_STATE.md`, `refine-roadmap.md`, and the PR #7 readiness
-documentation before issuing new VPS research runs.
+Do not rerun completed yearly builds or R5/R6/R7.0 studies. Deployment remains
+separate. Voyages reads this updated main checklist on its next refresh.

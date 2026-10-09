@@ -12,14 +12,15 @@ research branches do not drift into competing versions of the project.
 - `main` is the stable source of truth for completed project state.
 - Voyages reads `main/phases.md`; if that file is stale, the visual percentage
   is stale even when work exists elsewhere.
-- Draft PR #7 on `research/pre-critical-integrity` is the single active
-  integration branch for the execution/accounting/data-integrity gate.
+- PR #7 is merged at `4b947ebc3eca0f1e3e37af689e262cd622e67025`.
+  The qualified engineering checkpoint and yearly execution archive are complete;
+  `research/pre-critical-integrity` remains preserved for provenance.
 - `research/r70-continuation-displacement` is a preserved historical research
   branch. Its completed R5-R7 archives are reconciled into canonical history;
   the branch remains for provenance.
 - R7.0 completed across 2023/2024/2025 and was rejected as a production
-  qualification rule. Further R7 selection research is paused until PR #7's
-  integrity gate is cleared.
+  qualification rule. Next R7 preparation must identify its executable control
+  and candidate contracts before any selection run.
 - `perf/scoring-streaming-memory` contains two unique historical optimization
   commits that are not on main and have no PR. Preserve it for later review;
   do not silently merge or delete it.
@@ -73,13 +74,18 @@ the rule", not "the work is unfinished".
 
 ## Current approved next action
 
-PR #7's engineering implementation and 2023–2025 execution-evidence archive
-closeout are verified; the checkpoint is ready for review with documented limits.
-See `docs/integrity_closeout_20261009.md`. Actual account fees are required before
-realistic net-performance claims, not accounting-engine verification. The optional
-liquidity-policy proposal is deferred. Do not restart completed R5/R6/R7.0 studies.
-After the reviewed integrity checkpoint is merged to `main`, sync Voyages and
-only then preregister the next isolated R7 interaction.
+PR #7 is merged and the canonical phases.md records the completed qualified
+engineering checkpoint. Final regression: 800 passed, 872 warnings. Preserve
+its accepted-path, fee, upstream-provenance and deployment limits in
+`docs/integrity_closeout_20261009.md`. The liquidity-policy proposal is deferred.
+
+Next: prepare an isolated R7 preregistration, explicitly distinguishing the
+corrected zero-trade contract from preserved historical controls. Do not rerun
+R5/R6/R7.0. Remote experiment execution still requires an explicit run command
+under RULES.md section 17. No live deployment is implied.
+
+Voyages fetches main/phases.md without a server cache; the next app refresh reads
+this checkpoint. No displayed percentage or user-browser refresh is claimed here.
 
 ## Branch cleanup policy
 
