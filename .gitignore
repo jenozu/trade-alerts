@@ -74,3 +74,6 @@ reports/
 *.tmp
 *.temp
 *.bak
+
+# Local/remote automation run records (GitHub Actions stores small copies as artifacts)
+.automation-runs/

@@ -1,0 +1,113 @@
+name: Run trade experiment
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "run-requests/current.json"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: trade-alerts-research-vps
+  cancel-in-progress: false
+
+jobs:
+  run-experiment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+
+    steps:
+      - name: Check out request commit
+        uses: actions/checkout@v4
+
+      - name: Validate run request
+        id: request
+        run: |
+          python scripts/automation/parse_run_request.py             run-requests/current.json             --github-output "$GITHUB_OUTPUT"
+
+      - name: Configure VPS SSH
+        env:
+          TRADE_VPS_HOST: ${{ secrets.TRADE_VPS_HOST }}
+          TRADE_VPS_SSH_KEY: ${{ secrets.TRADE_VPS_SSH_KEY }}
+        run: |
+          test -n "$TRADE_VPS_HOST"
+          test -n "$TRADE_VPS_SSH_KEY"
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$TRADE_VPS_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$TRADE_VPS_HOST" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Run prepared experiment on VPS
+        env:
+          TRADE_VPS_HOST: ${{ secrets.TRADE_VPS_HOST }}
+          TRADE_VPS_USER: ${{ secrets.TRADE_VPS_USER }}
+          EXPERIMENT: ${{ steps.request.outputs.experiment }}
+          REQUEST_ID: ${{ steps.request.outputs.request_id }}
+          EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          test -n "$TRADE_VPS_USER"
+          ssh -o BatchMode=yes "$TRADE_VPS_USER@$TRADE_VPS_HOST"             "EXPECTED_SHA='$EXPECTED_SHA' EXPERIMENT='$EXPERIMENT' REQUEST_ID='$REQUEST_ID' bash -s" <<'REMOTE'
+          set -euo pipefail
+
+          cd /docker/trade-alerts
+
+          test -d .git || {
+            echo "FAIL: /docker/trade-alerts is not a Git checkout"
+            exit 20
+          }
+
+          test "$(git branch --show-current)" = "main" || {
+            echo "FAIL: VPS checkout must be on main"
+            exit 21
+          }
+
+          test -z "$(git status --porcelain)" || {
+            echo "FAIL: VPS working tree has changes. Refusing to overwrite them."
+            git status --short
+            exit 22
+          }
+
+          git fetch origin main
+          git merge --ff-only origin/main
+
+          ACTUAL_SHA="$(git rev-parse HEAD)"
+          test "$ACTUAL_SHA" = "$EXPECTED_SHA" || {
+            echo "FAIL: commit mismatch"
+            echo "Expected: $EXPECTED_SHA"
+            echo "VPS HEAD: $ACTUAL_SHA"
+            exit 23
+          }
+
+          test -x .venv/bin/python || {
+            echo "FAIL: /docker/trade-alerts/.venv/bin/python is missing"
+            exit 24
+          }
+
+          .venv/bin/python scripts/automation/execute_run_request.py             --experiment "$EXPERIMENT"             --request-id "$REQUEST_ID"             --expected-sha "$EXPECTED_SHA"
+          REMOTE
+
+      - name: Collect small run record
+        if: always()
+        env:
+          TRADE_VPS_HOST: ${{ secrets.TRADE_VPS_HOST }}
+          TRADE_VPS_USER: ${{ secrets.TRADE_VPS_USER }}
+          REQUEST_ID: ${{ steps.request.outputs.request_id }}
+        run: |
+          mkdir -p run-artifact
+          if test -n "$TRADE_VPS_HOST" && test -n "$TRADE_VPS_USER" && test -n "$REQUEST_ID"; then
+            scp -r               "$TRADE_VPS_USER@$TRADE_VPS_HOST:/docker/trade-alerts/.automation-runs/$REQUEST_ID/."               run-artifact/ || true
+          fi
+
+      - name: Upload run record
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.request.outputs.request_id }}-run-record
+          path: run-artifact/
+          if-no-files-found: warn
+          retention-days: 30

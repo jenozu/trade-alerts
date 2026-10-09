@@ -272,3 +272,14 @@ Decision needed: <one precise question>
 Do not ask for confirmation between routine engineering steps. Work through normal command execution, testing, diagnosis, small fixes, verification, and standard Git operations independently.
 
 The overriding priority is **correctness and backtest integrity**, not merely obtaining a green test count.
+
+
+## ChatGPT command shorthand
+
+When the user uses compact commands such as `status`, `push`, `prepare 1`,
+`run 1`, `logs 1`, or `results 1`, follow the semantics in
+`CHATGPT_COMMANDS.md`.
+
+Important: `push` is a Git operation and never authorizes research execution.
+Only an explicit `run N` or `rerun N` authorizes the experiment automation
+request for EXP-NNN.

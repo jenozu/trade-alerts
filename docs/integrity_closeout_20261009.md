@@ -68,3 +68,15 @@ contract. Preserved historical controls cannot certify the corrected contract;
 any future experiment must state exactly which contract it evaluates.
 No additional yearly build, full regression or VPS diagnostic rerun is needed
 for this closeout unless new code or evidence changes the verified scope.
+
+## Final merge review — canonical files preserved
+
+The review against current main ecf710c06cfaa263f85511b8a326e9d7ecea3433
+found that earlier integration had dropped canonical automation and context files.
+Thirteen files were restored byte-for-byte from main, including automation tests,
+explicit-run rules, the workflow, wrapper, idle request and context principles.
+The previous 786-test checkpoint did not cover those missing automation tests.
+The corrected combined tree 195f832c26c92677b6cca66902b0e1480c9c9606 passed
+**800 tests, 872 warnings in 52.84 seconds**, with exit code zero.
+No experiment was executed; the restored request is idle and unchanged from main.
+Final metadata updates are documentation only.
