@@ -40,3 +40,10 @@ in `docs/research/r7_family_policy_proposal.md`. Its 2023 flag arithmetic adds o
 qualified continuation, not an accepted trade or profitability result. Current
 rules and historical evidence are preserved; no further same-kind export is needed
 before that decision.
+
+The user approved the isolated confirmation-first family option. Implementation
+and 824-test regression are complete; default behavior is retained. EXP-030 is a
+prepared qualification/decision diagnostic using existing 2023 chronology files
+and archived control evidence. It has not run; historical acceptance/P&L and
+performance selection remain unknown. See
+`docs/research/r7_family_policy_implementation.md`.

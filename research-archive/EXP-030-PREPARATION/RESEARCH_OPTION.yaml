@@ -1,0 +1,4 @@
+backtest:
+  execution_model: market_after_retest_confirmation_v2
+  sequence_contract: fvg_chronology_v2
+  family_policy: confirmation_first_family_v1

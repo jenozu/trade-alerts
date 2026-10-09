@@ -1,0 +1,47 @@
+{
+  "approved_policy": "confirmation_first_family_v1",
+  "archived_2023_qualification": {
+    "additional_candidate": "NMU23 short 2023-08-24T13:45:00+00:00",
+    "control": 7,
+    "historical_plan_acceptance": null,
+    "historical_pnl": null,
+    "variant": 8
+  },
+  "default_policy": "context_first_family_v1",
+  "focused": {
+    "passed": 122,
+    "warnings": 504
+  },
+  "full": {
+    "passed": 824,
+    "seconds": 58.2,
+    "warnings": 967
+  },
+  "local_runtime": {
+    "numpy": "2.5.3",
+    "pandas": "2.3.3",
+    "pyarrow": "23.0.1",
+    "pytest": "9.1.1"
+  },
+  "production_promotion": false,
+  "remote_run_requested": false,
+  "source_feature_rebuild": false,
+  "status": "IMPLEMENTED_TESTED_PREPARED_NOT_REMOTELY_RUN",
+  "tested_code_sha256": {
+    "automation/experiments/EXP-030.sh": "79d6cad12d924a768b7dc105fb131221da0b3a99e333b3279e5a3bd97640643b",
+    "scripts/audit_linked_execution.py": "2e3725becbc5f221e679ef682786e91ec0d97ab66d53a32d293bfb3cdee2ca54",
+    "src/backtest.py": "350925f29635f975308fa006a4a0a4a0f469414e70f80d43c30c48d411000d4e",
+    "src/setup_family_contract.py": "a217c94d36f57db2e7c4efde6eb840b0fd318f3e6770d04677f8ee2de117011c",
+    "src/trade_planner.py": "ec08ec70ab1a2171eee17d34bcf4a8d1bc1de467f5c543566211f704a4787811",
+    "tests/test_confirmation_family_policy.py": "dad21fb9391fd11006e556bb0bf512bad7f00978b1725c036164f91e41aabf74",
+    "tests/test_linked_execution_audit.py": "cae656a6513b07f3f5d1ced5b36f4709c3cc3b17cba315708bb763e7de0b8ac0"
+  },
+  "verification": [
+    "Long/short independent plan JSON matches actual backtest execution",
+    "Default overlap remains rejected; both-ready reversal wins; stale evidence rejects",
+    "Future extreme mutation preserves entry decision",
+    "Locked audit verifies both identities and unchanged sources",
+    "Existing 659 archived flags reproduce seven default plus one new continuation",
+    "Prepared wrapper shell/Python syntax and synthetic comparison/drift rejection verified"
+  ]
+}

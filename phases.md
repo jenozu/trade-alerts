@@ -1138,7 +1138,9 @@ experiment-level checkbox.
 - [x] Verify the corrected R7 control identity and zero-trade feasibility from archived evidence.
 - [x] Inspect and archive 2023 score-candidate qualification flags; seven signal/FVG identities reproduced.
 - [x] Inspect and archive two causal minute windows; sampled nonqualification matches current rules.
-- [ ] Decide the proposed research-only confirmation-first family policy before implementation.
+- [x] Approve, implement and test the research-only confirmation-first family option (824 tests passed).
+- [x] Prepare EXP-030 diagnostic wrapper reusing the archived control; run request remains idle.
+- [ ] Run and archive the authorized EXP-030 2023 qualification/decision diagnostic.
 - [ ] Preregister a meaningful next R7 control/candidate comparison after qualification review.
 - [ ] Continue isolated R7 interaction experiments after the integrity gate.
 - [ ] R8 market-regime and day-type research.
@@ -1324,9 +1326,10 @@ an additional eligibility filter would be uninformative.
 
 The 2023 candidate flags and two causal minute windows are verified and archived.
 The sampled nonqualification matches current chronology/family rules; no defect
-is demonstrated in these samples. Next: review the research-only
-`confirmation_first_family_v1` proposal in
-`docs/research/r7_family_policy_proposal.md` before changing eligibility. It adds
+is demonstrated in these samples. The user approved
+`confirmation_first_family_v1`; it is now an explicit research option with 824
+passing tests. EXP-030 is prepared and awaits an explicit run instruction. See
+`docs/research/r7_family_policy_implementation.md`. It adds
 one qualified candidate in the supplied 2023 flags; planner acceptance and P&L
 are unknown. No more of the same VPS exports are required for this decision.
 See `docs/research/r7_next_step.md` for evidence and limits.

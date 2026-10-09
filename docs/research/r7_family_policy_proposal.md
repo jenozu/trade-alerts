@@ -1,7 +1,8 @@
-# R7 family policy proposal — pending strategy approval
+# R7 family policy — approved research option
 
-Status: reviewable proposal only. No executable rule, configuration, production
-default or historical archive is changed. No remote experiment is requested.
+Status: the user approved implementation/testing on 2026-10-09. The variant is
+implemented as an explicit research opt-in; defaults, source data and historical
+archives are preserved. Remote execution has not been authorized or requested.
 
 ## Observed problem
 
@@ -35,15 +36,16 @@ retain their current chronology, FVG identity, expiry and invalidation requireme
 Completion, score eligibility, side ties, entry timing, slippage, structural
 risk cap, obstacle room, targets and position management all remain unchanged.
 Keep the existing context-first policy as the default and diagnostic control;
-implement this variant only as an explicit research opt-in if approved.
+the implemented variant requires an explicit research opt-in.
 
 ## Known impact and limits
 
 Read-only flag arithmetic on all 659 supplied 2023 candidates yields seven
 current qualified signals versus eight under the proposal. The only additional
 candidate is the short continuation above. Existing seven signal families remain
-unchanged. This calculation has not called the planner or simulator for the
-extra candidate. It is not an accepted trade, P&L estimate, statistical result,
+unchanged. This historical flag calculation has not called the planner or simulator for the
+extra candidate. Synthetic tests do exercise accepted planner/backtest paths in
+both directions under the new policy. It is not an accepted trade, P&L estimate, statistical result,
 optimization finding or justification for production promotion.
 
 This is a qualification/decision diagnostic, not a meaningful profitability
@@ -51,7 +53,7 @@ interaction experiment. The variant might also accept no plans, and even one
 additional trade would not establish a useful sample. Do not automatically
 relax another rule if it also fails. Current zero-plan evidence remains intact.
 
-## Work after approval
+## Implemented and prepared work
 
 Implement one versioned shared family selector used consistently by the opted-in
 planner and backtester. Test both-ready precedence, continuation-only readiness,
@@ -68,5 +70,31 @@ before deciding whether a larger research comparison is warranted.
 RULES.md section 6 says: "An engineering agent may fix implementation errors
 autonomously, but it must not invent trading semantics." This proposal changes
 which setup can qualify and is not specified by the source strategy's broad
-reversal/continuation descriptions. Approval is needed to implement this named
+reversal/continuation descriptions. The user approved implementing and testing this named
 variant. There is no approval request to weaken data integrity or deploy it live.
+
+
+## Verified implementation checkpoint
+
+Set `backtest.family_policy: confirmation_first_family_v1` together with market
+execution v2 and chronology v2. Unknown policy names and incompatible modes fail
+closed. Omission keeps `context_first_family_v1` and preserves current behavior.
+The opted-in market planner and backtester share the family selector, including
+candidate family labels and confirmation FVG identity. Audit input/output locks
+record effective policy and configuration under a separate diagnostic identity.
+
+Focused execution/chronology compatibility tests: 122 passed. Full regression:
+824 passed, 967 compatibility/deprecation warnings in 58.20 seconds. Synthetic
+accepted trades reproduce independent plan JSON in both directions; future
+extremes do not change entry decisions. The real 659-row archived flags give
+seven default qualifications and eight opted-in qualifications, with only the
+identified August 24 continuation added. Historical acceptance/P&L is unknown.
+
+Prepared reviewed wrapper: `automation/experiments/EXP-030.sh`. It reuses verified
+archived control evidence, evaluates only the opted-in 2023 diagnostic on existing
+chronology features, compares identical source hashes/configuration, and requires
+the original seven planner decisions to remain unchanged. New outputs use a fresh
+sibling directory. Comparator fixtures reject altered existing decisions. It is
+not a performance selection run and does not rebuild upstream features. The run
+request remains idle. An explicit `run EXP-030` is required under RULES.md section
+17 before remote execution. See `docs/research/r7_family_policy_implementation.md`.

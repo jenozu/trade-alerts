@@ -8,7 +8,8 @@ semantics that produced that state.
 
 from __future__ import annotations
 
-from setup_family_contract import classify_setup_family
+from setup_family_contract import (classify_setup_family, selected_family_policy,
+                                   select_confirmation_family, DEFAULT_FAMILY_POLICY)
 
 from dataclasses import dataclass, replace
 from datetime import datetime, timedelta
@@ -394,6 +395,7 @@ def _attempt_candidate(
     settings: PlannerSettings,
     *,
     execution_entry: float | None = None,
+    execution_family: str | None = None,
 ) -> tuple[dict[str, Any] | None, list[str]]:
     rejections: list[str] = []
     latest_price = _number(_mapping(state.get("instrument")).get("latest_price"))
@@ -505,7 +507,7 @@ def _attempt_candidate(
     liquidity = _mapping(state.get("liquidity"))
     directional = _directional_name(direction)
     opposite_sweep = "sell_side" if direction == "long" else "buy_side"
-    family = classify_setup_family(
+    family = execution_family or classify_setup_family(
         reversal_sequence=_truth(structure.get(f"{directional}_reversal_sequence")),
         opposite_recent_sweep=_truth(liquidity.get(f"recent_{opposite_sweep}_sweep")),
         opposite_sweep=_truth(liquidity.get(f"{opposite_sweep}_liquidity_sweep")),
@@ -645,6 +647,7 @@ def build_market_execution_plan(
     if direction not in {"long", "short"} or not isinstance(market_state, Mapping):
         raise TradePlannerError("Market execution requires a state and long/short direction")
     from linked_sequences import selected_contract, LEGACY
+    policy = selected_family_policy(strategy_config or {})
     sequence_contract = selected_contract(strategy_config or {})
     linked_identity = None
     linked_missing = False
@@ -686,7 +689,11 @@ def build_market_execution_plan(
     opposite = "sell_side" if direction == "long" else "buy_side"
     structure = _mapping(market_state.get("structure"))
     liquidity = _mapping(market_state.get("liquidity"))
-    family = classify_setup_family(
+    family = select_confirmation_family(
+        policy=policy,
+        reversal_event=structure.get(f"{side}_reversal_entry_valid_event") is True,
+        continuation_sequence=structure.get(f"{side}_continuation_sequence") is True,
+        continuation_event=structure.get(f"{side}_continuation_entry_valid_event") is True,
         reversal_sequence=_truth(structure.get(f"{side}_reversal_sequence")),
         opposite_recent_sweep=_truth(liquidity.get(f"recent_{opposite}_sweep")),
         opposite_sweep=_truth(liquidity.get(f"{opposite}_liquidity_sweep")),
@@ -695,7 +702,7 @@ def build_market_execution_plan(
         linked_identity = structure.get(f'{side}_linked_{family}_fvg_id')
         if not isinstance(linked_identity, str) or not linked_identity:
             reasons.append('linked_retest_object_required')
-    if (structure.get(f"{side}_{family}_sequence") is not True
+    if (family is None or structure.get(f"{side}_{family}_sequence") is not True
             or structure.get(f"{side}_{family}_entry_valid_event") is not True):
         reasons.append("fresh_confirmation_event_required")
     candidate = None
@@ -703,7 +710,7 @@ def build_market_execution_plan(
     settings = replace(settings, maximum_structural_risk=min(25.0, settings.preferred_risk_maximum))
     if not reasons:
         candidate, reasons = _attempt_candidate(
-            market_state, direction, settings, execution_entry=price)
+            market_state, direction, settings, execution_entry=price, execution_family=family)
     if candidate is not None:
         # A missing runner cannot silently become a fabricated fixed TP4 or
         # a different exit policy. TP2 remains an optional observation.
@@ -724,6 +731,8 @@ def build_market_execution_plan(
         "decision": DECISION_PLAN if candidate is not None else DECISION_NO_TRADE,
         "candidate": candidate, "rejections": reasons,
     }
+    if policy != DEFAULT_FAMILY_POLICY:
+        result['family_policy'] = policy
     if sequence_contract != LEGACY:
         result['sequence_contract'] = sequence_contract
         result['confirmation_fvg_id'] = linked_identity

@@ -85,12 +85,13 @@ evaluated on this zero-accepted-plan control. The 2023 flags are now archived
 and the current APIs reproduce all seven
 archived signal/FVG identities. Two causal minute windows are now archived and
 sampled nonqualification follows current rules; no implementation defect is
-established by these samples. Next: review the research-only confirmation-first
-family policy proposal in `docs/research/r7_family_policy_proposal.md`. It changes
-trade eligibility and requires a strategy decision before implementation. No
-further same-kind VPS export is needed for that decision. Statistical performance
-selection remains pending; no acceptance or P&L is established for the one added
-candidate in proposal-only flag arithmetic. Do not rerun
+established by these samples. The user approved the research-only confirmation-first
+family option, now implemented with 824 passing tests. Defaults and source data
+are preserved. EXP-030 is prepared to evaluate the 2023 added continuation while
+reusing locked control evidence. It requires explicit run authorization; the run
+request remains idle. See `docs/research/r7_family_policy_implementation.md`.
+Historical acceptance/P&L and meaningful statistical selection remain pending.
+Do not rerun
 R5/R6/R7.0. Remote experiment execution still requires an explicit run command
 under RULES.md section 17. No live deployment is implied.
 

@@ -2313,7 +2313,9 @@ No production change is authorized by R7.0.
 - [x] Inspect and archive 2023 score-candidate qualification flags; production APIs reproduce all seven signal/FVG identities.
 - [x] Inspect and archive two causal minute windows; sampled nonqualification follows documented chronology/family rules.
 - [x] Prepare a concrete research-only confirmation-first family proposal with observed flag impact and explicit limits.
-- [ ] Resolve any demonstrated implementation mismatch or obtain an explicit strategy decision.
+- [x] Obtain the user's approval for the isolated confirmation-first family diagnostic variant.
+- [x] Implement/test the explicit research option and prepare EXP-030 (824 tests passed; default preserved).
+- [ ] Run/archive the authorized EXP-030 2023 diagnostic; historical acceptance/P&L remains unknown.
 - [ ] Preregister a meaningful isolated control/candidate comparison before an authorized run.
 
 The corrected control has 7 / 2 / 7 eligible signals and zero accepted plans.

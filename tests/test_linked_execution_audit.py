@@ -15,7 +15,7 @@ from tests.test_chronology_sequences import case
 from tests.test_linked_derivation import ROOT, snapshot_producer_commit
 
 
-def source_artifact(tmp_path, monkeypatch, direction='long', family='continuation', *, reject=False):
+def source_artifact(tmp_path, monkeypatch, direction='long', family='continuation', *, reject=False, overlap=False):
     frame, objects, config, _ = case(direction, family)
     times = pd.date_range('2025-01-29T14:30:00Z', periods=len(frame), freq='min')
     frame['timestamp'] = times
@@ -25,6 +25,9 @@ def source_artifact(tmp_path, monkeypatch, direction='long', family='continuatio
     frame['contract'] = 'NMH25'
     if reject:
         frame.loc[3:, 'close'] = 99.5
+    if overlap:
+        opposite = 'sell_side' if direction == 'long' else 'buy_side'
+        frame[f'recent_{opposite}_sweep'] = True
     enriched = add_chronology_sequences(frame, objects)
     source = tmp_path / 'source'
     source.mkdir()
@@ -101,3 +104,32 @@ def test_summary_cannot_change_locked_coverage(tmp_path, monkeypatch):
     with pytest.raises(ValueError, match='coverage'):
         audit(source, tmp_path / 'audit', year=2025)
     assert not (tmp_path / 'audit').exists()
+
+
+@pytest.mark.parametrize('direction', ['long', 'short'])
+def test_locked_research_family_variant_preserves_control_and_matches_execution(tmp_path, monkeypatch, direction):
+    source = source_artifact(tmp_path, monkeypatch, direction, 'continuation', overlap=True)
+    before = {p.name: sha256_file(p) for p in source.iterdir()}
+    control = audit(source, tmp_path / 'control', year=2025)
+    assert control['eligible_directional_signals'] == control['accepted_plans'] == 0
+    output = tmp_path / 'variant'
+    policy = 'confirmation_first_family_v1'
+    result = audit(source, output, year=2025, family_policy=policy)
+    assert result['family_policy'] == policy
+    assert result['eligible_directional_signals'] == result['accepted_plans'] == 1
+    assert result['simulated_trades'] == result['executed_plan_parity_checked'] == 1
+    assert result['research_ready'] is False
+    assert before == {p.name: sha256_file(p) for p in source.iterdir()}
+    for name in ('EXPERIMENT_INPUT_LOCK.json', 'EXECUTION_OUTPUT_LOCK.json'):
+        lock = json.loads((output / name).read_text())
+        verify_input_lock(lock, root=ROOT)
+        assert lock['identity']['settings']['execution']['family_policy'] == policy
+    decisions = json.loads((output / 'decisions.json').read_text())
+    assert decisions[0]['family'] == 'continuation'
+    assert decisions[0]['plan']['family_policy'] == policy
+
+
+def test_unknown_research_family_policy_fails_before_any_output(tmp_path):
+    with pytest.raises(ValueError, match='family policy'):
+        audit(tmp_path / 'absent-source', tmp_path / 'output', family_policy='typo')
+    assert not (tmp_path / 'output').exists()

@@ -1,0 +1,25 @@
+{
+  "archived_file_count": 3,
+  "destination": "/workspace/scratch/90db9447a2d4/integrated-checkout/research-archive/EXP-030-PREPARATION",
+  "experiment": "EXP-030-PREPARATION",
+  "files": [
+    {
+      "bytes": 1407,
+      "path": "README.md",
+      "sha256": "7fa9e4521b6f86ac2ad759156143c7284938ab185f679b0d56c71d5e49f09976"
+    },
+    {
+      "bytes": 150,
+      "path": "RESEARCH_OPTION.yaml",
+      "sha256": "fecf4e6c000aae4511645677d549fc48bfd7fb7ea325bd7cad7a9d1ffee880b9"
+    },
+    {
+      "bytes": 1987,
+      "path": "TEST_REPORT.json",
+      "sha256": "57a7e3db3c908fe7acf9e16a18f9e1e55d02c6ff7eed1a339a2237e1851b4161"
+    }
+  ],
+  "max_file_bytes": 10485760,
+  "skipped": [],
+  "source": "/workspace/scratch/90db9447a2d4/r7_family_preparation"
+}

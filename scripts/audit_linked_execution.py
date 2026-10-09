@@ -19,10 +19,13 @@ from backtest import (MARKET_EXECUTION_MODEL, build_backtest_settings,
 from experiment_identity import build_input_lock, verify_input_lock, write_input_lock
 from feature_cache import sha256_file
 from linked_sequences import CONTRACT, CHRONOLOGY, apply_sequence_contract
+from setup_family_contract import DEFAULT_FAMILY_POLICY, CONFIRMATION_FIRST, selected_family_policy
 from scripts.derive_linked_sequences import checked_file, verify_preserved_lock
 
 
-def audit(source, output, *, year=2025, repository=ROOT):
+def audit(source, output, *, year=2025, repository=ROOT, family_policy=DEFAULT_FAMILY_POLICY):
+    selected_family_policy({"backtest": {"family_policy": family_policy,
+        "execution_model": MARKET_EXECUTION_MODEL, "sequence_contract": CHRONOLOGY}})
     source, output = Path(source).resolve(), Path(output).resolve()
     if (output.exists() or not output.is_relative_to(source.parent) or output == source.parent
             or output.is_relative_to(source) or source.is_relative_to(output)):
@@ -58,6 +61,11 @@ def audit(source, output, *, year=2025, repository=ROOT):
         files[f'code:scripts/{script}'] = repository / 'scripts' / script
     config = deepcopy(yaml.safe_load(files['strategy'].read_text()))
     config.setdefault('backtest', {}).update(execution_model=MARKET_EXECUTION_MODEL, sequence_contract=contract)
+    if family_policy != DEFAULT_FAMILY_POLICY:
+        config["backtest"]["family_policy"] = family_policy
+    else:
+        config["backtest"].pop("family_policy", None)
+    selected_family_policy(config)
     settings = build_backtest_settings(config)
     effective = asdict(settings)
     args = dict(root=repository, years=[year], contracts=[s['contract'] for s in segments],
@@ -69,7 +77,11 @@ def audit(source, output, *, year=2025, repository=ROOT):
                   'slippage':{k:v for k,v in effective.items() if 'slippage' in k}},
         unavailable={'realistic_costs':'Actual broker/prop fee schedule not certified',
                      'research_readiness':'Diagnostic only; no strategy selection'})
-    lock = build_input_lock(experiment_id='DIAGNOSTIC-LINKED-EXECUTION', files=files, **args)
+    experiment_id = 'DIAGNOSTIC-LINKED-EXECUTION'
+    if family_policy != DEFAULT_FAMILY_POLICY:
+        args['settings']['execution']['family_policy'] = family_policy
+        experiment_id = 'DIAGNOSTIC-CONFIRMATION-FIRST-FAMILY'
+    lock = build_input_lock(experiment_id=experiment_id, files=files, **args)
     output.mkdir(parents=True, exist_ok=False)
     write_input_lock(output / 'EXPERIMENT_INPUT_LOCK.json', lock)
     snapshot = output / 'effective_strategy.yaml'
@@ -96,7 +108,7 @@ def audit(source, output, *, year=2025, repository=ROOT):
         segment_decisions, index = [], {}
         for n, row in frame.loc[selected].iterrows():
             for direction in ('long', 'short'):
-                family = confirmed_setup_family(row, direction)
+                family = confirmed_setup_family(row, direction, config)
                 if not row[f'{direction}_candidate'] or family is None:
                     continue
                 if n+1 >= len(frame):
@@ -146,11 +158,13 @@ def audit(source, output, *, year=2025, repository=ROOT):
                      'Accepted standalone decisions may not execute due to side tie/one-position policy',
                      'No historical accepted-path proof when simulated_trades is zero',
                      'Development diagnostic only; no optimization or research readiness certification'])
+    if family_policy != DEFAULT_FAMILY_POLICY:
+        result['family_policy'] = family_policy
     result_path = output / 'EXECUTION_AUDIT_SUMMARY.json'
     result_path.write_text(json.dumps(result, indent=2, allow_nan=False) + '\n')
     output_files['summary'] = result_path
     args['counts'] = {'bars':rows, 'candidates':eligible, 'trades':result['simulated_trades']}
-    final = build_input_lock(experiment_id='DIAGNOSTIC-LINKED-EXECUTION-OUTPUTS', files=output_files, **args)
+    final = build_input_lock(experiment_id=experiment_id + '-OUTPUTS', files=output_files, **args)
     write_input_lock(output / 'EXECUTION_OUTPUT_LOCK.json', final)
     verify_input_lock(final, root=repository)
     print(json.dumps({k:result[k] for k in ('sequence_contract','eligible_directional_signals','accepted_plans',
@@ -164,5 +178,7 @@ if __name__ == '__main__':
     parser.add_argument('--source-build', type=Path, required=True)
     parser.add_argument('--output-dir', type=Path, required=True)
     parser.add_argument('--year', type=int, default=2025)
+    parser.add_argument('--family-policy', choices=(DEFAULT_FAMILY_POLICY, CONFIRMATION_FIRST),
+                        default=DEFAULT_FAMILY_POLICY)
     options = parser.parse_args()
-    audit(options.source_build, options.output_dir, year=options.year)
+    audit(options.source_build, options.output_dir, year=options.year, family_policy=options.family_policy)

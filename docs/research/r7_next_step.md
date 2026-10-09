@@ -84,9 +84,9 @@ continuation when no fully confirmed reversal is ready, retaining reversal
 precedence when both confirm. On the supplied 2023 flags it adds only one qualified
 candidate (seven to eight); plan acceptance and profitability remain unknown.
 
-The proposal is not implemented or selected. It is a qualification diagnostic
-variant, not a statistical performance experiment. RULES.md section 6 requires a
-strategy decision before implementing different trade eligibility. Keep all risk,
+The user approved the proposal, and it is implemented/tested as an explicit
+research option. It is a qualification diagnostic variant, not a statistical
+performance experiment. Keep all risk,
 obstacle, score, target and chronology requirements unchanged. No additional VPS
 export is required for this decision. Full meaningful R7 selection remains pending.
 
@@ -120,3 +120,14 @@ hashes verified. Proposal-only flag arithmetic preserves the seven existing
 qualifications and adds one continuation. No executable production code changed;
 the last full code baseline remains 805 passed, 872 warnings, without a redundant
 suite rerun.
+
+
+## Current next action after approval
+
+Research option `confirmation_first_family_v1` is implemented. The 824-test full
+suite passes; default behavior remains unchanged. EXP-030 is prepared to evaluate
+the added 2023 continuation against preserved control evidence, without rebuilding
+features or rerunning the empty control. See
+`docs/research/r7_family_policy_implementation.md`. Remote execution requires an
+explicit run instruction; the request file remains idle. No further export is
+needed before that authorization, and no historical acceptance/P&L is claimed.

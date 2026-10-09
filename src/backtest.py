@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from setup_family_contract import classify_setup_family
+from setup_family_contract import selected_family_policy, select_confirmation_family
 from market_state import build_market_state
 from trade_planner import MARKET_EXECUTION_MODEL, build_market_execution_plan
 
@@ -279,7 +279,8 @@ def validate_confirmation_inputs(data: pd.DataFrame) -> None:
         raise BacktestError("Confirmed execution requires explicit entry-window metadata")
 
 
-def confirmed_setup_family(row: pd.Series, direction: str) -> str | None:
+def confirmed_setup_family(row: pd.Series, direction: str, config=None) -> str | None:
+    policy = selected_family_policy(config or {})
     side = "bullish" if direction == "long" else "bearish"
     opposite = "sell_side" if direction == "long" else "buy_side"
     if any(column in row and not safe_bool(row, column)
@@ -288,12 +289,16 @@ def confirmed_setup_family(row: pd.Series, direction: str) -> str | None:
     window_column = "new_entry_allowed" if "new_entry_allowed" in row else "is_strategy_window"
     if not safe_bool(row, window_column):
         return None
-    family = classify_setup_family(
+    family = select_confirmation_family(
+        policy=policy,
+        reversal_event=safe_bool(row, f"{side}_reversal_entry_valid_event"),
+        continuation_sequence=safe_bool(row, f"{side}_continuation_sequence"),
+        continuation_event=safe_bool(row, f"{side}_continuation_entry_valid_event"),
         reversal_sequence=safe_bool(row, f"{side}_reversal_sequence"),
         opposite_recent_sweep=safe_bool(row, f"recent_{opposite}_sweep"),
         opposite_sweep=safe_bool(row, f"{opposite}_liquidity_sweep"),
     )
-    if not (safe_bool(row, f"{side}_{family}_sequence")
+    if family is None or not (safe_bool(row, f"{side}_{family}_sequence")
             and safe_bool(row, f"{side}_{family}_entry_valid_event")):
         return None
     return family
@@ -493,7 +498,7 @@ def simulate_trade(
 
     signal_row = df.iloc[signal_index]
     if settings.execution_model in CONFIRMED_EXECUTION_MODELS:
-        if confirmed_setup_family(signal_row, direction) is None:
+        if confirmed_setup_family(signal_row, direction, config) is None:
             return None
 
     if settings.entry_on_next_bar_open:
@@ -752,6 +757,7 @@ def simulate_trade(
 
 def run_backtest(df: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
     from linked_sequences import apply_sequence_contract, selected_contract, LEGACY
+    selected_family_policy(config)
     df = apply_sequence_contract(df, config)
     validate_input_dataframe(df)
     settings = build_backtest_settings(config)
@@ -788,7 +794,7 @@ def run_backtest(df: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
         for direction in ["long", "short"]:
             if directional_candidate(row, direction) and (
                 settings.execution_model == LEGACY_EXECUTION_MODEL
-                or confirmed_setup_family(row, direction) is not None
+                or confirmed_setup_family(row, direction, config) is not None
             ):
                 candidates.append(direction)
 
@@ -842,7 +848,7 @@ def run_backtest(df: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
     result = pd.DataFrame([asdict(trade) for trade in trades])
     if settings.execution_model in CONFIRMED_EXECUTION_MODELS:
         result["execution_model"] = settings.execution_model
-        result["setup_family"] = [confirmed_setup_family(data.iloc[trade.signal_index], trade.direction)
+        result["setup_family"] = [confirmed_setup_family(data.iloc[trade.signal_index], trade.direction, config)
                                   for trade in trades]
         result["confirmation_time"] = [confirmation_available_at(data.iloc[trade.signal_index])
                                        for trade in trades]
