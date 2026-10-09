@@ -1317,8 +1317,10 @@ Do **not** restart earlier completed phases or R7.0.
 1. Treat `main` + `phases.md` as the stable project source of truth.
 2. Treat draft PR #7 / `research/pre-critical-integrity` as the only active
    integration branch for the current execution-integrity gate.
-3. Finish the documented integrity/cost/source-correspondence work there and
-   run its targeted + full regression requirements.
+3. Review the completed integrity engineering and yearly execution-evidence
+   closeout in `docs/integrity_closeout_20261009.md`; the integrated tree passed
+   786 tests. Account fees and historical accepted-path limits are documented,
+   and the optional liquidity-policy proposal is deferred.
 4. Merge the reviewed checkpoint into `main` only after the gate is satisfied.
 5. Sync Voyages after the merge.
 6. Only then preregister the next isolated R7 interaction.
