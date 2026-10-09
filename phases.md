@@ -1085,7 +1085,7 @@ Run the finished system without relying on it for live entries long enough to va
 - [ ] Entry-valid and invalidation events.
 - [ ] TP1–TP4 outcomes.
 - [ ] Session high/low.
-- [x] MFE/MAE.
+- [ ] MFE/MAE.
 - [ ] Final scenario outcome.
 
 ## Daily evaluation
@@ -1176,7 +1176,7 @@ integrity-corrected execution contract.
 - [x] Expectancy / profit factor.
 - [x] TP1–TP4 hit rates.
 - [ ] Stop/no-trade rates.
-- [ ] MFE/MAE.
+- [x] MFE/MAE.
 - [ ] False sweep/breakout rates.
 - [x] Performance by setup, score band, DOL, session context, direction, and volatility regime.
 
@@ -1325,47 +1325,3 @@ Do **not** restart earlier completed phases or R7.0.
 
 See `REPOSITORY_STATE.md`, `refine-roadmap.md`, and the PR #7 readiness
 documentation before issuing new VPS research runs.
-
-## Pre-critical research integrity checkpoint — 2026-10-03
-
-See [PRE_CRITICAL_FIXES_RESULTS.md](PRE_CRITICAL_FIXES_RESULTS.md) and
-[the strategy fidelity audit](docs/strategy_fidelity_audit.md). Local engineering
-and audit work is verified (611 passed, 350 warnings); the research gate is
-**PARTIAL/BLOCKED** pending explicit execution semantics and original VPS inputs.
-No strategy-changing research may resume based merely on green tests. This
-checkpoint does not change the historical phase completion records above.
-
-
-### Entry-method decision follow-up — 2026-10-03
-
-The selected confirmed-entry execution mode is implemented and tested; see
-[docs/confirmed_entry_execution.md](docs/confirmed_entry_execution.md).
-Latest full regression: **631 passed, 403 warnings**. Legacy baseline is retained
-for reproduction. The remaining fidelity/VPS gate remains PARTIAL/BLOCKED.
-
-
-### Isolated historical replay preparation — 2026-10-04
-
-Added frozen-producer diagnostic replay tooling with explicit historical timing
-provenance, date-bounded derived data, immutable input locks and separate outputs.
-See [docs/isolated_cache_replay.md](docs/isolated_cache_replay.md).
-Full regression: **650 passed, 443 warnings**. The actual VPS replay and remaining
-fidelity checks are pending; the research/deployment gate remains PARTIAL/BLOCKED.
-
-### Research-resume recheck — 2026-10-05
-
-Fresh full regression: **650 passed, 443 warnings**; 104 archived artifact hashes
-verified and frozen research archives unchanged. Isolated VPS replays have run,
-but a January positive confirmed entry disagrees with the production planner.
-Stop/target/sequence fidelity and exact source-cache rollover isolation remain
-unresolved. See [docs/research_resume_readiness.md](docs/research_resume_readiness.md)
-for the ordered tasks and research-phase evidence gap. R7 remains paused; this
-does not rewrite historical phase completion records.
-
-### Shared market-execution v2 — 2026-10-05
-
-Added opt-in planner/backtest structural risk and liquidity-target parity at
-the executed market entry reference, with accepted/rejected decision evidence.
-See [docs/market_execution_v2.md](docs/market_execution_v2.md). Full regression:
-**685 passed, 583 warnings**. Legacy defaults, archives and production remain
-unchanged; historical replay and remaining upstream/adapter gate are pending.
