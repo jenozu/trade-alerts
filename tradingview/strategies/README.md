@@ -1,26 +1,26 @@
-# NQ Automated Strategy (Pine v6) — separate track
+# Pine Script 2 — NQ Automated Trading Strategy (research)
 
-**Status:** specification only. No live execution or even simulated orders have been implemented here yet.
+**V1 code:** [nq_breakout_retest_v1.pine](nq_breakout_retest_v1.pine)
+**V1 protocol:** [Deep Backtesting / acceptance](../backtests/strategy_v1_protocol.md)
+**Status:** Version 1 Pine code committed; **TradingView compile, historical fills and Python trade parity pending**. No live orders or broker webhooks.
 
-This folder will contain one or more versioned Pine v6 files using strategy() and actual strategy.entry()/strategy.exit() calls, separate from the chart indicator. The strategy should be derived from the established Python setup-family and market-execution contracts, not from the uploaded legacy Context8 indicator's overly restrictive conditions.
+## Current deliverable: breakout/retest baseline only
+- Pine v6 strategy() (NOT an indicator) submits *simulated* market orders after an independent confirmed-breakout and later confirmed retest.
+- New entries only when next 1-minute open will be within 09:30–10:30 ET.
+- Select PMH/PML (04:00–09:30 ET) or PDH/PDL (previous RTH 09:30–16:00 ET).
+- One open trade maximum; stops and targets attached using tick-relative strategy.exit().
+- Configurable fixed 25-point default stop; +25/+50/+75/+100 milestones selectable as a **single terminal full-position TP**; no initial partials or breakeven.
+- Max hold 60 1-minute bars; 1-tick simulated slippage; **zero default commission must be replaced by realistic fee assumptions**; 5% *illustrative* futures simulator margin.
+- Minimal chart decoration; results live in Strategy Tester.
 
-## Confirmed research inputs
-- 09:30–10:30 America/New_York for new entries.
-- Breakout / confirmed retest and liquidity-sweep / reversal models remain separately testable.
-- Previous RTH high/low; premarket 04:00–09:30; London 02:00–05:00.
-- Use confirmed swings, FVG, structure, displacement, market-quality SNR and DOL with Python-equivalent definitions.
-- Python-configured preferred structural stop range is 20–25 NQ points, structural buffer 2 points. Research variants may test 15–35.
-- TP milestones: +25, +50, +75 and +100 points. They are milestones, not necessarily partial orders.
-- Current Python trade_management defaults: no partial exits and no initial move to breakeven.
-- One open trade maximum; entry after confirmed retest; conservative stop-first same-bar collision; account costs/slippage explicitly modeled.
-- A raw 0–100 research score is **not** a win probability.
+**Deliberate non-parity:** This simple baseline does **not** reproduce full Python structural stops, original linked setup family/confirmation events, 0–100 score, FVG/IFVG, BOS/MSS, DOL, Python SNR, live order or conservative same-bar stop-first simulation. It must never be described as the finished bot or proven profitable. The Python code and EXP-030/R7–R12 remain untouched.
 
-## Before writing strategy() logic
-1. Inspect the complete Python setup-family, planner and backtest execution semantics and their tests.
-2. Lock the experiment specification and specify any deliberately reduced Pine baseline.
-3. Verify same-bar fills, next-bar entry, stop/TP sequencing, trade expiry, overnight gaps and contract rollover assumptions.
-4. Cross-check signals against Python on controlled bar fixtures, including negative/rejected setups.
-5. Run TradingView Premium Deep Backtesting in development/validation/holdout periods without optimizing the holdout.
-6. Only then plan paper order routing; live routing requires independent risk gateway, position reconciliation, kill switch, supported broker/prop firm API and approval.
+## Next gated tasks
+1. Compile the script in TradingView on an NQ/MNQ **1-minute** chart; address all compiler/runtime errors.
+2. Run a short chart-level sample, inspect breakout/retest timestamps, next-open fills, stops/targets, forced expiry and false signals.
+3. Compare a sample of events with existing Python canonical session levels and entry timings, explicitly list differences.
+4. Run a versioned TradingView Premium Deep Backtesting baseline, setting realistic commissions/slippage and a data-dependent Bar Magnifier policy.
+5. Evaluate separate independent improvements (reversal family, SNR market-quality gate, HTF, DOL, structural stop) without optimizing an untouched holdout.
+6. Plan research telemetry and **paper** execution independently; live automation requires an approved broker integration, independent risk controls, a kill switch and forward validation.
 
-The chart **indicator** remains in ../indicators/. Webhook **research snapshots** are not broker order requests.
+Our chart **Market Intelligence Indicator** is separately stored under [../indicators](../indicators). That indicator contains no trading orders. Live telemetry plans are in [../alerts](../alerts).
