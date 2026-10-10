@@ -31,3 +31,16 @@ Compared main: config/strategy.yaml, config/sessions.yaml, src/snr.py, src/fvg.p
 - Keep indicator research events independent from order entry decisions.
 
 No EXP numbers or new R7–R12 research objectives were created.
+
+
+## Strategy V1 cross-engine differences (open)
+- New script: strategies/nq_breakout_retest_v1.pine — Pine broker emulator simulation.
+- **Matching intended entry timing:** signal at confirmed 1m retest bar close; strategy.entry() normally fills next 1m open because process_orders_on_close=false.
+- **Simplified breakout/retest:** Uses session high/low break and simple wick-touch/close-hold with independent adjustable five-bar expiry. Python live model requires a linked production family and fresh event.
+- **Fixed 25 point stop:** This is NOT Python structural + buffer stop parity.
+- **Terminal TP2 (+50) by default:** TradingView closes at the selected target; Python tracks four milestones and may use TP4 as terminal under current research model.
+- **One trade at a time**, no initial BE or partial exits, default max 60 minutes.
+- **Fill ambiguity:** TradingView broker-emulator same-bar stop/TP resolution is not Python's explicit conservative stop-first convention.
+- **Test economics:** Pine initial equity $50k, 1 contract, slippage one tick, default commission zero (must be set) and 5% example margin — not an account specification.
+- **HTF, SNR, FVG and reversal:** not used to authorize a trade yet, as V1 is explicitly an incremental no-filter baseline.
+- Manual Pine compile, backtest, historical session-level parity, rollover and sample fill comparison remain pending.
