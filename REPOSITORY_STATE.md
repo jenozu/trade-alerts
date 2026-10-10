@@ -74,6 +74,16 @@ the rule", not "the work is unfinished".
 
 ## Current approved next action
 
+**2026-10-10 data acceptance priority:** The user requested a pause in further
+research selection to verify same-contract history and source coverage across
+2023–2025. Independent-contract builds are already complete; their supplied
+stitched inputs may still omit earlier history present in individual downloads.
+The read-only inventory implementation and ordered remaining work are recorded
+in `docs/contract_history_inventory.md`. Actual VPS inventory/coverage acceptance
+is pending. Do not claim universal data integrity or repeat yearly builds without
+an identified affected source. This does not change the separately authorized
+EXP-030 request; its diagnostic cannot certify historical coverage.
+
 The remaining-experiment preparation audit is recorded in
 `docs/research/experiment_preparation_status.md`. EXP-030 is already prepared;
 main assigns no definitions to EXP-031 onward. No new batch or execution is
