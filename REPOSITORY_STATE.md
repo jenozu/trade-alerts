@@ -79,8 +79,11 @@ research selection to verify same-contract history and source coverage across
 2023–2025. Independent-contract builds are already complete; their supplied
 stitched inputs may still omit earlier history present in individual downloads.
 The read-only inventory implementation and ordered remaining work are recorded
-in `docs/contract_history_inventory.md`. Actual VPS inventory/coverage acceptance
-is pending. Do not claim universal data integrity or repeat yearly builds without
+in `docs/contract_history_inventory.md`. The supplied VPS inventory is archived:
+seven incoming contracts have no pre-roll history in the inspected downloads;
+six have 960 earlier Monday bars available but unused. Overlapping OHLCV matches
+exactly. Original CSV/chunk inventory and coverage acceptance remain pending.
+Do not claim universal data integrity or repeat yearly builds without
 an identified affected source. This does not change the separately authorized
 EXP-030 request; its diagnostic cannot certify historical coverage.
 

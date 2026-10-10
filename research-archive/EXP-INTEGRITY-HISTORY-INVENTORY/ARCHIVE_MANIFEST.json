@@ -1,0 +1,25 @@
+{
+  "archived_file_count": 3,
+  "destination": "research-archive/EXP-INTEGRITY-HISTORY-INVENTORY",
+  "experiment": "EXP-INTEGRITY-HISTORY-INVENTORY",
+  "files": [
+    {
+      "bytes": 120021,
+      "path": "CONTRACT_HISTORY_INVENTORY.json",
+      "sha256": "ce1bd3b801f0930511404fc6e9659f67de8d05b1958b5f3ba2d313d9b811504e"
+    },
+    {
+      "bytes": 2682,
+      "path": "README.md",
+      "sha256": "6dbda936633e12032c33bb0256eed19f8e5a12da8f5f4d03d8d61b93b594f801"
+    },
+    {
+      "bytes": 8770,
+      "path": "VERIFICATION.json",
+      "sha256": "8e6cf84024df4237fcffd46d3aa624e11a511cbf643c41649bdef20baef3e75f"
+    }
+  ],
+  "max_file_bytes": 10485760,
+  "skipped": [],
+  "source": "/workspace/scratch/90db9447a2d4/inventory_archive_stage"
+}

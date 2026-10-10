@@ -1,0 +1,2758 @@
+{
+  "status": "INVENTORY_COMPLETE_COVERAGE_UNCERTIFIED",
+  "research_ready": false,
+  "inputs_unchanged": true,
+  "builds": [
+    {
+      "summary_path": "/root/trade-alerts-verify-YwIqEc/replays/isolated-2023-xgi4yfiw/features/FEATURE_BUILD_SUMMARY.json",
+      "evaluation_year": 2023,
+      "segments": [
+        {
+          "contract": "NMZ22",
+          "raw_path": "/root/trade-alerts-verify-YwIqEc/replays/isolated-2023-xgi4yfiw/features/segment_0/raw_segment.parquet",
+          "sha256": "8e680cdee2d2a0eef25fa0d6c630cb19ccae18992b197ad73603335075e7efda",
+          "rows": 69915,
+          "first_timestamp": "2022-10-02T22:00:00+00:00",
+          "last_timestamp": "2022-12-12T21:59:00+00:00",
+          "observed_gap_count_gt_one_minute": 50,
+          "largest_observed_gap_minutes": 3166.0,
+          "first_evaluation_bar": null,
+          "context_rows_before_first_evaluation_bar": null,
+          "recorded_feature_warmup": {
+            "atr_1m": {
+              "present": true,
+              "missing_rows": 13,
+              "first_non_null_bar": "2022-10-02T22:13:00+00:00"
+            },
+            "pdh": {
+              "present": true,
+              "missing_rows": 1380,
+              "first_non_null_bar": "2022-10-03T22:00:00+00:00"
+            },
+            "pdl": {
+              "present": true,
+              "missing_rows": 1380,
+              "first_non_null_bar": "2022-10-03T22:00:00+00:00"
+            },
+            "bias_available_at_15m": {
+              "present": true,
+              "missing_rows": 15,
+              "first_non_null_bar": "2022-10-02T22:15:00+00:00"
+            },
+            "bias_available_at_30m": {
+              "present": true,
+              "missing_rows": 30,
+              "first_non_null_bar": "2022-10-02T22:30:00+00:00"
+            },
+            "bias_available_at_1h": {
+              "present": true,
+              "missing_rows": 60,
+              "first_non_null_bar": "2022-10-02T23:00:00+00:00"
+            },
+            "bias_available_at_4h": {
+              "present": true,
+              "missing_rows": 360,
+              "first_non_null_bar": "2022-10-03T04:00:00+00:00"
+            },
+            "bias_available_at_1d": {
+              "present": true,
+              "missing_rows": 1380,
+              "first_non_null_bar": "2022-10-03T22:00:00+00:00"
+            }
+          },
+          "same_contract_downloads": [
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ22_1m.parquet",
+              "unused_pre_segment_rows": 20280,
+              "unused_pre_segment_first_timestamp": "2022-09-12T05:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2022-09-30T20:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": null,
+              "overlap_rows": 69915,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ22_1m.parquet",
+              "unused_pre_segment_rows": 20280,
+              "unused_pre_segment_first_timestamp": "2022-09-12T05:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2022-09-30T20:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": null,
+              "overlap_rows": 69915,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ22_1m.parquet",
+              "unused_pre_segment_rows": 20280,
+              "unused_pre_segment_first_timestamp": "2022-09-12T05:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2022-09-30T20:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": null,
+              "overlap_rows": 69915,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            }
+          ],
+          "download_inventory_status": "FOUND"
+        },
+        {
+          "contract": "NMH23",
+          "raw_path": "/root/trade-alerts-verify-YwIqEc/replays/isolated-2023-xgi4yfiw/features/segment_1/raw_segment.parquet",
+          "sha256": "a1033fd0e4ccac91bb983c0bb25748aa812554277dd56f5e20ef68a62e2cfb6c",
+          "rows": 85079,
+          "first_timestamp": "2022-12-12T23:00:00+00:00",
+          "last_timestamp": "2023-03-10T21:59:00+00:00",
+          "observed_gap_count_gt_one_minute": 62,
+          "largest_observed_gap_minutes": 4381.0,
+          "first_evaluation_bar": "2023-01-02T23:00:00+00:00",
+          "context_rows_before_first_evaluation_bar": 17939,
+          "recorded_feature_warmup": {
+            "atr_1m": {
+              "present": true,
+              "missing_rows": 13,
+              "first_non_null_bar": "2022-12-12T23:13:00+00:00"
+            },
+            "pdh": {
+              "present": true,
+              "missing_rows": 1379,
+              "first_non_null_bar": "2022-12-13T23:00:00+00:00"
+            },
+            "pdl": {
+              "present": true,
+              "missing_rows": 1379,
+              "first_non_null_bar": "2022-12-13T23:00:00+00:00"
+            },
+            "bias_available_at_15m": {
+              "present": true,
+              "missing_rows": 15,
+              "first_non_null_bar": "2022-12-12T23:15:00+00:00"
+            },
+            "bias_available_at_30m": {
+              "present": true,
+              "missing_rows": 30,
+              "first_non_null_bar": "2022-12-12T23:30:00+00:00"
+            },
+            "bias_available_at_1h": {
+              "present": true,
+              "missing_rows": 60,
+              "first_non_null_bar": "2022-12-13T00:00:00+00:00"
+            },
+            "bias_available_at_4h": {
+              "present": true,
+              "missing_rows": 300,
+              "first_non_null_bar": "2022-12-13T04:00:00+00:00"
+            },
+            "bias_available_at_1d": {
+              "present": true,
+              "missing_rows": 2759,
+              "first_non_null_bar": "2022-12-14T23:00:00+00:00"
+            }
+          },
+          "same_contract_downloads": [
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH23_1m.parquet",
+              "unused_pre_segment_rows": 960,
+              "unused_pre_segment_first_timestamp": "2022-12-12T06:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2022-12-12T21:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": 17939,
+              "overlap_rows": 85079,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH23_1m.parquet",
+              "unused_pre_segment_rows": 960,
+              "unused_pre_segment_first_timestamp": "2022-12-12T06:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2022-12-12T21:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": 17939,
+              "overlap_rows": 85079,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH23_1m.parquet",
+              "unused_pre_segment_rows": 960,
+              "unused_pre_segment_first_timestamp": "2022-12-12T06:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2022-12-12T21:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": 17939,
+              "overlap_rows": 85079,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            }
+          ],
+          "download_inventory_status": "FOUND"
+        },
+        {
+          "contract": "NMM23",
+          "raw_path": "/root/trade-alerts-verify-YwIqEc/replays/isolated-2023-xgi4yfiw/features/segment_2/raw_segment.parquet",
+          "sha256": "826c9976367aac8d3fedaac17c4359c57ebeee136b4601821a48a32aea248ab8",
+          "rows": 88569,
+          "first_timestamp": "2023-03-13T05:00:00+00:00",
+          "last_timestamp": "2023-06-09T20:59:00+00:00",
+          "observed_gap_count_gt_one_minute": 65,
+          "largest_observed_gap_minutes": 3406.0,
+          "first_evaluation_bar": "2023-03-13T05:00:00+00:00",
+          "context_rows_before_first_evaluation_bar": 0,
+          "recorded_feature_warmup": {
+            "atr_1m": {
+              "present": true,
+              "missing_rows": 13,
+              "first_non_null_bar": "2023-03-13T05:13:00+00:00"
+            },
+            "pdh": {
+              "present": true,
+              "missing_rows": 2340,
+              "first_non_null_bar": "2023-03-13T22:00:00+00:00"
+            },
+            "pdl": {
+              "present": true,
+              "missing_rows": 2340,
+              "first_non_null_bar": "2023-03-13T22:00:00+00:00"
+            },
+            "bias_available_at_15m": {
+              "present": true,
+              "missing_rows": 15,
+              "first_non_null_bar": "2023-03-13T05:15:00+00:00"
+            },
+            "bias_available_at_30m": {
+              "present": true,
+              "missing_rows": 30,
+              "first_non_null_bar": "2023-03-13T05:30:00+00:00"
+            },
+            "bias_available_at_1h": {
+              "present": true,
+              "missing_rows": 60,
+              "first_non_null_bar": "2023-03-13T06:00:00+00:00"
+            },
+            "bias_available_at_4h": {
+              "present": true,
+              "missing_rows": 420,
+              "first_non_null_bar": "2023-03-13T12:00:00+00:00"
+            },
+            "bias_available_at_1d": {
+              "present": true,
+              "missing_rows": 2340,
+              "first_non_null_bar": "2023-03-14T22:00:00+00:00"
+            }
+          },
+          "same_contract_downloads": [
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMM23_1m.parquet",
+              "unused_pre_segment_rows": 0,
+              "unused_pre_segment_first_timestamp": null,
+              "unused_pre_segment_last_timestamp": null,
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 88569,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "NO_EARLIER_HISTORY_IN_THIS_FILE",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMM23_1m.parquet",
+              "unused_pre_segment_rows": 0,
+              "unused_pre_segment_first_timestamp": null,
+              "unused_pre_segment_last_timestamp": null,
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 88569,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "NO_EARLIER_HISTORY_IN_THIS_FILE",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMM23_1m.parquet",
+              "unused_pre_segment_rows": 0,
+              "unused_pre_segment_first_timestamp": null,
+              "unused_pre_segment_last_timestamp": null,
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 88569,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "NO_EARLIER_HISTORY_IN_THIS_FILE",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            }
+          ],
+          "download_inventory_status": "FOUND"
+        },
+        {
+          "contract": "NMU23",
+          "raw_path": "/root/trade-alerts-verify-YwIqEc/replays/isolated-2023-xgi4yfiw/features/segment_3/raw_segment.parquet",
+          "sha256": "47dda71462a633d0bbad0522c6ed19f461ba487e3d9ec3b5fc78877615d1a4eb",
+          "rows": 88334,
+          "first_timestamp": "2023-06-12T05:00:00+00:00",
+          "last_timestamp": "2023-09-08T20:59:00+00:00",
+          "observed_gap_count_gt_one_minute": 65,
+          "largest_observed_gap_minutes": 2941.0,
+          "first_evaluation_bar": "2023-06-12T05:00:00+00:00",
+          "context_rows_before_first_evaluation_bar": 0,
+          "recorded_feature_warmup": {
+            "atr_1m": {
+              "present": true,
+              "missing_rows": 13,
+              "first_non_null_bar": "2023-06-12T05:13:00+00:00"
+            },
+            "pdh": {
+              "present": true,
+              "missing_rows": 960,
+              "first_non_null_bar": "2023-06-12T22:00:00+00:00"
+            },
+            "pdl": {
+              "present": true,
+              "missing_rows": 960,
+              "first_non_null_bar": "2023-06-12T22:00:00+00:00"
+            },
+            "bias_available_at_15m": {
+              "present": true,
+              "missing_rows": 15,
+              "first_non_null_bar": "2023-06-12T05:15:00+00:00"
+            },
+            "bias_available_at_30m": {
+              "present": true,
+              "missing_rows": 30,
+              "first_non_null_bar": "2023-06-12T05:30:00+00:00"
+            },
+            "bias_available_at_1h": {
+              "present": true,
+              "missing_rows": 60,
+              "first_non_null_bar": "2023-06-12T06:00:00+00:00"
+            },
+            "bias_available_at_4h": {
+              "present": true,
+              "missing_rows": 420,
+              "first_non_null_bar": "2023-06-12T12:00:00+00:00"
+            },
+            "bias_available_at_1d": {
+              "present": true,
+              "missing_rows": 2340,
+              "first_non_null_bar": "2023-06-13T22:00:00+00:00"
+            }
+          },
+          "same_contract_downloads": [
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMU23_1m.parquet",
+              "unused_pre_segment_rows": 0,
+              "unused_pre_segment_first_timestamp": null,
+              "unused_pre_segment_last_timestamp": null,
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 88334,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "NO_EARLIER_HISTORY_IN_THIS_FILE",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMU23_1m.parquet",
+              "unused_pre_segment_rows": 0,
+              "unused_pre_segment_first_timestamp": null,
+              "unused_pre_segment_last_timestamp": null,
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 88334,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "NO_EARLIER_HISTORY_IN_THIS_FILE",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMU23_1m.parquet",
+              "unused_pre_segment_rows": 0,
+              "unused_pre_segment_first_timestamp": null,
+              "unused_pre_segment_last_timestamp": null,
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 88334,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "NO_EARLIER_HISTORY_IN_THIS_FILE",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            }
+          ],
+          "download_inventory_status": "FOUND"
+        },
+        {
+          "contract": "NMZ23",
+          "raw_path": "/root/trade-alerts-verify-YwIqEc/replays/isolated-2023-xgi4yfiw/features/segment_4/raw_segment.parquet",
+          "sha256": "5185ce7bf8bf4a70c22a497d7c8f514b5947e8c923c8b73067164793b12405df",
+          "rows": 90195,
+          "first_timestamp": "2023-09-11T05:00:00+00:00",
+          "last_timestamp": "2023-12-11T21:59:00+00:00",
+          "observed_gap_count_gt_one_minute": 65,
+          "largest_observed_gap_minutes": 3166.0,
+          "first_evaluation_bar": "2023-09-11T05:00:00+00:00",
+          "context_rows_before_first_evaluation_bar": 0,
+          "recorded_feature_warmup": {
+            "atr_1m": {
+              "present": true,
+              "missing_rows": 13,
+              "first_non_null_bar": "2023-09-11T05:13:00+00:00"
+            },
+            "pdh": {
+              "present": true,
+              "missing_rows": 960,
+              "first_non_null_bar": "2023-09-11T22:00:00+00:00"
+            },
+            "pdl": {
+              "present": true,
+              "missing_rows": 960,
+              "first_non_null_bar": "2023-09-11T22:00:00+00:00"
+            },
+            "bias_available_at_15m": {
+              "present": true,
+              "missing_rows": 15,
+              "first_non_null_bar": "2023-09-11T05:15:00+00:00"
+            },
+            "bias_available_at_30m": {
+              "present": true,
+              "missing_rows": 30,
+              "first_non_null_bar": "2023-09-11T05:30:00+00:00"
+            },
+            "bias_available_at_1h": {
+              "present": true,
+              "missing_rows": 60,
+              "first_non_null_bar": "2023-09-11T06:00:00+00:00"
+            },
+            "bias_available_at_4h": {
+              "present": true,
+              "missing_rows": 420,
+              "first_non_null_bar": "2023-09-11T12:00:00+00:00"
+            },
+            "bias_available_at_1d": {
+              "present": true,
+              "missing_rows": 2340,
+              "first_non_null_bar": "2023-09-12T22:00:00+00:00"
+            }
+          },
+          "same_contract_downloads": [
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ23_1m.parquet",
+              "unused_pre_segment_rows": 0,
+              "unused_pre_segment_first_timestamp": null,
+              "unused_pre_segment_last_timestamp": null,
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 90195,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "NO_EARLIER_HISTORY_IN_THIS_FILE",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ23_1m.parquet",
+              "unused_pre_segment_rows": 0,
+              "unused_pre_segment_first_timestamp": null,
+              "unused_pre_segment_last_timestamp": null,
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 90195,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "NO_EARLIER_HISTORY_IN_THIS_FILE",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ23_1m.parquet",
+              "unused_pre_segment_rows": 0,
+              "unused_pre_segment_first_timestamp": null,
+              "unused_pre_segment_last_timestamp": null,
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 90195,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "NO_EARLIER_HISTORY_IN_THIS_FILE",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            }
+          ],
+          "download_inventory_status": "FOUND"
+        },
+        {
+          "contract": "NMH24",
+          "raw_path": "/root/trade-alerts-verify-YwIqEc/replays/isolated-2023-xgi4yfiw/features/segment_5/raw_segment.parquet",
+          "sha256": "de008d0a046aea747b28c9f809de71038d5b7e86d5825152378dffc0b02344f9",
+          "rows": 17940,
+          "first_timestamp": "2023-12-11T23:00:00+00:00",
+          "last_timestamp": "2023-12-29T21:59:00+00:00",
+          "observed_gap_count_gt_one_minute": 12,
+          "largest_observed_gap_minutes": 4381.0,
+          "first_evaluation_bar": "2023-12-11T23:00:00+00:00",
+          "context_rows_before_first_evaluation_bar": 0,
+          "recorded_feature_warmup": {
+            "atr_1m": {
+              "present": true,
+              "missing_rows": 13,
+              "first_non_null_bar": "2023-12-11T23:13:00+00:00"
+            },
+            "pdh": {
+              "present": true,
+              "missing_rows": 1380,
+              "first_non_null_bar": "2023-12-12T23:00:00+00:00"
+            },
+            "pdl": {
+              "present": true,
+              "missing_rows": 1380,
+              "first_non_null_bar": "2023-12-12T23:00:00+00:00"
+            },
+            "bias_available_at_15m": {
+              "present": true,
+              "missing_rows": 15,
+              "first_non_null_bar": "2023-12-11T23:15:00+00:00"
+            },
+            "bias_available_at_30m": {
+              "present": true,
+              "missing_rows": 30,
+              "first_non_null_bar": "2023-12-11T23:30:00+00:00"
+            },
+            "bias_available_at_1h": {
+              "present": true,
+              "missing_rows": 60,
+              "first_non_null_bar": "2023-12-12T00:00:00+00:00"
+            },
+            "bias_available_at_4h": {
+              "present": true,
+              "missing_rows": 300,
+              "first_non_null_bar": "2023-12-12T04:00:00+00:00"
+            },
+            "bias_available_at_1d": {
+              "present": true,
+              "missing_rows": 1380,
+              "first_non_null_bar": "2023-12-12T23:00:00+00:00"
+            }
+          },
+          "same_contract_downloads": [
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH24_1m.parquet",
+              "unused_pre_segment_rows": 960,
+              "unused_pre_segment_first_timestamp": "2023-12-11T06:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2023-12-11T21:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 17940,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH24_1m.parquet",
+              "unused_pre_segment_rows": 960,
+              "unused_pre_segment_first_timestamp": "2023-12-11T06:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2023-12-11T21:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 17940,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH24_1m.parquet",
+              "unused_pre_segment_rows": 960,
+              "unused_pre_segment_first_timestamp": "2023-12-11T06:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2023-12-11T21:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 17940,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            }
+          ],
+          "download_inventory_status": "FOUND"
+        }
+      ]
+    },
+    {
+      "summary_path": "/root/trade-alerts-verify-YwIqEc/replays/isolated-2024-v_r21v9e/features/FEATURE_BUILD_SUMMARY.json",
+      "evaluation_year": 2024,
+      "segments": [
+        {
+          "contract": "NMZ23",
+          "raw_path": "/root/trade-alerts-verify-YwIqEc/replays/isolated-2024-v_r21v9e/features/segment_0/raw_segment.parquet",
+          "sha256": "c787d8920e5edbac0b50354376fdc141dbf15d8b464b1eca02f56777fa20d49c",
+          "rows": 69915,
+          "first_timestamp": "2023-10-01T22:00:00+00:00",
+          "last_timestamp": "2023-12-11T21:59:00+00:00",
+          "observed_gap_count_gt_one_minute": 50,
+          "largest_observed_gap_minutes": 3166.0,
+          "first_evaluation_bar": null,
+          "context_rows_before_first_evaluation_bar": null,
+          "recorded_feature_warmup": {
+            "atr_1m": {
+              "present": true,
+              "missing_rows": 13,
+              "first_non_null_bar": "2023-10-01T22:13:00+00:00"
+            },
+            "pdh": {
+              "present": true,
+              "missing_rows": 1380,
+              "first_non_null_bar": "2023-10-02T22:00:00+00:00"
+            },
+            "pdl": {
+              "present": true,
+              "missing_rows": 1380,
+              "first_non_null_bar": "2023-10-02T22:00:00+00:00"
+            },
+            "bias_available_at_15m": {
+              "present": true,
+              "missing_rows": 15,
+              "first_non_null_bar": "2023-10-01T22:15:00+00:00"
+            },
+            "bias_available_at_30m": {
+              "present": true,
+              "missing_rows": 30,
+              "first_non_null_bar": "2023-10-01T22:30:00+00:00"
+            },
+            "bias_available_at_1h": {
+              "present": true,
+              "missing_rows": 60,
+              "first_non_null_bar": "2023-10-01T23:00:00+00:00"
+            },
+            "bias_available_at_4h": {
+              "present": true,
+              "missing_rows": 360,
+              "first_non_null_bar": "2023-10-02T04:00:00+00:00"
+            },
+            "bias_available_at_1d": {
+              "present": true,
+              "missing_rows": 1380,
+              "first_non_null_bar": "2023-10-02T22:00:00+00:00"
+            }
+          },
+          "same_contract_downloads": [
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ23_1m.parquet",
+              "unused_pre_segment_rows": 20280,
+              "unused_pre_segment_first_timestamp": "2023-09-11T05:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2023-09-29T20:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": null,
+              "overlap_rows": 69915,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ23_1m.parquet",
+              "unused_pre_segment_rows": 20280,
+              "unused_pre_segment_first_timestamp": "2023-09-11T05:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2023-09-29T20:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": null,
+              "overlap_rows": 69915,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ23_1m.parquet",
+              "unused_pre_segment_rows": 20280,
+              "unused_pre_segment_first_timestamp": "2023-09-11T05:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2023-09-29T20:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": null,
+              "overlap_rows": 69915,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            }
+          ],
+          "download_inventory_status": "FOUND"
+        },
+        {
+          "contract": "NMH24",
+          "raw_path": "/root/trade-alerts-verify-YwIqEc/replays/isolated-2024-v_r21v9e/features/segment_1/raw_segment.parquet",
+          "sha256": "59640687c6350df2520c6f9a0be58a3f9e50270661f916f744a8945fa9d1079e",
+          "rows": 85036,
+          "first_timestamp": "2023-12-11T23:00:00+00:00",
+          "last_timestamp": "2024-03-08T21:59:00+00:00",
+          "observed_gap_count_gt_one_minute": 64,
+          "largest_observed_gap_minutes": 4381.0,
+          "first_evaluation_bar": "2024-01-01T23:00:00+00:00",
+          "context_rows_before_first_evaluation_bar": 17940,
+          "recorded_feature_warmup": {
+            "atr_1m": {
+              "present": true,
+              "missing_rows": 13,
+              "first_non_null_bar": "2023-12-11T23:13:00+00:00"
+            },
+            "pdh": {
+              "present": true,
+              "missing_rows": 1380,
+              "first_non_null_bar": "2023-12-12T23:00:00+00:00"
+            },
+            "pdl": {
+              "present": true,
+              "missing_rows": 1380,
+              "first_non_null_bar": "2023-12-12T23:00:00+00:00"
+            },
+            "bias_available_at_15m": {
+              "present": true,
+              "missing_rows": 15,
+              "first_non_null_bar": "2023-12-11T23:15:00+00:00"
+            },
+            "bias_available_at_30m": {
+              "present": true,
+              "missing_rows": 30,
+              "first_non_null_bar": "2023-12-11T23:30:00+00:00"
+            },
+            "bias_available_at_1h": {
+              "present": true,
+              "missing_rows": 60,
+              "first_non_null_bar": "2023-12-12T00:00:00+00:00"
+            },
+            "bias_available_at_4h": {
+              "present": true,
+              "missing_rows": 300,
+              "first_non_null_bar": "2023-12-12T04:00:00+00:00"
+            },
+            "bias_available_at_1d": {
+              "present": true,
+              "missing_rows": 1380,
+              "first_non_null_bar": "2023-12-12T23:00:00+00:00"
+            }
+          },
+          "same_contract_downloads": [
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH24_1m.parquet",
+              "unused_pre_segment_rows": 960,
+              "unused_pre_segment_first_timestamp": "2023-12-11T06:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2023-12-11T21:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": 17940,
+              "overlap_rows": 85036,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH24_1m.parquet",
+              "unused_pre_segment_rows": 960,
+              "unused_pre_segment_first_timestamp": "2023-12-11T06:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2023-12-11T21:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": 17940,
+              "overlap_rows": 85036,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH24_1m.parquet",
+              "unused_pre_segment_rows": 960,
+              "unused_pre_segment_first_timestamp": "2023-12-11T06:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2023-12-11T21:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": 17940,
+              "overlap_rows": 85036,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            }
+          ],
+          "download_inventory_status": "FOUND"
+        },
+        {
+          "contract": "NMM24",
+          "raw_path": "/root/trade-alerts-verify-YwIqEc/replays/isolated-2024-v_r21v9e/features/segment_2/raw_segment.parquet",
+          "sha256": "a142cf235d4387e0fb6e7f6c72be17deef0ab317e19d28ecba5fe144163e1527",
+          "rows": 94560,
+          "first_timestamp": "2024-03-11T05:00:00+00:00",
+          "last_timestamp": "2024-06-14T20:59:00+00:00",
+          "observed_gap_count_gt_one_minute": 68,
+          "largest_observed_gap_minutes": 4381.0,
+          "first_evaluation_bar": "2024-03-11T05:00:00+00:00",
+          "context_rows_before_first_evaluation_bar": 0,
+          "recorded_feature_warmup": {
+            "atr_1m": {
+              "present": true,
+              "missing_rows": 13,
+              "first_non_null_bar": "2024-03-11T05:13:00+00:00"
+            },
+            "pdh": {
+              "present": true,
+              "missing_rows": 960,
+              "first_non_null_bar": "2024-03-11T22:00:00+00:00"
+            },
+            "pdl": {
+              "present": true,
+              "missing_rows": 960,
+              "first_non_null_bar": "2024-03-11T22:00:00+00:00"
+            },
+            "bias_available_at_15m": {
+              "present": true,
+              "missing_rows": 15,
+              "first_non_null_bar": "2024-03-11T05:15:00+00:00"
+            },
+            "bias_available_at_30m": {
+              "present": true,
+              "missing_rows": 30,
+              "first_non_null_bar": "2024-03-11T05:30:00+00:00"
+            },
+            "bias_available_at_1h": {
+              "present": true,
+              "missing_rows": 60,
+              "first_non_null_bar": "2024-03-11T06:00:00+00:00"
+            },
+            "bias_available_at_4h": {
+              "present": true,
+              "missing_rows": 420,
+              "first_non_null_bar": "2024-03-11T12:00:00+00:00"
+            },
+            "bias_available_at_1d": {
+              "present": true,
+              "missing_rows": 2340,
+              "first_non_null_bar": "2024-03-12T22:00:00+00:00"
+            }
+          },
+          "same_contract_downloads": [
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMM24_1m.parquet",
+              "unused_pre_segment_rows": 0,
+              "unused_pre_segment_first_timestamp": null,
+              "unused_pre_segment_last_timestamp": null,
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 94560,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "NO_EARLIER_HISTORY_IN_THIS_FILE",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMM24_1m.parquet",
+              "unused_pre_segment_rows": 0,
+              "unused_pre_segment_first_timestamp": null,
+              "unused_pre_segment_last_timestamp": null,
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 94560,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "NO_EARLIER_HISTORY_IN_THIS_FILE",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMM24_1m.parquet",
+              "unused_pre_segment_rows": 0,
+              "unused_pre_segment_first_timestamp": null,
+              "unused_pre_segment_last_timestamp": null,
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 94560,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "NO_EARLIER_HISTORY_IN_THIS_FILE",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            }
+          ],
+          "download_inventory_status": "FOUND"
+        },
+        {
+          "contract": "NMU24",
+          "raw_path": "/root/trade-alerts-verify-YwIqEc/replays/isolated-2024-v_r21v9e/features/segment_3/raw_segment.parquet",
+          "sha256": "cc54b99e0ce6d35bc3b33ff7833ee310c1f7d99933c7c1940214ca5a57212a17",
+          "rows": 88319,
+          "first_timestamp": "2024-06-17T05:00:00+00:00",
+          "last_timestamp": "2024-09-13T20:59:00+00:00",
+          "observed_gap_count_gt_one_minute": 65,
+          "largest_observed_gap_minutes": 2941.0,
+          "first_evaluation_bar": "2024-06-17T05:00:00+00:00",
+          "context_rows_before_first_evaluation_bar": 0,
+          "recorded_feature_warmup": {
+            "atr_1m": {
+              "present": true,
+              "missing_rows": 13,
+              "first_non_null_bar": "2024-06-17T05:13:00+00:00"
+            },
+            "pdh": {
+              "present": true,
+              "missing_rows": 960,
+              "first_non_null_bar": "2024-06-17T22:00:00+00:00"
+            },
+            "pdl": {
+              "present": true,
+              "missing_rows": 960,
+              "first_non_null_bar": "2024-06-17T22:00:00+00:00"
+            },
+            "bias_available_at_15m": {
+              "present": true,
+              "missing_rows": 15,
+              "first_non_null_bar": "2024-06-17T05:15:00+00:00"
+            },
+            "bias_available_at_30m": {
+              "present": true,
+              "missing_rows": 30,
+              "first_non_null_bar": "2024-06-17T05:30:00+00:00"
+            },
+            "bias_available_at_1h": {
+              "present": true,
+              "missing_rows": 60,
+              "first_non_null_bar": "2024-06-17T06:00:00+00:00"
+            },
+            "bias_available_at_4h": {
+              "present": true,
+              "missing_rows": 420,
+              "first_non_null_bar": "2024-06-17T12:00:00+00:00"
+            },
+            "bias_available_at_1d": {
+              "present": true,
+              "missing_rows": 2340,
+              "first_non_null_bar": "2024-06-18T22:00:00+00:00"
+            }
+          },
+          "same_contract_downloads": [
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMU24_1m.parquet",
+              "unused_pre_segment_rows": 0,
+              "unused_pre_segment_first_timestamp": null,
+              "unused_pre_segment_last_timestamp": null,
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 88319,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "NO_EARLIER_HISTORY_IN_THIS_FILE",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMU24_1m.parquet",
+              "unused_pre_segment_rows": 0,
+              "unused_pre_segment_first_timestamp": null,
+              "unused_pre_segment_last_timestamp": null,
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 88319,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "NO_EARLIER_HISTORY_IN_THIS_FILE",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMU24_1m.parquet",
+              "unused_pre_segment_rows": 0,
+              "unused_pre_segment_first_timestamp": null,
+              "unused_pre_segment_last_timestamp": null,
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 88319,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "NO_EARLIER_HISTORY_IN_THIS_FILE",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            }
+          ],
+          "download_inventory_status": "FOUND"
+        },
+        {
+          "contract": "NMZ24",
+          "raw_path": "/root/trade-alerts-verify-YwIqEc/replays/isolated-2024-v_r21v9e/features/segment_4/raw_segment.parquet",
+          "sha256": "792236fe85f7b67cc140c9583fd9014b4129a5bcee1ad38dfe89ba483c217b5c",
+          "rows": 90195,
+          "first_timestamp": "2024-09-16T05:00:00+00:00",
+          "last_timestamp": "2024-12-16T21:59:00+00:00",
+          "observed_gap_count_gt_one_minute": 65,
+          "largest_observed_gap_minutes": 3166.0,
+          "first_evaluation_bar": "2024-09-16T05:00:00+00:00",
+          "context_rows_before_first_evaluation_bar": 0,
+          "recorded_feature_warmup": {
+            "atr_1m": {
+              "present": true,
+              "missing_rows": 13,
+              "first_non_null_bar": "2024-09-16T05:13:00+00:00"
+            },
+            "pdh": {
+              "present": true,
+              "missing_rows": 960,
+              "first_non_null_bar": "2024-09-16T22:00:00+00:00"
+            },
+            "pdl": {
+              "present": true,
+              "missing_rows": 960,
+              "first_non_null_bar": "2024-09-16T22:00:00+00:00"
+            },
+            "bias_available_at_15m": {
+              "present": true,
+              "missing_rows": 15,
+              "first_non_null_bar": "2024-09-16T05:15:00+00:00"
+            },
+            "bias_available_at_30m": {
+              "present": true,
+              "missing_rows": 30,
+              "first_non_null_bar": "2024-09-16T05:30:00+00:00"
+            },
+            "bias_available_at_1h": {
+              "present": true,
+              "missing_rows": 60,
+              "first_non_null_bar": "2024-09-16T06:00:00+00:00"
+            },
+            "bias_available_at_4h": {
+              "present": true,
+              "missing_rows": 420,
+              "first_non_null_bar": "2024-09-16T12:00:00+00:00"
+            },
+            "bias_available_at_1d": {
+              "present": true,
+              "missing_rows": 2340,
+              "first_non_null_bar": "2024-09-17T22:00:00+00:00"
+            }
+          },
+          "same_contract_downloads": [
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ24_1m.parquet",
+              "unused_pre_segment_rows": 0,
+              "unused_pre_segment_first_timestamp": null,
+              "unused_pre_segment_last_timestamp": null,
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 90195,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "NO_EARLIER_HISTORY_IN_THIS_FILE",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ24_1m.parquet",
+              "unused_pre_segment_rows": 0,
+              "unused_pre_segment_first_timestamp": null,
+              "unused_pre_segment_last_timestamp": null,
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 90195,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "NO_EARLIER_HISTORY_IN_THIS_FILE",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ24_1m.parquet",
+              "unused_pre_segment_rows": 0,
+              "unused_pre_segment_first_timestamp": null,
+              "unused_pre_segment_last_timestamp": null,
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 90195,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "NO_EARLIER_HISTORY_IN_THIS_FILE",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            }
+          ],
+          "download_inventory_status": "FOUND"
+        },
+        {
+          "contract": "NMH25",
+          "raw_path": "/root/trade-alerts-verify-YwIqEc/replays/isolated-2024-v_r21v9e/features/segment_5/raw_segment.parquet",
+          "sha256": "ebc3224982866e6ae40acda8c1a017d60571b83c011565ad3e56f3be8f258495",
+          "rows": 13575,
+          "first_timestamp": "2024-12-16T23:00:00+00:00",
+          "last_timestamp": "2024-12-31T21:59:00+00:00",
+          "observed_gap_count_gt_one_minute": 9,
+          "largest_observed_gap_minutes": 2941.0,
+          "first_evaluation_bar": "2024-12-16T23:00:00+00:00",
+          "context_rows_before_first_evaluation_bar": 0,
+          "recorded_feature_warmup": {
+            "atr_1m": {
+              "present": true,
+              "missing_rows": 13,
+              "first_non_null_bar": "2024-12-16T23:13:00+00:00"
+            },
+            "pdh": {
+              "present": true,
+              "missing_rows": 1380,
+              "first_non_null_bar": "2024-12-17T23:00:00+00:00"
+            },
+            "pdl": {
+              "present": true,
+              "missing_rows": 1380,
+              "first_non_null_bar": "2024-12-17T23:00:00+00:00"
+            },
+            "bias_available_at_15m": {
+              "present": true,
+              "missing_rows": 15,
+              "first_non_null_bar": "2024-12-16T23:15:00+00:00"
+            },
+            "bias_available_at_30m": {
+              "present": true,
+              "missing_rows": 30,
+              "first_non_null_bar": "2024-12-16T23:30:00+00:00"
+            },
+            "bias_available_at_1h": {
+              "present": true,
+              "missing_rows": 60,
+              "first_non_null_bar": "2024-12-17T00:00:00+00:00"
+            },
+            "bias_available_at_4h": {
+              "present": true,
+              "missing_rows": 300,
+              "first_non_null_bar": "2024-12-17T04:00:00+00:00"
+            },
+            "bias_available_at_1d": {
+              "present": true,
+              "missing_rows": 1380,
+              "first_non_null_bar": "2024-12-17T23:00:00+00:00"
+            }
+          },
+          "same_contract_downloads": [
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH25_1m.parquet",
+              "unused_pre_segment_rows": 960,
+              "unused_pre_segment_first_timestamp": "2024-12-16T06:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2024-12-16T21:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 13575,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH25_1m.parquet",
+              "unused_pre_segment_rows": 960,
+              "unused_pre_segment_first_timestamp": "2024-12-16T06:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2024-12-16T21:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 13575,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH25_1m.parquet",
+              "unused_pre_segment_rows": 960,
+              "unused_pre_segment_first_timestamp": "2024-12-16T06:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2024-12-16T21:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 13575,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            }
+          ],
+          "download_inventory_status": "FOUND"
+        }
+      ]
+    },
+    {
+      "summary_path": "/root/trade-alerts-verify-YwIqEc/replays/full-2025-isolated-features-20261005T185645Z/FEATURE_BUILD_SUMMARY.json",
+      "evaluation_year": 2025,
+      "segments": [
+        {
+          "contract": "NMZ24",
+          "raw_path": "/root/trade-alerts-verify-YwIqEc/replays/full-2025-isolated-features-20261005T185645Z/segment_0/raw_segment.parquet",
+          "sha256": "cf5860fe4908269d20b0e3601ca731bcf3e1c7b4175db2cc577f032c9cd7dce7",
+          "rows": 75315,
+          "first_timestamp": "2024-10-01T00:00:00+00:00",
+          "last_timestamp": "2024-12-16T21:59:00+00:00",
+          "observed_gap_count_gt_one_minute": 54,
+          "largest_observed_gap_minutes": 3166.0,
+          "first_evaluation_bar": null,
+          "context_rows_before_first_evaluation_bar": null,
+          "recorded_feature_warmup": {
+            "atr_1m": {
+              "present": true,
+              "missing_rows": 13,
+              "first_non_null_bar": "2024-10-01T00:13:00+00:00"
+            },
+            "pdh": {
+              "present": true,
+              "missing_rows": 1260,
+              "first_non_null_bar": "2024-10-01T22:00:00+00:00"
+            },
+            "pdl": {
+              "present": true,
+              "missing_rows": 1260,
+              "first_non_null_bar": "2024-10-01T22:00:00+00:00"
+            },
+            "bias_available_at_15m": {
+              "present": true,
+              "missing_rows": 15,
+              "first_non_null_bar": "2024-10-01T00:15:00+00:00"
+            },
+            "bias_available_at_30m": {
+              "present": true,
+              "missing_rows": 30,
+              "first_non_null_bar": "2024-10-01T00:30:00+00:00"
+            },
+            "bias_available_at_1h": {
+              "present": true,
+              "missing_rows": 60,
+              "first_non_null_bar": "2024-10-01T01:00:00+00:00"
+            },
+            "bias_available_at_4h": {
+              "present": true,
+              "missing_rows": 240,
+              "first_non_null_bar": "2024-10-01T04:00:00+00:00"
+            },
+            "bias_available_at_1d": {
+              "present": true,
+              "missing_rows": 2640,
+              "first_non_null_bar": "2024-10-02T22:00:00+00:00"
+            }
+          },
+          "same_contract_downloads": [
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ24_1m.parquet",
+              "unused_pre_segment_rows": 14880,
+              "unused_pre_segment_first_timestamp": "2024-09-16T05:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2024-09-30T23:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": null,
+              "overlap_rows": 75315,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ24_1m.parquet",
+              "unused_pre_segment_rows": 14880,
+              "unused_pre_segment_first_timestamp": "2024-09-16T05:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2024-09-30T23:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": null,
+              "overlap_rows": 75315,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ24_1m.parquet",
+              "unused_pre_segment_rows": 14880,
+              "unused_pre_segment_first_timestamp": "2024-09-16T05:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2024-09-30T23:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": null,
+              "overlap_rows": 75315,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            }
+          ],
+          "download_inventory_status": "FOUND"
+        },
+        {
+          "contract": "NMH25",
+          "raw_path": "/root/trade-alerts-verify-YwIqEc/replays/full-2025-isolated-features-20261005T185645Z/segment_1/raw_segment.parquet",
+          "sha256": "968babbabae205835f5cff4e803f057dc230a32643de3935b44479f758f45024",
+          "rows": 85772,
+          "first_timestamp": "2024-12-16T23:00:00+00:00",
+          "last_timestamp": "2025-03-17T20:59:00+00:00",
+          "observed_gap_count_gt_one_minute": 64,
+          "largest_observed_gap_minutes": 2941.0,
+          "first_evaluation_bar": "2025-01-01T23:00:00+00:00",
+          "context_rows_before_first_evaluation_bar": 13575,
+          "recorded_feature_warmup": {
+            "atr_1m": {
+              "present": true,
+              "missing_rows": 13,
+              "first_non_null_bar": "2024-12-16T23:13:00+00:00"
+            },
+            "pdh": {
+              "present": true,
+              "missing_rows": 2760,
+              "first_non_null_bar": "2024-12-17T23:00:00+00:00"
+            },
+            "pdl": {
+              "present": true,
+              "missing_rows": 2760,
+              "first_non_null_bar": "2024-12-17T23:00:00+00:00"
+            },
+            "bias_available_at_15m": {
+              "present": true,
+              "missing_rows": 15,
+              "first_non_null_bar": "2024-12-16T23:15:00+00:00"
+            },
+            "bias_available_at_30m": {
+              "present": true,
+              "missing_rows": 30,
+              "first_non_null_bar": "2024-12-16T23:30:00+00:00"
+            },
+            "bias_available_at_1h": {
+              "present": true,
+              "missing_rows": 60,
+              "first_non_null_bar": "2024-12-17T00:00:00+00:00"
+            },
+            "bias_available_at_4h": {
+              "present": true,
+              "missing_rows": 300,
+              "first_non_null_bar": "2024-12-17T04:00:00+00:00"
+            },
+            "bias_available_at_1d": {
+              "present": true,
+              "missing_rows": 1380,
+              "first_non_null_bar": "2024-12-17T23:00:00+00:00"
+            }
+          },
+          "same_contract_downloads": [
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH25_1m.parquet",
+              "unused_pre_segment_rows": 960,
+              "unused_pre_segment_first_timestamp": "2024-12-16T06:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2024-12-16T21:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": 13575,
+              "overlap_rows": 85772,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH25_1m.parquet",
+              "unused_pre_segment_rows": 960,
+              "unused_pre_segment_first_timestamp": "2024-12-16T06:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2024-12-16T21:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": 13575,
+              "overlap_rows": 85772,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH25_1m.parquet",
+              "unused_pre_segment_rows": 960,
+              "unused_pre_segment_first_timestamp": "2024-12-16T06:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2024-12-16T21:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": 13575,
+              "overlap_rows": 85772,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            }
+          ],
+          "download_inventory_status": "FOUND"
+        },
+        {
+          "contract": "NMM25",
+          "raw_path": "/root/trade-alerts-verify-YwIqEc/replays/full-2025-isolated-features-20261005T185645Z/segment_2/raw_segment.parquet",
+          "sha256": "1d87cc2bc259f0ce513cec704800affc40d563c6ada04bd1870d29555964ff9d",
+          "rows": 86668,
+          "first_timestamp": "2025-03-17T22:00:00+00:00",
+          "last_timestamp": "2025-06-13T20:59:00+00:00",
+          "observed_gap_count_gt_one_minute": 67,
+          "largest_observed_gap_minutes": 4381.0,
+          "first_evaluation_bar": "2025-03-17T22:00:00+00:00",
+          "context_rows_before_first_evaluation_bar": 0,
+          "recorded_feature_warmup": {
+            "atr_1m": {
+              "present": true,
+              "missing_rows": 13,
+              "first_non_null_bar": "2025-03-17T22:13:00+00:00"
+            },
+            "pdh": {
+              "present": true,
+              "missing_rows": 1380,
+              "first_non_null_bar": "2025-03-18T22:00:00+00:00"
+            },
+            "pdl": {
+              "present": true,
+              "missing_rows": 1380,
+              "first_non_null_bar": "2025-03-18T22:00:00+00:00"
+            },
+            "bias_available_at_15m": {
+              "present": true,
+              "missing_rows": 15,
+              "first_non_null_bar": "2025-03-17T22:15:00+00:00"
+            },
+            "bias_available_at_30m": {
+              "present": true,
+              "missing_rows": 30,
+              "first_non_null_bar": "2025-03-17T22:30:00+00:00"
+            },
+            "bias_available_at_1h": {
+              "present": true,
+              "missing_rows": 60,
+              "first_non_null_bar": "2025-03-17T23:00:00+00:00"
+            },
+            "bias_available_at_4h": {
+              "present": true,
+              "missing_rows": 360,
+              "first_non_null_bar": "2025-03-18T04:00:00+00:00"
+            },
+            "bias_available_at_1d": {
+              "present": true,
+              "missing_rows": 1380,
+              "first_non_null_bar": "2025-03-18T22:00:00+00:00"
+            }
+          },
+          "same_contract_downloads": [
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMM25_1m.parquet",
+              "unused_pre_segment_rows": 960,
+              "unused_pre_segment_first_timestamp": "2025-03-17T05:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2025-03-17T20:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 86668,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMM25_1m.parquet",
+              "unused_pre_segment_rows": 960,
+              "unused_pre_segment_first_timestamp": "2025-03-17T05:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2025-03-17T20:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 86668,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMM25_1m.parquet",
+              "unused_pre_segment_rows": 960,
+              "unused_pre_segment_first_timestamp": "2025-03-17T05:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2025-03-17T20:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 86668,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            }
+          ],
+          "download_inventory_status": "FOUND"
+        },
+        {
+          "contract": "NMU25",
+          "raw_path": "/root/trade-alerts-verify-YwIqEc/replays/full-2025-isolated-features-20261005T185645Z/segment_3/raw_segment.parquet",
+          "sha256": "59f33e7f74ae37fa54a45b5d339c219fa9937cba2c36a991e488a5fa006ad266",
+          "rows": 89715,
+          "first_timestamp": "2025-06-16T05:00:00+00:00",
+          "last_timestamp": "2025-09-15T20:59:00+00:00",
+          "observed_gap_count_gt_one_minute": 65,
+          "largest_observed_gap_minutes": 3181.0,
+          "first_evaluation_bar": "2025-06-16T05:00:00+00:00",
+          "context_rows_before_first_evaluation_bar": 0,
+          "recorded_feature_warmup": {
+            "atr_1m": {
+              "present": true,
+              "missing_rows": 13,
+              "first_non_null_bar": "2025-06-16T05:13:00+00:00"
+            },
+            "pdh": {
+              "present": true,
+              "missing_rows": 960,
+              "first_non_null_bar": "2025-06-16T22:00:00+00:00"
+            },
+            "pdl": {
+              "present": true,
+              "missing_rows": 960,
+              "first_non_null_bar": "2025-06-16T22:00:00+00:00"
+            },
+            "bias_available_at_15m": {
+              "present": true,
+              "missing_rows": 15,
+              "first_non_null_bar": "2025-06-16T05:15:00+00:00"
+            },
+            "bias_available_at_30m": {
+              "present": true,
+              "missing_rows": 30,
+              "first_non_null_bar": "2025-06-16T05:30:00+00:00"
+            },
+            "bias_available_at_1h": {
+              "present": true,
+              "missing_rows": 60,
+              "first_non_null_bar": "2025-06-16T06:00:00+00:00"
+            },
+            "bias_available_at_4h": {
+              "present": true,
+              "missing_rows": 420,
+              "first_non_null_bar": "2025-06-16T12:00:00+00:00"
+            },
+            "bias_available_at_1d": {
+              "present": true,
+              "missing_rows": 2340,
+              "first_non_null_bar": "2025-06-17T22:00:00+00:00"
+            }
+          },
+          "same_contract_downloads": [
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMU25_1m.parquet",
+              "unused_pre_segment_rows": 0,
+              "unused_pre_segment_first_timestamp": null,
+              "unused_pre_segment_last_timestamp": null,
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 89715,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "NO_EARLIER_HISTORY_IN_THIS_FILE",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMU25_1m.parquet",
+              "unused_pre_segment_rows": 0,
+              "unused_pre_segment_first_timestamp": null,
+              "unused_pre_segment_last_timestamp": null,
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 89715,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "NO_EARLIER_HISTORY_IN_THIS_FILE",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMU25_1m.parquet",
+              "unused_pre_segment_rows": 0,
+              "unused_pre_segment_first_timestamp": null,
+              "unused_pre_segment_last_timestamp": null,
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 89715,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "NO_EARLIER_HISTORY_IN_THIS_FILE",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            }
+          ],
+          "download_inventory_status": "FOUND"
+        },
+        {
+          "contract": "NMZ25",
+          "raw_path": "/root/trade-alerts-verify-YwIqEc/replays/full-2025-isolated-features-20261005T185645Z/segment_4/raw_segment.parquet",
+          "sha256": "a10fa01e94fbae5d336e33fab43dc0fc9e7e5b01b7634ff8591b3de018944b4f",
+          "rows": 88590,
+          "first_timestamp": "2025-09-15T22:00:00+00:00",
+          "last_timestamp": "2025-12-15T21:59:00+00:00",
+          "observed_gap_count_gt_one_minute": 65,
+          "largest_observed_gap_minutes": 3166.0,
+          "first_evaluation_bar": "2025-09-15T22:00:00+00:00",
+          "context_rows_before_first_evaluation_bar": 0,
+          "recorded_feature_warmup": {
+            "atr_1m": {
+              "present": true,
+              "missing_rows": 13,
+              "first_non_null_bar": "2025-09-15T22:13:00+00:00"
+            },
+            "pdh": {
+              "present": true,
+              "missing_rows": 1380,
+              "first_non_null_bar": "2025-09-16T22:00:00+00:00"
+            },
+            "pdl": {
+              "present": true,
+              "missing_rows": 1380,
+              "first_non_null_bar": "2025-09-16T22:00:00+00:00"
+            },
+            "bias_available_at_15m": {
+              "present": true,
+              "missing_rows": 15,
+              "first_non_null_bar": "2025-09-15T22:15:00+00:00"
+            },
+            "bias_available_at_30m": {
+              "present": true,
+              "missing_rows": 30,
+              "first_non_null_bar": "2025-09-15T22:30:00+00:00"
+            },
+            "bias_available_at_1h": {
+              "present": true,
+              "missing_rows": 60,
+              "first_non_null_bar": "2025-09-15T23:00:00+00:00"
+            },
+            "bias_available_at_4h": {
+              "present": true,
+              "missing_rows": 360,
+              "first_non_null_bar": "2025-09-16T04:00:00+00:00"
+            },
+            "bias_available_at_1d": {
+              "present": true,
+              "missing_rows": 1380,
+              "first_non_null_bar": "2025-09-16T22:00:00+00:00"
+            }
+          },
+          "same_contract_downloads": [
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ25_1m.parquet",
+              "unused_pre_segment_rows": 960,
+              "unused_pre_segment_first_timestamp": "2025-09-15T05:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2025-09-15T20:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 88590,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ25_1m.parquet",
+              "unused_pre_segment_rows": 960,
+              "unused_pre_segment_first_timestamp": "2025-09-15T05:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2025-09-15T20:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 88590,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ25_1m.parquet",
+              "unused_pre_segment_rows": 960,
+              "unused_pre_segment_first_timestamp": "2025-09-15T05:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2025-09-15T20:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 88590,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            }
+          ],
+          "download_inventory_status": "FOUND"
+        },
+        {
+          "contract": "NMH26",
+          "raw_path": "/root/trade-alerts-verify-YwIqEc/replays/full-2025-isolated-features-20261005T185645Z/segment_5/raw_segment.parquet",
+          "sha256": "f52e0db31e939f9b8a2a03cc04b6adbb9121665cd380875ed2d39e742e07122f",
+          "rows": 14955,
+          "first_timestamp": "2025-12-15T23:00:00+00:00",
+          "last_timestamp": "2025-12-31T21:59:00+00:00",
+          "observed_gap_count_gt_one_minute": 10,
+          "largest_observed_gap_minutes": 2941.0,
+          "first_evaluation_bar": "2025-12-15T23:00:00+00:00",
+          "context_rows_before_first_evaluation_bar": 0,
+          "recorded_feature_warmup": {
+            "atr_1m": {
+              "present": true,
+              "missing_rows": 13,
+              "first_non_null_bar": "2025-12-15T23:13:00+00:00"
+            },
+            "pdh": {
+              "present": true,
+              "missing_rows": 1380,
+              "first_non_null_bar": "2025-12-16T23:00:00+00:00"
+            },
+            "pdl": {
+              "present": true,
+              "missing_rows": 1380,
+              "first_non_null_bar": "2025-12-16T23:00:00+00:00"
+            },
+            "bias_available_at_15m": {
+              "present": true,
+              "missing_rows": 15,
+              "first_non_null_bar": "2025-12-15T23:15:00+00:00"
+            },
+            "bias_available_at_30m": {
+              "present": true,
+              "missing_rows": 30,
+              "first_non_null_bar": "2025-12-15T23:30:00+00:00"
+            },
+            "bias_available_at_1h": {
+              "present": true,
+              "missing_rows": 60,
+              "first_non_null_bar": "2025-12-16T00:00:00+00:00"
+            },
+            "bias_available_at_4h": {
+              "present": true,
+              "missing_rows": 300,
+              "first_non_null_bar": "2025-12-16T04:00:00+00:00"
+            },
+            "bias_available_at_1d": {
+              "present": true,
+              "missing_rows": 1380,
+              "first_non_null_bar": "2025-12-16T23:00:00+00:00"
+            }
+          },
+          "same_contract_downloads": [
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH26_1m.parquet",
+              "unused_pre_segment_rows": 960,
+              "unused_pre_segment_first_timestamp": "2025-12-15T06:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2025-12-15T21:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 14955,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH26_1m.parquet",
+              "unused_pre_segment_rows": 960,
+              "unused_pre_segment_first_timestamp": "2025-12-15T06:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2025-12-15T21:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 14955,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            },
+            {
+              "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH26_1m.parquet",
+              "unused_pre_segment_rows": 960,
+              "unused_pre_segment_first_timestamp": "2025-12-15T06:00:00+00:00",
+              "unused_pre_segment_last_timestamp": "2025-12-15T21:59:00+00:00",
+              "used_rows_before_first_evaluation_bar": 0,
+              "overlap_rows": 14955,
+              "overlap_value_mismatches": {
+                "open": 0,
+                "high": 0,
+                "low": 0,
+                "close": 0,
+                "volume": 0
+              },
+              "used_rows_absent_from_download": 0,
+              "download_rows_absent_inside_used_span": 0,
+              "first_download_row_absent_inside_used_span": null,
+              "finding": "EXISTING_HISTORY_NOT_USED",
+              "warmup_sufficiency": "NOT_CERTIFIED"
+            }
+          ],
+          "download_inventory_status": "FOUND"
+        }
+      ]
+    }
+  ],
+  "contract_file_inventory": [
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH22_1m.parquet",
+      "sha256": "b7cd4bb9b3c50d19246c63ac1da2abd356babf20d93f5481a01dfb268f8f6ec2",
+      "contract": "NMH22",
+      "rows": 86919,
+      "first_timestamp": "2021-12-20T06:00:00+00:00",
+      "last_timestamp": "2022-03-18T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 106,
+      "largest_observed_gap_minutes": 4381.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH23_1m.parquet",
+      "sha256": "ffaef0829f618b53038317e52769421d019cbbf1efdc01716424f07650e8e543",
+      "contract": "NMH23",
+      "rows": 92433,
+      "first_timestamp": "2022-12-12T06:00:00+00:00",
+      "last_timestamp": "2023-03-17T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 117,
+      "largest_observed_gap_minutes": 4381.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH24_1m.parquet",
+      "sha256": "ea747324c6fc5fef96634da1a35a51226382ba40c3ac375d018d34f22f407b31",
+      "contract": "NMH24",
+      "rows": 92439,
+      "first_timestamp": "2023-12-11T06:00:00+00:00",
+      "last_timestamp": "2024-03-15T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 76,
+      "largest_observed_gap_minutes": 4381.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH25_1m.parquet",
+      "sha256": "433ae28a13f2817ee13bc0c5c3ba67ec4ea916be82c3e5fb717dd62a287a9ccc",
+      "contract": "NMH25",
+      "rows": 91793,
+      "first_timestamp": "2024-12-16T06:00:00+00:00",
+      "last_timestamp": "2025-03-21T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 78,
+      "largest_observed_gap_minutes": 2941.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH26_1m.parquet",
+      "sha256": "8b0139302a5499411bfb784eac005a480e1e54f60b69c35e0bdd0b3a030824ea",
+      "contract": "NMH26",
+      "rows": 92249,
+      "first_timestamp": "2025-12-15T06:00:00+00:00",
+      "last_timestamp": "2026-03-20T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 82,
+      "largest_observed_gap_minutes": 2941.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMM22_1m.parquet",
+      "sha256": "3483b0457a7a335f20c67b29bce0228e722da9b7ecd7b76b71d304a688aa7456",
+      "contract": "NMM22",
+      "rows": 94099,
+      "first_timestamp": "2022-03-14T05:00:00+00:00",
+      "last_timestamp": "2022-06-17T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 78,
+      "largest_observed_gap_minutes": 4381.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMM23_1m.parquet",
+      "sha256": "a3c02ed1994fd831e02d9fb49e8e552c857557071d5daff4379ec912b9e78613",
+      "contract": "NMM23",
+      "rows": 95002,
+      "first_timestamp": "2023-03-13T05:00:00+00:00",
+      "last_timestamp": "2023-06-16T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 87,
+      "largest_observed_gap_minutes": 3406.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMM24_1m.parquet",
+      "sha256": "0aa112cd5d9c58342ab05e8dacacd1f649ec072870d15c82c6b30a56a6b19940",
+      "contract": "NMM24",
+      "rows": 100709,
+      "first_timestamp": "2024-03-11T05:00:00+00:00",
+      "last_timestamp": "2024-06-21T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 129,
+      "largest_observed_gap_minutes": 4381.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMM25_1m.parquet",
+      "sha256": "b854c4a7522e064080b08e369b03298f0f244499c6192af4bbb987f9353a29ea",
+      "contract": "NMM25",
+      "rows": 93814,
+      "first_timestamp": "2025-03-17T05:00:00+00:00",
+      "last_timestamp": "2025-06-20T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 94,
+      "largest_observed_gap_minutes": 4381.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMM26_1m.parquet",
+      "sha256": "1eeaebe8a1c99871eb49c8b3555f9cf049454a273f8257e404a45027c96d37f3",
+      "contract": "NMM26",
+      "rows": 93598,
+      "first_timestamp": "2026-03-16T05:00:00+00:00",
+      "last_timestamp": "2026-06-18T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 70,
+      "largest_observed_gap_minutes": 3406.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMU22_1m.parquet",
+      "sha256": "807b42f2158b98afdba971621710deb36920f067d4dac694a5f77cbda7b75170",
+      "contract": "NMU22",
+      "rows": 94968,
+      "first_timestamp": "2022-06-13T05:00:00+00:00",
+      "last_timestamp": "2022-09-16T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 105,
+      "largest_observed_gap_minutes": 2941.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMU23_1m.parquet",
+      "sha256": "8c71ad60b13c9bf1b0ea8ef9f3e3a3c59d35812935d30c58654867ca4c76bb42",
+      "contract": "NMU23",
+      "rows": 94764,
+      "first_timestamp": "2023-06-12T05:00:00+00:00",
+      "last_timestamp": "2023-09-15T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 89,
+      "largest_observed_gap_minutes": 2941.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMU24_1m.parquet",
+      "sha256": "44b9ca3f1773250490021b9c62d5268fa2caa5e2af8e9e0bef48aca0709ae12b",
+      "contract": "NMU24",
+      "rows": 94748,
+      "first_timestamp": "2024-06-17T05:00:00+00:00",
+      "last_timestamp": "2024-09-20T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 89,
+      "largest_observed_gap_minutes": 2941.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMU25_1m.parquet",
+      "sha256": "e8e4b2da33d1983fd9a4fba2ac8c9bc31c11725e0dcddfd28e0a4016995d599e",
+      "contract": "NMU25",
+      "rows": 94771,
+      "first_timestamp": "2025-06-16T05:00:00+00:00",
+      "last_timestamp": "2025-09-19T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 81,
+      "largest_observed_gap_minutes": 3181.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMU26_1m.parquet",
+      "sha256": "3f84fefe890cdf5ca81f57e0d982c295c0d6d62c5e3a3d4bee18799579228666",
+      "contract": "NMU26",
+      "rows": 81854,
+      "first_timestamp": "2026-06-15T05:00:00+00:00",
+      "last_timestamp": "2026-09-04T20:59:00+00:00",
+      "observed_gap_count_gt_one_minute": 61,
+      "largest_observed_gap_minutes": 3181.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ22_1m.parquet",
+      "sha256": "32c67f2c15fd50a101037f1ba6d50c3f11a9fba8216acb51d42cfaa284f97bb6",
+      "contract": "NMZ22",
+      "rows": 95227,
+      "first_timestamp": "2022-09-12T05:00:00+00:00",
+      "last_timestamp": "2022-12-16T14:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 105,
+      "largest_observed_gap_minutes": 3166.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ23_1m.parquet",
+      "sha256": "428eb878d8da34db61e31c405ceaa14c7613b24cc0745525ca5b5fb1032702fb",
+      "contract": "NMZ23",
+      "rows": 95217,
+      "first_timestamp": "2023-09-11T05:00:00+00:00",
+      "last_timestamp": "2023-12-15T14:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 112,
+      "largest_observed_gap_minutes": 3166.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ24_1m.parquet",
+      "sha256": "10b08380491935d05df925a5ac21d0d4901514d1f648618a77c4765f9ae4f37c",
+      "contract": "NMZ24",
+      "rows": 95251,
+      "first_timestamp": "2024-09-16T05:00:00+00:00",
+      "last_timestamp": "2024-12-20T14:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 81,
+      "largest_observed_gap_minutes": 3166.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ25_1m.parquet",
+      "sha256": "6da9b898b6fb6456f88a99298cb1742b4309bc8a22ee6fc1195cad2f7d265702",
+      "contract": "NMZ25",
+      "rows": 94611,
+      "first_timestamp": "2025-09-15T05:00:00+00:00",
+      "last_timestamp": "2025-12-19T14:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 79,
+      "largest_observed_gap_minutes": 3166.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH22_1m.parquet",
+      "sha256": "b7cd4bb9b3c50d19246c63ac1da2abd356babf20d93f5481a01dfb268f8f6ec2",
+      "contract": "NMH22",
+      "rows": 86919,
+      "first_timestamp": "2021-12-20T06:00:00+00:00",
+      "last_timestamp": "2022-03-18T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 106,
+      "largest_observed_gap_minutes": 4381.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH23_1m.parquet",
+      "sha256": "ffaef0829f618b53038317e52769421d019cbbf1efdc01716424f07650e8e543",
+      "contract": "NMH23",
+      "rows": 92433,
+      "first_timestamp": "2022-12-12T06:00:00+00:00",
+      "last_timestamp": "2023-03-17T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 117,
+      "largest_observed_gap_minutes": 4381.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH24_1m.parquet",
+      "sha256": "ea747324c6fc5fef96634da1a35a51226382ba40c3ac375d018d34f22f407b31",
+      "contract": "NMH24",
+      "rows": 92439,
+      "first_timestamp": "2023-12-11T06:00:00+00:00",
+      "last_timestamp": "2024-03-15T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 76,
+      "largest_observed_gap_minutes": 4381.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH25_1m.parquet",
+      "sha256": "433ae28a13f2817ee13bc0c5c3ba67ec4ea916be82c3e5fb717dd62a287a9ccc",
+      "contract": "NMH25",
+      "rows": 91793,
+      "first_timestamp": "2024-12-16T06:00:00+00:00",
+      "last_timestamp": "2025-03-21T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 78,
+      "largest_observed_gap_minutes": 2941.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH26_1m.parquet",
+      "sha256": "8b0139302a5499411bfb784eac005a480e1e54f60b69c35e0bdd0b3a030824ea",
+      "contract": "NMH26",
+      "rows": 92249,
+      "first_timestamp": "2025-12-15T06:00:00+00:00",
+      "last_timestamp": "2026-03-20T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 82,
+      "largest_observed_gap_minutes": 2941.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMM22_1m.parquet",
+      "sha256": "3483b0457a7a335f20c67b29bce0228e722da9b7ecd7b76b71d304a688aa7456",
+      "contract": "NMM22",
+      "rows": 94099,
+      "first_timestamp": "2022-03-14T05:00:00+00:00",
+      "last_timestamp": "2022-06-17T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 78,
+      "largest_observed_gap_minutes": 4381.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMM23_1m.parquet",
+      "sha256": "a3c02ed1994fd831e02d9fb49e8e552c857557071d5daff4379ec912b9e78613",
+      "contract": "NMM23",
+      "rows": 95002,
+      "first_timestamp": "2023-03-13T05:00:00+00:00",
+      "last_timestamp": "2023-06-16T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 87,
+      "largest_observed_gap_minutes": 3406.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMM24_1m.parquet",
+      "sha256": "0aa112cd5d9c58342ab05e8dacacd1f649ec072870d15c82c6b30a56a6b19940",
+      "contract": "NMM24",
+      "rows": 100709,
+      "first_timestamp": "2024-03-11T05:00:00+00:00",
+      "last_timestamp": "2024-06-21T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 129,
+      "largest_observed_gap_minutes": 4381.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMM25_1m.parquet",
+      "sha256": "b854c4a7522e064080b08e369b03298f0f244499c6192af4bbb987f9353a29ea",
+      "contract": "NMM25",
+      "rows": 93814,
+      "first_timestamp": "2025-03-17T05:00:00+00:00",
+      "last_timestamp": "2025-06-20T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 94,
+      "largest_observed_gap_minutes": 4381.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMM26_1m.parquet",
+      "sha256": "1eeaebe8a1c99871eb49c8b3555f9cf049454a273f8257e404a45027c96d37f3",
+      "contract": "NMM26",
+      "rows": 93598,
+      "first_timestamp": "2026-03-16T05:00:00+00:00",
+      "last_timestamp": "2026-06-18T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 70,
+      "largest_observed_gap_minutes": 3406.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMU22_1m.parquet",
+      "sha256": "807b42f2158b98afdba971621710deb36920f067d4dac694a5f77cbda7b75170",
+      "contract": "NMU22",
+      "rows": 94968,
+      "first_timestamp": "2022-06-13T05:00:00+00:00",
+      "last_timestamp": "2022-09-16T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 105,
+      "largest_observed_gap_minutes": 2941.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMU23_1m.parquet",
+      "sha256": "8c71ad60b13c9bf1b0ea8ef9f3e3a3c59d35812935d30c58654867ca4c76bb42",
+      "contract": "NMU23",
+      "rows": 94764,
+      "first_timestamp": "2023-06-12T05:00:00+00:00",
+      "last_timestamp": "2023-09-15T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 89,
+      "largest_observed_gap_minutes": 2941.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMU24_1m.parquet",
+      "sha256": "44b9ca3f1773250490021b9c62d5268fa2caa5e2af8e9e0bef48aca0709ae12b",
+      "contract": "NMU24",
+      "rows": 94748,
+      "first_timestamp": "2024-06-17T05:00:00+00:00",
+      "last_timestamp": "2024-09-20T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 89,
+      "largest_observed_gap_minutes": 2941.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMU25_1m.parquet",
+      "sha256": "e8e4b2da33d1983fd9a4fba2ac8c9bc31c11725e0dcddfd28e0a4016995d599e",
+      "contract": "NMU25",
+      "rows": 94771,
+      "first_timestamp": "2025-06-16T05:00:00+00:00",
+      "last_timestamp": "2025-09-19T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 81,
+      "largest_observed_gap_minutes": 3181.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMU26_1m.parquet",
+      "sha256": "3f84fefe890cdf5ca81f57e0d982c295c0d6d62c5e3a3d4bee18799579228666",
+      "contract": "NMU26",
+      "rows": 81854,
+      "first_timestamp": "2026-06-15T05:00:00+00:00",
+      "last_timestamp": "2026-09-04T20:59:00+00:00",
+      "observed_gap_count_gt_one_minute": 61,
+      "largest_observed_gap_minutes": 3181.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ22_1m.parquet",
+      "sha256": "32c67f2c15fd50a101037f1ba6d50c3f11a9fba8216acb51d42cfaa284f97bb6",
+      "contract": "NMZ22",
+      "rows": 95227,
+      "first_timestamp": "2022-09-12T05:00:00+00:00",
+      "last_timestamp": "2022-12-16T14:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 105,
+      "largest_observed_gap_minutes": 3166.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ23_1m.parquet",
+      "sha256": "428eb878d8da34db61e31c405ceaa14c7613b24cc0745525ca5b5fb1032702fb",
+      "contract": "NMZ23",
+      "rows": 95217,
+      "first_timestamp": "2023-09-11T05:00:00+00:00",
+      "last_timestamp": "2023-12-15T14:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 112,
+      "largest_observed_gap_minutes": 3166.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ24_1m.parquet",
+      "sha256": "10b08380491935d05df925a5ac21d0d4901514d1f648618a77c4765f9ae4f37c",
+      "contract": "NMZ24",
+      "rows": 95251,
+      "first_timestamp": "2024-09-16T05:00:00+00:00",
+      "last_timestamp": "2024-12-20T14:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 81,
+      "largest_observed_gap_minutes": 3166.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ25_1m.parquet",
+      "sha256": "6da9b898b6fb6456f88a99298cb1742b4309bc8a22ee6fc1195cad2f7d265702",
+      "contract": "NMZ25",
+      "rows": 94611,
+      "first_timestamp": "2025-09-15T05:00:00+00:00",
+      "last_timestamp": "2025-12-19T14:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 79,
+      "largest_observed_gap_minutes": 3166.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH22_1m.parquet",
+      "sha256": "b7cd4bb9b3c50d19246c63ac1da2abd356babf20d93f5481a01dfb268f8f6ec2",
+      "contract": "NMH22",
+      "rows": 86919,
+      "first_timestamp": "2021-12-20T06:00:00+00:00",
+      "last_timestamp": "2022-03-18T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 106,
+      "largest_observed_gap_minutes": 4381.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH23_1m.parquet",
+      "sha256": "ffaef0829f618b53038317e52769421d019cbbf1efdc01716424f07650e8e543",
+      "contract": "NMH23",
+      "rows": 92433,
+      "first_timestamp": "2022-12-12T06:00:00+00:00",
+      "last_timestamp": "2023-03-17T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 117,
+      "largest_observed_gap_minutes": 4381.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH24_1m.parquet",
+      "sha256": "ea747324c6fc5fef96634da1a35a51226382ba40c3ac375d018d34f22f407b31",
+      "contract": "NMH24",
+      "rows": 92439,
+      "first_timestamp": "2023-12-11T06:00:00+00:00",
+      "last_timestamp": "2024-03-15T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 76,
+      "largest_observed_gap_minutes": 4381.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH25_1m.parquet",
+      "sha256": "433ae28a13f2817ee13bc0c5c3ba67ec4ea916be82c3e5fb717dd62a287a9ccc",
+      "contract": "NMH25",
+      "rows": 91793,
+      "first_timestamp": "2024-12-16T06:00:00+00:00",
+      "last_timestamp": "2025-03-21T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 78,
+      "largest_observed_gap_minutes": 2941.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMH26_1m.parquet",
+      "sha256": "8b0139302a5499411bfb784eac005a480e1e54f60b69c35e0bdd0b3a030824ea",
+      "contract": "NMH26",
+      "rows": 92249,
+      "first_timestamp": "2025-12-15T06:00:00+00:00",
+      "last_timestamp": "2026-03-20T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 82,
+      "largest_observed_gap_minutes": 2941.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMM22_1m.parquet",
+      "sha256": "3483b0457a7a335f20c67b29bce0228e722da9b7ecd7b76b71d304a688aa7456",
+      "contract": "NMM22",
+      "rows": 94099,
+      "first_timestamp": "2022-03-14T05:00:00+00:00",
+      "last_timestamp": "2022-06-17T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 78,
+      "largest_observed_gap_minutes": 4381.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMM23_1m.parquet",
+      "sha256": "a3c02ed1994fd831e02d9fb49e8e552c857557071d5daff4379ec912b9e78613",
+      "contract": "NMM23",
+      "rows": 95002,
+      "first_timestamp": "2023-03-13T05:00:00+00:00",
+      "last_timestamp": "2023-06-16T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 87,
+      "largest_observed_gap_minutes": 3406.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMM24_1m.parquet",
+      "sha256": "0aa112cd5d9c58342ab05e8dacacd1f649ec072870d15c82c6b30a56a6b19940",
+      "contract": "NMM24",
+      "rows": 100709,
+      "first_timestamp": "2024-03-11T05:00:00+00:00",
+      "last_timestamp": "2024-06-21T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 129,
+      "largest_observed_gap_minutes": 4381.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMM25_1m.parquet",
+      "sha256": "b854c4a7522e064080b08e369b03298f0f244499c6192af4bbb987f9353a29ea",
+      "contract": "NMM25",
+      "rows": 93814,
+      "first_timestamp": "2025-03-17T05:00:00+00:00",
+      "last_timestamp": "2025-06-20T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 94,
+      "largest_observed_gap_minutes": 4381.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMM26_1m.parquet",
+      "sha256": "1eeaebe8a1c99871eb49c8b3555f9cf049454a273f8257e404a45027c96d37f3",
+      "contract": "NMM26",
+      "rows": 93598,
+      "first_timestamp": "2026-03-16T05:00:00+00:00",
+      "last_timestamp": "2026-06-18T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 70,
+      "largest_observed_gap_minutes": 3406.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMU22_1m.parquet",
+      "sha256": "807b42f2158b98afdba971621710deb36920f067d4dac694a5f77cbda7b75170",
+      "contract": "NMU22",
+      "rows": 94968,
+      "first_timestamp": "2022-06-13T05:00:00+00:00",
+      "last_timestamp": "2022-09-16T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 105,
+      "largest_observed_gap_minutes": 2941.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMU23_1m.parquet",
+      "sha256": "8c71ad60b13c9bf1b0ea8ef9f3e3a3c59d35812935d30c58654867ca4c76bb42",
+      "contract": "NMU23",
+      "rows": 94764,
+      "first_timestamp": "2023-06-12T05:00:00+00:00",
+      "last_timestamp": "2023-09-15T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 89,
+      "largest_observed_gap_minutes": 2941.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMU24_1m.parquet",
+      "sha256": "44b9ca3f1773250490021b9c62d5268fa2caa5e2af8e9e0bef48aca0709ae12b",
+      "contract": "NMU24",
+      "rows": 94748,
+      "first_timestamp": "2024-06-17T05:00:00+00:00",
+      "last_timestamp": "2024-09-20T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 89,
+      "largest_observed_gap_minutes": 2941.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMU25_1m.parquet",
+      "sha256": "e8e4b2da33d1983fd9a4fba2ac8c9bc31c11725e0dcddfd28e0a4016995d599e",
+      "contract": "NMU25",
+      "rows": 94771,
+      "first_timestamp": "2025-06-16T05:00:00+00:00",
+      "last_timestamp": "2025-09-19T13:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 81,
+      "largest_observed_gap_minutes": 3181.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMU26_1m.parquet",
+      "sha256": "3f84fefe890cdf5ca81f57e0d982c295c0d6d62c5e3a3d4bee18799579228666",
+      "contract": "NMU26",
+      "rows": 81854,
+      "first_timestamp": "2026-06-15T05:00:00+00:00",
+      "last_timestamp": "2026-09-04T20:59:00+00:00",
+      "observed_gap_count_gt_one_minute": 61,
+      "largest_observed_gap_minutes": 3181.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ22_1m.parquet",
+      "sha256": "32c67f2c15fd50a101037f1ba6d50c3f11a9fba8216acb51d42cfaa284f97bb6",
+      "contract": "NMZ22",
+      "rows": 95227,
+      "first_timestamp": "2022-09-12T05:00:00+00:00",
+      "last_timestamp": "2022-12-16T14:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 105,
+      "largest_observed_gap_minutes": 3166.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ23_1m.parquet",
+      "sha256": "428eb878d8da34db61e31c405ceaa14c7613b24cc0745525ca5b5fb1032702fb",
+      "contract": "NMZ23",
+      "rows": 95217,
+      "first_timestamp": "2023-09-11T05:00:00+00:00",
+      "last_timestamp": "2023-12-15T14:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 112,
+      "largest_observed_gap_minutes": 3166.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ24_1m.parquet",
+      "sha256": "10b08380491935d05df925a5ac21d0d4901514d1f648618a77c4765f9ae4f37c",
+      "contract": "NMZ24",
+      "rows": 95251,
+      "first_timestamp": "2024-09-16T05:00:00+00:00",
+      "last_timestamp": "2024-12-20T14:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 81,
+      "largest_observed_gap_minutes": 3166.0
+    },
+    {
+      "path": "/docker/trade-alerts/data/raw/barchart/contracts/NMZ25_1m.parquet",
+      "sha256": "6da9b898b6fb6456f88a99298cb1742b4309bc8a22ee6fc1195cad2f7d265702",
+      "contract": "NMZ25",
+      "rows": 94611,
+      "first_timestamp": "2025-09-15T05:00:00+00:00",
+      "last_timestamp": "2025-12-19T14:29:00+00:00",
+      "observed_gap_count_gt_one_minute": 79,
+      "largest_observed_gap_minutes": 3166.0
+    }
+  ],
+  "errors": [],
+  "input_sha256": {
+    "/docker/trade-alerts/data/raw/barchart/contracts/NMH22_1m.parquet": "b7cd4bb9b3c50d19246c63ac1da2abd356babf20d93f5481a01dfb268f8f6ec2",
+    "/docker/trade-alerts/data/raw/barchart/contracts/NMH23_1m.parquet": "ffaef0829f618b53038317e52769421d019cbbf1efdc01716424f07650e8e543",
+    "/docker/trade-alerts/data/raw/barchart/contracts/NMH24_1m.parquet": "ea747324c6fc5fef96634da1a35a51226382ba40c3ac375d018d34f22f407b31",
+    "/docker/trade-alerts/data/raw/barchart/contracts/NMH25_1m.parquet": "433ae28a13f2817ee13bc0c5c3ba67ec4ea916be82c3e5fb717dd62a287a9ccc",
+    "/docker/trade-alerts/data/raw/barchart/contracts/NMH26_1m.parquet": "8b0139302a5499411bfb784eac005a480e1e54f60b69c35e0bdd0b3a030824ea",
+    "/docker/trade-alerts/data/raw/barchart/contracts/NMM22_1m.parquet": "3483b0457a7a335f20c67b29bce0228e722da9b7ecd7b76b71d304a688aa7456",
+    "/docker/trade-alerts/data/raw/barchart/contracts/NMM23_1m.parquet": "a3c02ed1994fd831e02d9fb49e8e552c857557071d5daff4379ec912b9e78613",
+    "/docker/trade-alerts/data/raw/barchart/contracts/NMM24_1m.parquet": "0aa112cd5d9c58342ab05e8dacacd1f649ec072870d15c82c6b30a56a6b19940",
+    "/docker/trade-alerts/data/raw/barchart/contracts/NMM25_1m.parquet": "b854c4a7522e064080b08e369b03298f0f244499c6192af4bbb987f9353a29ea",
+    "/docker/trade-alerts/data/raw/barchart/contracts/NMM26_1m.parquet": "1eeaebe8a1c99871eb49c8b3555f9cf049454a273f8257e404a45027c96d37f3",
+    "/docker/trade-alerts/data/raw/barchart/contracts/NMU22_1m.parquet": "807b42f2158b98afdba971621710deb36920f067d4dac694a5f77cbda7b75170",
+    "/docker/trade-alerts/data/raw/barchart/contracts/NMU23_1m.parquet": "8c71ad60b13c9bf1b0ea8ef9f3e3a3c59d35812935d30c58654867ca4c76bb42",
+    "/docker/trade-alerts/data/raw/barchart/contracts/NMU24_1m.parquet": "44b9ca3f1773250490021b9c62d5268fa2caa5e2af8e9e0bef48aca0709ae12b",
+    "/docker/trade-alerts/data/raw/barchart/contracts/NMU25_1m.parquet": "e8e4b2da33d1983fd9a4fba2ac8c9bc31c11725e0dcddfd28e0a4016995d599e",
+    "/docker/trade-alerts/data/raw/barchart/contracts/NMU26_1m.parquet": "3f84fefe890cdf5ca81f57e0d982c295c0d6d62c5e3a3d4bee18799579228666",
+    "/docker/trade-alerts/data/raw/barchart/contracts/NMZ22_1m.parquet": "32c67f2c15fd50a101037f1ba6d50c3f11a9fba8216acb51d42cfaa284f97bb6",
+    "/docker/trade-alerts/data/raw/barchart/contracts/NMZ23_1m.parquet": "428eb878d8da34db61e31c405ceaa14c7613b24cc0745525ca5b5fb1032702fb",
+    "/docker/trade-alerts/data/raw/barchart/contracts/NMZ24_1m.parquet": "10b08380491935d05df925a5ac21d0d4901514d1f648618a77c4765f9ae4f37c",
+    "/docker/trade-alerts/data/raw/barchart/contracts/NMZ25_1m.parquet": "6da9b898b6fb6456f88a99298cb1742b4309bc8a22ee6fc1195cad2f7d265702",
+    "/root/trade-alerts-verify-YwIqEc/replays/isolated-2023-xgi4yfiw/features/FEATURE_BUILD_SUMMARY.json": "8b0160459cbff84ebe115a0941d428906505a6b1510d8d220e2bd3ff47311435",
+    "/root/trade-alerts-verify-YwIqEc/replays/isolated-2023-xgi4yfiw/features/FEATURE_OUTPUT_LOCK.json": "1eb840f1908d39c2ce103c7cae4c8404d2d1e6f75eae5a2e97813ae1c0f321b1",
+    "/root/trade-alerts-verify-YwIqEc/replays/isolated-2023-xgi4yfiw/features/segment_0/raw_segment.parquet": "8e680cdee2d2a0eef25fa0d6c630cb19ccae18992b197ad73603335075e7efda",
+    "/root/trade-alerts-verify-YwIqEc/replays/isolated-2023-xgi4yfiw/features/segment_1/raw_segment.parquet": "a1033fd0e4ccac91bb983c0bb25748aa812554277dd56f5e20ef68a62e2cfb6c",
+    "/root/trade-alerts-verify-YwIqEc/replays/isolated-2023-xgi4yfiw/features/segment_2/raw_segment.parquet": "826c9976367aac8d3fedaac17c4359c57ebeee136b4601821a48a32aea248ab8",
+    "/root/trade-alerts-verify-YwIqEc/replays/isolated-2023-xgi4yfiw/features/segment_3/raw_segment.parquet": "47dda71462a633d0bbad0522c6ed19f461ba487e3d9ec3b5fc78877615d1a4eb",
+    "/root/trade-alerts-verify-YwIqEc/replays/isolated-2023-xgi4yfiw/features/segment_4/raw_segment.parquet": "5185ce7bf8bf4a70c22a497d7c8f514b5947e8c923c8b73067164793b12405df",
+    "/root/trade-alerts-verify-YwIqEc/replays/isolated-2023-xgi4yfiw/features/segment_5/raw_segment.parquet": "de008d0a046aea747b28c9f809de71038d5b7e86d5825152378dffc0b02344f9",
+    "/root/trade-alerts-verify-YwIqEc/replays/isolated-2024-v_r21v9e/features/FEATURE_BUILD_SUMMARY.json": "1d67580bb07db1fa661cda77e72b3aca06d49babcc26bc17b22c03d1e3729f7d",
+    "/root/trade-alerts-verify-YwIqEc/replays/isolated-2024-v_r21v9e/features/FEATURE_OUTPUT_LOCK.json": "0134aba908349eaee32936a276357bb08e6ee9e1332dc296d9cad91fe12ed845",
+    "/root/trade-alerts-verify-YwIqEc/replays/isolated-2024-v_r21v9e/features/segment_0/raw_segment.parquet": "c787d8920e5edbac0b50354376fdc141dbf15d8b464b1eca02f56777fa20d49c",
+    "/root/trade-alerts-verify-YwIqEc/replays/isolated-2024-v_r21v9e/features/segment_1/raw_segment.parquet": "59640687c6350df2520c6f9a0be58a3f9e50270661f916f744a8945fa9d1079e",
+    "/root/trade-alerts-verify-YwIqEc/replays/isolated-2024-v_r21v9e/features/segment_2/raw_segment.parquet": "a142cf235d4387e0fb6e7f6c72be17deef0ab317e19d28ecba5fe144163e1527",
+    "/root/trade-alerts-verify-YwIqEc/replays/isolated-2024-v_r21v9e/features/segment_3/raw_segment.parquet": "cc54b99e0ce6d35bc3b33ff7833ee310c1f7d99933c7c1940214ca5a57212a17",
+    "/root/trade-alerts-verify-YwIqEc/replays/isolated-2024-v_r21v9e/features/segment_4/raw_segment.parquet": "792236fe85f7b67cc140c9583fd9014b4129a5bcee1ad38dfe89ba483c217b5c",
+    "/root/trade-alerts-verify-YwIqEc/replays/isolated-2024-v_r21v9e/features/segment_5/raw_segment.parquet": "ebc3224982866e6ae40acda8c1a017d60571b83c011565ad3e56f3be8f258495",
+    "/root/trade-alerts-verify-YwIqEc/replays/full-2025-isolated-features-20261005T185645Z/FEATURE_BUILD_SUMMARY.json": "32212f68fa1867ff8744c20f0875d02f1770fab9f4b962499dfb5c8e56fcd6f6",
+    "/root/trade-alerts-verify-YwIqEc/replays/full-2025-isolated-features-20261005T185645Z/FEATURE_OUTPUT_LOCK.json": "65e06f9194d67191b55364e2187f2313616dca05ccb92acede356708aa4a8853",
+    "/root/trade-alerts-verify-YwIqEc/replays/full-2025-isolated-features-20261005T185645Z/segment_0/raw_segment.parquet": "cf5860fe4908269d20b0e3601ca731bcf3e1c7b4175db2cc577f032c9cd7dce7",
+    "/root/trade-alerts-verify-YwIqEc/replays/full-2025-isolated-features-20261005T185645Z/segment_1/raw_segment.parquet": "968babbabae205835f5cff4e803f057dc230a32643de3935b44479f758f45024",
+    "/root/trade-alerts-verify-YwIqEc/replays/full-2025-isolated-features-20261005T185645Z/segment_2/raw_segment.parquet": "1d87cc2bc259f0ce513cec704800affc40d563c6ada04bd1870d29555964ff9d",
+    "/root/trade-alerts-verify-YwIqEc/replays/full-2025-isolated-features-20261005T185645Z/segment_3/raw_segment.parquet": "59f33e7f74ae37fa54a45b5d339c219fa9937cba2c36a991e488a5fa006ad266",
+    "/root/trade-alerts-verify-YwIqEc/replays/full-2025-isolated-features-20261005T185645Z/segment_4/raw_segment.parquet": "a10fa01e94fbae5d336e33fab43dc0fc9e7e5b01b7634ff8591b3de018944b4f",
+    "/root/trade-alerts-verify-YwIqEc/replays/full-2025-isolated-features-20261005T185645Z/segment_5/raw_segment.parquet": "f52e0db31e939f9b8a2a03cc04b6adbb9121665cd380875ed2d39e742e07122f"
+  },
+  "limitations": [
+    "No exchange holiday/session completeness certification",
+    "Observed gaps include closures and possible no-trade minutes",
+    "No minimum warmup policy invented; earlier history is descriptive",
+    "No history inserted, features rebuilt, or research experiment run",
+    "Missing files in supplied directories do not prove a vendor download is needed",
+    "Multiple downloads are compared independently; no automatic merge or source substitution",
+    "Raw segment hashes checked; this is not full feature-lock or producer certification"
+  ]
+}

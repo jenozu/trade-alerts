@@ -88,3 +88,26 @@ unused history, overlapping price/volume conflicts, absent interior timestamps,
 instrument mismatch, malformed candles/timestamps, missing directories, locked
 raw-segment drift, preserved input bytes and CLI output. No VPS data was examined
 by these synthetic tests and no historical feature build was repeated.
+
+## Supplied VPS result — 2026-10-10
+
+The full user-supplied report is archived at
+`research-archive/EXP-INTEGRITY-HISTORY-INVENTORY/`, with verification findings
+and an archive hash manifest. It returned zero errors, complete inventory,
+unchanged inputs and uncertified coverage. Across the three directories, 57
+files represent 19 distinct byte-identical datasets. Every used segment row
+matches its download exactly and there are no unused download rows inside
+used spans. This comparison cannot certify external completeness.
+
+Seven incoming contracts have no earlier history in the inspected files:
+NMM23, NMU23, NMZ23, NMM24, NMU24, NMZ24, NMU25. Six incoming contracts have
+960 unused earlier Monday bars covering 01:00–16:59 ET, including the entire
+configured RTH timestamp window: NMH23, NMH24, NMH25, NMM25, NMZ25, NMH26.
+These bars can be considered for a separately versioned derivation; they have
+not been inserted or recertified. Earlier initial-year NMZ context also exists.
+
+The remaining inventory step is to locate original CSVs and normalized chunks,
+including supplemental downloads absent from these contract files. Session
+classification and feature-context sufficiency follow that source check.
+No additional market-data subscription, fixed warmup cutoff or yearly rebuild
+is prescribed by this result. Research selection remains paused.

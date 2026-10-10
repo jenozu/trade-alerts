@@ -26,6 +26,15 @@ See [[Findings/FINDINGS-INDEX]].
 
 ## Current R7 preparation — 2026-10-09
 
+**2026-10-10 priority update:** Data acceptance takes precedence over additional
+strategy selection. The read-only VPS source inventory is archived at
+`research-archive/EXP-INTEGRITY-HISTORY-INVENTORY/`. Complete report: zero errors,
+57 files / 19 distinct datasets, exact raw overlap, seven incoming contracts
+with no earlier history and six with 960 unused Monday bars. No source repair,
+external completeness certification or new feature build is claimed. Next locate
+original/supplemental CSVs and normalized chunks, then establish session/context
+coverage. See `docs/contract_history_inventory.md`.
+
 The integrity-corrected control has zero accepted plans across 2023–2025. The
 2023 read-only qualification diagnosis reproduces seven archived signal keys,
 families and confirmation FVG identities. Of 659 candidates, 640 have no active

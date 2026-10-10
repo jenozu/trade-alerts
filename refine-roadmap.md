@@ -2,6 +2,16 @@
 
 ## Purpose
 
+**2026-10-10 data acceptance gate:** Further strategy selection is paused at the
+user's request. The complete VPS contract inventory is retained under
+`research-archive/EXP-INTEGRITY-HISTORY-INVENTORY/`. Independent-contract
+calculation is implemented; available same-contract history is not yet accepted.
+Seven incoming contracts lack earlier history in inspected downloads, while six
+have 960 unused Monday context bars. All overlapping raw values match. Next
+locate original CSV/chunks and classify session/context coverage before repairing
+affected derivations. This is a read-only diagnostic, not a new strategy result;
+R5/R6/R7.0 remain preserved and must not be repeated.
+
 This roadmap defines the formal strategy-refinement process to follow after the untouched historical baseline is established.
 
 The goal is **not** to optimize for the prettiest backtest or highest historical net profit. The goal is to determine, empirically and reproducibly:

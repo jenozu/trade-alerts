@@ -1,0 +1,281 @@
+{
+  "source": "user-supplied VPS report; gzip CRC/length verified on decode",
+  "report_sha256": "ce1bd3b801f0930511404fc6e9659f67de8d05b1958b5f3ba2d313d9b811504e",
+  "report_bytes": 120021,
+  "reported_status": "INVENTORY_COMPLETE_COVERAGE_UNCERTIFIED",
+  "inspected_files": 57,
+  "distinct_file_hashes": 19,
+  "findings": [
+    {
+      "year": 2023,
+      "contract": "NMZ22",
+      "used_start": "2022-10-02T22:00:00+00:00",
+      "rows": 69915,
+      "unused_pre_segment_rows": 20280,
+      "unused_pre_segment_first": "2022-09-12T05:00:00+00:00",
+      "unused_pre_segment_last": "2022-09-30T20:59:00+00:00",
+      "full_used_overlap_matches": true,
+      "recorded_pdh_warmup": {
+        "present": true,
+        "missing_rows": 1380,
+        "first_non_null_bar": "2022-10-03T22:00:00+00:00"
+      }
+    },
+    {
+      "year": 2023,
+      "contract": "NMH23",
+      "used_start": "2022-12-12T23:00:00+00:00",
+      "rows": 85079,
+      "unused_pre_segment_rows": 960,
+      "unused_pre_segment_first": "2022-12-12T06:00:00+00:00",
+      "unused_pre_segment_last": "2022-12-12T21:59:00+00:00",
+      "full_used_overlap_matches": true,
+      "recorded_pdh_warmup": {
+        "present": true,
+        "missing_rows": 1379,
+        "first_non_null_bar": "2022-12-13T23:00:00+00:00"
+      }
+    },
+    {
+      "year": 2023,
+      "contract": "NMM23",
+      "used_start": "2023-03-13T05:00:00+00:00",
+      "rows": 88569,
+      "unused_pre_segment_rows": 0,
+      "unused_pre_segment_first": null,
+      "unused_pre_segment_last": null,
+      "full_used_overlap_matches": true,
+      "recorded_pdh_warmup": {
+        "present": true,
+        "missing_rows": 2340,
+        "first_non_null_bar": "2023-03-13T22:00:00+00:00"
+      }
+    },
+    {
+      "year": 2023,
+      "contract": "NMU23",
+      "used_start": "2023-06-12T05:00:00+00:00",
+      "rows": 88334,
+      "unused_pre_segment_rows": 0,
+      "unused_pre_segment_first": null,
+      "unused_pre_segment_last": null,
+      "full_used_overlap_matches": true,
+      "recorded_pdh_warmup": {
+        "present": true,
+        "missing_rows": 960,
+        "first_non_null_bar": "2023-06-12T22:00:00+00:00"
+      }
+    },
+    {
+      "year": 2023,
+      "contract": "NMZ23",
+      "used_start": "2023-09-11T05:00:00+00:00",
+      "rows": 90195,
+      "unused_pre_segment_rows": 0,
+      "unused_pre_segment_first": null,
+      "unused_pre_segment_last": null,
+      "full_used_overlap_matches": true,
+      "recorded_pdh_warmup": {
+        "present": true,
+        "missing_rows": 960,
+        "first_non_null_bar": "2023-09-11T22:00:00+00:00"
+      }
+    },
+    {
+      "year": 2023,
+      "contract": "NMH24",
+      "used_start": "2023-12-11T23:00:00+00:00",
+      "rows": 17940,
+      "unused_pre_segment_rows": 960,
+      "unused_pre_segment_first": "2023-12-11T06:00:00+00:00",
+      "unused_pre_segment_last": "2023-12-11T21:59:00+00:00",
+      "full_used_overlap_matches": true,
+      "recorded_pdh_warmup": {
+        "present": true,
+        "missing_rows": 1380,
+        "first_non_null_bar": "2023-12-12T23:00:00+00:00"
+      }
+    },
+    {
+      "year": 2024,
+      "contract": "NMZ23",
+      "used_start": "2023-10-01T22:00:00+00:00",
+      "rows": 69915,
+      "unused_pre_segment_rows": 20280,
+      "unused_pre_segment_first": "2023-09-11T05:00:00+00:00",
+      "unused_pre_segment_last": "2023-09-29T20:59:00+00:00",
+      "full_used_overlap_matches": true,
+      "recorded_pdh_warmup": {
+        "present": true,
+        "missing_rows": 1380,
+        "first_non_null_bar": "2023-10-02T22:00:00+00:00"
+      }
+    },
+    {
+      "year": 2024,
+      "contract": "NMH24",
+      "used_start": "2023-12-11T23:00:00+00:00",
+      "rows": 85036,
+      "unused_pre_segment_rows": 960,
+      "unused_pre_segment_first": "2023-12-11T06:00:00+00:00",
+      "unused_pre_segment_last": "2023-12-11T21:59:00+00:00",
+      "full_used_overlap_matches": true,
+      "recorded_pdh_warmup": {
+        "present": true,
+        "missing_rows": 1380,
+        "first_non_null_bar": "2023-12-12T23:00:00+00:00"
+      }
+    },
+    {
+      "year": 2024,
+      "contract": "NMM24",
+      "used_start": "2024-03-11T05:00:00+00:00",
+      "rows": 94560,
+      "unused_pre_segment_rows": 0,
+      "unused_pre_segment_first": null,
+      "unused_pre_segment_last": null,
+      "full_used_overlap_matches": true,
+      "recorded_pdh_warmup": {
+        "present": true,
+        "missing_rows": 960,
+        "first_non_null_bar": "2024-03-11T22:00:00+00:00"
+      }
+    },
+    {
+      "year": 2024,
+      "contract": "NMU24",
+      "used_start": "2024-06-17T05:00:00+00:00",
+      "rows": 88319,
+      "unused_pre_segment_rows": 0,
+      "unused_pre_segment_first": null,
+      "unused_pre_segment_last": null,
+      "full_used_overlap_matches": true,
+      "recorded_pdh_warmup": {
+        "present": true,
+        "missing_rows": 960,
+        "first_non_null_bar": "2024-06-17T22:00:00+00:00"
+      }
+    },
+    {
+      "year": 2024,
+      "contract": "NMZ24",
+      "used_start": "2024-09-16T05:00:00+00:00",
+      "rows": 90195,
+      "unused_pre_segment_rows": 0,
+      "unused_pre_segment_first": null,
+      "unused_pre_segment_last": null,
+      "full_used_overlap_matches": true,
+      "recorded_pdh_warmup": {
+        "present": true,
+        "missing_rows": 960,
+        "first_non_null_bar": "2024-09-16T22:00:00+00:00"
+      }
+    },
+    {
+      "year": 2024,
+      "contract": "NMH25",
+      "used_start": "2024-12-16T23:00:00+00:00",
+      "rows": 13575,
+      "unused_pre_segment_rows": 960,
+      "unused_pre_segment_first": "2024-12-16T06:00:00+00:00",
+      "unused_pre_segment_last": "2024-12-16T21:59:00+00:00",
+      "full_used_overlap_matches": true,
+      "recorded_pdh_warmup": {
+        "present": true,
+        "missing_rows": 1380,
+        "first_non_null_bar": "2024-12-17T23:00:00+00:00"
+      }
+    },
+    {
+      "year": 2025,
+      "contract": "NMZ24",
+      "used_start": "2024-10-01T00:00:00+00:00",
+      "rows": 75315,
+      "unused_pre_segment_rows": 14880,
+      "unused_pre_segment_first": "2024-09-16T05:00:00+00:00",
+      "unused_pre_segment_last": "2024-09-30T23:59:00+00:00",
+      "full_used_overlap_matches": true,
+      "recorded_pdh_warmup": {
+        "present": true,
+        "missing_rows": 1260,
+        "first_non_null_bar": "2024-10-01T22:00:00+00:00"
+      }
+    },
+    {
+      "year": 2025,
+      "contract": "NMH25",
+      "used_start": "2024-12-16T23:00:00+00:00",
+      "rows": 85772,
+      "unused_pre_segment_rows": 960,
+      "unused_pre_segment_first": "2024-12-16T06:00:00+00:00",
+      "unused_pre_segment_last": "2024-12-16T21:59:00+00:00",
+      "full_used_overlap_matches": true,
+      "recorded_pdh_warmup": {
+        "present": true,
+        "missing_rows": 2760,
+        "first_non_null_bar": "2024-12-17T23:00:00+00:00"
+      }
+    },
+    {
+      "year": 2025,
+      "contract": "NMM25",
+      "used_start": "2025-03-17T22:00:00+00:00",
+      "rows": 86668,
+      "unused_pre_segment_rows": 960,
+      "unused_pre_segment_first": "2025-03-17T05:00:00+00:00",
+      "unused_pre_segment_last": "2025-03-17T20:59:00+00:00",
+      "full_used_overlap_matches": true,
+      "recorded_pdh_warmup": {
+        "present": true,
+        "missing_rows": 1380,
+        "first_non_null_bar": "2025-03-18T22:00:00+00:00"
+      }
+    },
+    {
+      "year": 2025,
+      "contract": "NMU25",
+      "used_start": "2025-06-16T05:00:00+00:00",
+      "rows": 89715,
+      "unused_pre_segment_rows": 0,
+      "unused_pre_segment_first": null,
+      "unused_pre_segment_last": null,
+      "full_used_overlap_matches": true,
+      "recorded_pdh_warmup": {
+        "present": true,
+        "missing_rows": 960,
+        "first_non_null_bar": "2025-06-16T22:00:00+00:00"
+      }
+    },
+    {
+      "year": 2025,
+      "contract": "NMZ25",
+      "used_start": "2025-09-15T22:00:00+00:00",
+      "rows": 88590,
+      "unused_pre_segment_rows": 960,
+      "unused_pre_segment_first": "2025-09-15T05:00:00+00:00",
+      "unused_pre_segment_last": "2025-09-15T20:59:00+00:00",
+      "full_used_overlap_matches": true,
+      "recorded_pdh_warmup": {
+        "present": true,
+        "missing_rows": 1380,
+        "first_non_null_bar": "2025-09-16T22:00:00+00:00"
+      }
+    },
+    {
+      "year": 2025,
+      "contract": "NMH26",
+      "used_start": "2025-12-15T23:00:00+00:00",
+      "rows": 14955,
+      "unused_pre_segment_rows": 960,
+      "unused_pre_segment_first": "2025-12-15T06:00:00+00:00",
+      "unused_pre_segment_last": "2025-12-15T21:59:00+00:00",
+      "full_used_overlap_matches": true,
+      "recorded_pdh_warmup": {
+        "present": true,
+        "missing_rows": 1380,
+        "first_non_null_bar": "2025-12-16T23:00:00+00:00"
+      }
+    }
+  ],
+  "research_ready": false
+}
