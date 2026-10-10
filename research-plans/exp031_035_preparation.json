@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "purpose": "Non-executing preregistration drafts; no historical execution or wrapper permission",
+  "execution_enabled": false,
+  "datasets_certified": false,
+  "experiments": [
+    {
+      "id": "EXP-031",
+      "stage": "R7",
+      "name": "Corrected-control acceptance diagnosis",
+      "objective": "Attribute why eligible 2023–2025 signals fail the preserved corrected planning contract without changing qualification, risk or trade execution.",
+      "control": "fvg_chronology_v2 / market_after_retest_confirmation_v2 / frozen 2023–2025 EXP-INTEGRITY archives",
+      "candidate": "NONE — diagnostic only",
+      "design": "Read-only rejection taxonomy, per-year and per-direction counts, and provenance of all candidate and plan fields.",
+      "dependencies": [
+        "EXP-030 review and archive",
+        "2023–2025 source-data integrity certificate"
+      ],
+      "deliverables": [
+        "rejection_breakdown.json",
+        "plan_identity_comparison.json",
+        "method_and_limitations.md"
+      ],
+      "decisions_required": [
+        "Confirm corrected reference input locks after integrity audit",
+        "Approve diagnosis categories and duplicate/overlap count semantics",
+        "Specify minimum evidentiary standard for choosing a future executable control"
+      ]
+    },
+    {
+      "id": "EXP-032",
+      "stage": "R7",
+      "name": "Level reaction/break plus retest",
+      "objective": "Assess whether a single causal retest interaction changes accepted trade quality versus an executable frozen R7 control.",
+      "control": "PENDING: approved executable control with nonzero accepted-path coverage",
+      "candidate": "PENDING: precisely one level-reaction/retest change",
+      "design": "Matched control/candidate execution contract, chronological replay, stratify by setup family.",
+      "dependencies": [
+        "EXP-031 decision",
+        "source integrity certificate"
+      ],
+      "deliverables": [
+        "control_candidate_delta.json",
+        "attribution_breakdown.csv",
+        "decision.md"
+      ],
+      "decisions_required": [
+        "Exact level, reaction, break and retest definition",
+        "Baseline identity and candidate-only delta",
+        "Signal and entry availability timing",
+        "Minimum sample and acceptance criteria"
+      ]
+    },
+    {
+      "id": "EXP-033",
+      "stage": "R7",
+      "name": "Volume/RVOL or HTF context interaction",
+      "objective": "Test one predeclared causal context interaction without bundling volume and HTF changes.",
+      "control": "PENDING: approved comparable executable control",
+      "candidate": "PENDING: choose RVOL OR HTF as sole changed factor",
+      "design": "Single-factor paired comparison with matched exits and frozen entry rules.",
+      "dependencies": [
+        "EXP-031 decision",
+        "EXP-032 results or justified independent baseline",
+        "source integrity certificate"
+      ],
+      "deliverables": [
+        "paired_metrics.json",
+        "segment_effects.csv",
+        "decision.md"
+      ],
+      "decisions_required": [
+        "Choose volume/RVOL versus HTF factor",
+        "Define causal lookback and exact cutoff/missing-bar policy",
+        "Define control, trial configuration and sample criteria"
+      ]
+    },
+    {
+      "id": "EXP-034",
+      "stage": "R7",
+      "name": "Structure-confirmation interaction",
+      "objective": "Isolate one sweep/displacement/structure/FVG confirmation change after earlier interactions are resolved.",
+      "control": "PENDING: documented executable prior control",
+      "candidate": "PENDING: select one event/family-precedence variable",
+      "design": "Event-linked causal replay with original-decision parity, acceptance and attribution checks.",
+      "dependencies": [
+        "EXP-030 full review",
+        "EXP-031 decision",
+        "EXP-032 and EXP-033 evidence as relevant",
+        "source integrity certificate"
+      ],
+      "deliverables": [
+        "event_parity.json",
+        "candidate_delta.json",
+        "causality_review.md"
+      ],
+      "decisions_required": [
+        "Select exactly one feature or precedence rule",
+        "Specify causal freshness/window and ordering",
+        "Approve control comparability and outcome criteria"
+      ]
+    },
+    {
+      "id": "EXP-035",
+      "stage": "R8",
+      "name": "Causal volatility and trend/range segmentation",
+      "objective": "Describe pre-entry market regimes without inventing a new trading filter.",
+      "control": "PENDING: frozen candidate/control ledgers with sufficient accepted trades",
+      "candidate": "NONE — descriptive segmentation only",
+      "design": "As-of timestamped regime labels with no post-entry leakage; summarize performance and sample sizes by bucket.",
+      "dependencies": [
+        "source integrity certificate",
+        "comparable accepted-path ledgers",
+        "R7 candidate/control freeze"
+      ],
+      "deliverables": [
+        "asof_regime_labels.csv",
+        "regime_segment_metrics.json",
+        "missingness_audit.json"
+      ],
+      "decisions_required": [
+        "Volatility lookback, estimator and bucket boundaries",
+        "Trend/range classifier and its as-of availability",
+        "Opening session boundaries and missing-data handling",
+        "Minimum per-bucket sample sizes and interpretation"
+      ]
+    }
+  ]
+}
