@@ -1,7 +1,7 @@
 {
-  "action": "idle",
-  "experiment": null,
-  "request_id": "bootstrap",
-  "requested_by": "setup",
-  "note": "This file is changed only after an explicit run or rerun command. Push/commit/sync never execute research."
+  "action": "run",
+  "experiment": "EXP-030",
+  "request_id": "EXP-030-r01-20261010",
+  "requested_by": "chatgpt",
+  "note": "Explicit user authorization: run 30. Execute the prepared 2023 confirmation-first family diagnostic; preserve archived control and frozen settings."
 }
