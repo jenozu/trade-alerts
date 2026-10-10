@@ -4,7 +4,7 @@
 
 **Sweep/Reversal V2:** [nq_sweep_reversal_v2_research.pine](nq_sweep_reversal_v2_research.pine) — ordered sweep/displacement/MSS/FVG/hold research candidate. TradingView compile and backtest pending; see [reversal_v2_protocol.md](../backtests/reversal_v2_protocol.md). This is separate rather than a replacement of V1.
 **V1 protocol:** [Deep Backtesting / acceptance](../backtests/strategy_v1_protocol.md)
-**Status:** Version 1 Pine code committed; **TradingView compile, historical fills and Python trade parity pending**. No live orders or broker webhooks.
+**Status:** Breakout V1 was loaded into TradingView and generated the initial 14-trade sample. Reversal V2 source is committed but not yet compiled in TradingView. Python parity and statistically meaningful validation are pending for both. No live orders or broker webhooks.
 
 ## Current deliverable: breakout/retest baseline only
 - Pine v6 strategy() (NOT an indicator) submits *simulated* market orders after an independent confirmed-breakout and later confirmed retest.
