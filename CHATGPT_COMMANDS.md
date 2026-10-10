@@ -41,6 +41,38 @@ EXP-001
 | `results 1` | Retrieve and analyze the most recent durable EXP-001 outputs that are available. |
 | `compare 1 2` | Compare experiment definitions and results without changing either experiment. |
 
+## Batch command shorthand
+
+The operator may issue `prepare 31-35`, `prepare 31, 32, 33, 34 and 35`,
+`status 30-35`, `logs 30-35`, `results 30-35`, `run 31-35`,
+or `rerun 31-35`. The strict parser is
+`scripts/automation/parse_batch_command.py`; invoke it with the entire
+quoted command for normalized identifiers. It rejects malformed, descending,
+and over-20-item batches and de-duplicates repeated IDs.
+
+- **Prepare:** inspect roadmap definitions and dependencies for every ID.
+  Implement only variants with an approved, unambiguous specification and
+  verified inputs. Missing research decisions are **BLOCKED**, not defaulted.
+  Never create a placeholder `EXP-NNN.sh` merely to satisfy a batch.
+- **Status/logs/results:** read-only aggregate inspection, show individual
+  outcomes and any evidence gaps; partial failures do not erase other results.
+- **Run/rerun:** explicit authorization applies only to the named IDs.
+  Preflight each prepared wrapper and dependency. Stop before any experiment
+  whose prerequisites are unresolved; no automatic strategy decisions.
+  Queue independent runs sequentially with unique request IDs, one per
+  experiment, with a distinct push and the existing GitHub Actions workflow
+  per request. Wait for each run's terminal status before submitting the next.
+  Do not overwrite the singleton `run-requests/current.json` while an earlier
+  run may still be in progress. Do not use `workflow_dispatch` as a shortcut.
+  If the requesting ChatGPT session cannot monitor the queue to completion,
+  report the remaining IDs as **not submitted**; do not claim background
+  multi-run scheduling exists. A durable queue requires separate implementation
+  and validation.
+- **No execution via parsing:** the parser never writes `current.json`,
+  pushes commits, opens SSH, or launches a job. GitHub's existing workflow
+  continues running on its own after a request is submitted, regardless of
+  whether the user keeps the chat open.
+
 ## Critical semantics
 
 1. **Push never means run.** A Git push must not execute a research experiment unless the pushed change is an explicit run request created because the user said `run N` or `rerun N`.
