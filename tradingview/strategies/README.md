@@ -1,6 +1,8 @@
 # Pine Script 2 — NQ Automated Trading Strategy (research)
 
-**V1 code:** [nq_breakout_retest_v1.pine](nq_breakout_retest_v1.pine)
+**Breakout V1:** [nq_breakout_retest_v1.pine](nq_breakout_retest_v1.pine) — initial baseline, TradingView loads and produced 14 simulated trades in a user-shared Sep–Oct 2026 report (profit factor 0.792; insufficient validation and zero default commissions).
+
+**Sweep/Reversal V2:** [nq_sweep_reversal_v2_research.pine](nq_sweep_reversal_v2_research.pine) — ordered sweep/displacement/MSS/FVG/hold research candidate. TradingView compile and backtest pending; see [reversal_v2_protocol.md](../backtests/reversal_v2_protocol.md). This is separate rather than a replacement of V1.
 **V1 protocol:** [Deep Backtesting / acceptance](../backtests/strategy_v1_protocol.md)
 **Status:** Version 1 Pine code committed; **TradingView compile, historical fills and Python trade parity pending**. No live orders or broker webhooks.
 
