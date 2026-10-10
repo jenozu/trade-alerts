@@ -31,7 +31,7 @@ See [docs/indicator_v1_review.md](docs/indicator_v1_review.md).
 - [backtests/](backtests/): test protocol, future versioned reports (no copyrighted market data in Git).
 
 ## Immediate next action
-Compile the new **strategy** on TradingView Premium; check that simulated trades appear in Strategy Tester; then verify a sample and begin versioned Deep Backtesting. Do not expand the indicator dashboard, design the VPS receiver or connect a live broker until the backtesting baseline is verified.
+Compile and inspect the new **reversal V2** research strategy on TradingView Premium without modifying breakout V1. If no trades qualify, inspect the stage diagnostics before changing filters. Then reconcile candidate sequence semantics with Python and perform a controlled backtest comparison using realistic costs. Do not expand the indicator dashboard, design the VPS receiver or connect a live broker until the backtesting baseline is verified.
 
 ## Boundaries
 - Session times are America/New_York with daylight savings.
