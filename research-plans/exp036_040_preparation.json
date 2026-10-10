@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "purpose": "Non-executing preregistration drafts for EXP-036–040; no research run authorization",
+  "execution_enabled": false,
+  "datasets_certified": false,
+  "experiments": [
+    {
+      "id": "EXP-036",
+      "stage": "R8",
+      "name": "Causal SNR and overnight/premarket range segmentation",
+      "objective": "Describe relationships of pre-entry SNR, overnight range and PMH–PML range with trade outcomes without applying a new selection rule.",
+      "control": "PENDING: comparable accepted-path ledgers and frozen as-of inputs",
+      "candidate": "NONE: descriptive regime segmentation",
+      "design": "Compute as-of segment labels and audit availability, missingness and subgroup counts; avoid post-entry full-session range features.",
+      "dependencies": [
+        "EXP-035 causal-regime design or independent justified segmentation",
+        "certified source and relevant feature identities",
+        "frozen comparable trade ledger"
+      ],
+      "deliverables": [
+        "causal_range_labels.csv",
+        "snr_range_segment_summary.json",
+        "asof_missingness_report.json"
+      ],
+      "decisions_required": [
+        "Specify SNR definition, lookback, availability and bucket boundaries",
+        "Specify overnight and premarket windows in ET including DST",
+        "Select segmentation cutoffs and missing-data policy before inspecting results",
+        "Define minimum observations and no-trade reporting"
+      ]
+    },
+    {
+      "id": "EXP-037",
+      "stage": "R8",
+      "name": "Opening gap and day-type segmentation",
+      "objective": "Measure outcome variation by opening gap and causally observable opening state, not end-of-day labels.",
+      "control": "PENDING: comparable frozen accepted-path ledgers",
+      "candidate": "NONE: descriptive opening-state segmentation",
+      "design": "Construct gap metrics using finalized prior close and available opening prints, with explicit no-look-ahead boundaries.",
+      "dependencies": [
+        "EXP-035–036 classifier design or independently approved as-of protocol",
+        "certified prior close/open sources",
+        "comparable trade ledgers"
+      ],
+      "deliverables": [
+        "gap_availability_audit.json",
+        "opening_regime_summary.json",
+        "segment_labels.csv"
+      ],
+      "decisions_required": [
+        "Select official prior close vs settlement and exact session calendar",
+        "Define gap direction/magnitude and as-of availability",
+        "Specify bucket thresholds and nontrading days",
+        "Specify sample-size and sensitivity reporting"
+      ]
+    },
+    {
+      "id": "EXP-038",
+      "stage": "R8",
+      "name": "Setup family by causal regime",
+      "objective": "Examine reversal versus continuation performance conditioned on valid pre-entry regime labels.",
+      "control": "PENDING: locked comparable control and candidate ledgers",
+      "candidate": "NONE: interaction report; not a trading filter",
+      "design": "Cross-tab family, regime, direction and year with sparse-cell safeguards; optional news omitted unless deterministic licensed event feed exists.",
+      "dependencies": [
+        "EXP-035–037 accepted classifier definitions",
+        "certified data and adequate accepted-path coverage",
+        "frozen setup-family labels and trade outcomes"
+      ],
+      "deliverables": [
+        "family_regime_cross_tab.csv",
+        "coverage_and_uncertainty.json",
+        "regime_interaction_report.md"
+      ],
+      "decisions_required": [
+        "Preregister regime combinations and multiple-comparison handling",
+        "Set cell sample minimum and uncertainty presentation",
+        "Define whether news input is excluded or separately specified",
+        "Specify interpretation without post-hoc filtering"
+      ]
+    },
+    {
+      "id": "EXP-039",
+      "stage": "R9",
+      "name": "Year and month robustness",
+      "objective": "Determine whether candidate performance is concentrated in one year or a small number of months.",
+      "control": "PENDING: frozen comparable control and candidate with accepted trades",
+      "candidate": "NONE: read-only robustness stratification",
+      "design": "Compare per-year and per-month expectancy, profit factor, drawdown and trade counts with explicit insufficient-data states.",
+      "dependencies": [
+        "R7 candidate/control freeze",
+        "certified contract-segmented inputs",
+        "comparable fee-adjusted trade ledgers"
+      ],
+      "deliverables": [
+        "year_month_metrics.csv",
+        "coverage_flags.json",
+        "stability_report.md"
+      ],
+      "decisions_required": [
+        "Approve candidate identity and valid comparable data years",
+        "Specify minimum per-period sample sizes and confidence intervals",
+        "Define missing-month handling and drawdown aggregation",
+        "Specify evaluation thresholds before results"
+      ]
+    },
+    {
+      "id": "EXP-040",
+      "stage": "R9",
+      "name": "Direction and setup-family robustness",
+      "objective": "Detect whether aggregate results conceal weak long/short or reversal/continuation subgroups.",
+      "control": "PENDING: immutable control and candidate trade ledgers",
+      "candidate": "NONE: subgroup robustness audit",
+      "design": "Disaggregate outcome and sample sizes across long/short and reversal/continuation with equivalent execution assumptions.",
+      "dependencies": [
+        "EXP-039 frozen ledger or same approved independent ledger",
+        "certified feature/contract identities",
+        "frozen direction and family classifications"
+      ],
+      "deliverables": [
+        "direction_family_metrics.csv",
+        "subgroup_sample_flags.json",
+        "robustness_report.md"
+      ],
+      "decisions_required": [
+        "Approve underlying candidates and common execution/cost identity",
+        "Define sample-size and uncertainty thresholds",
+        "Specify handling of mixed, missing or ambiguous family tags",
+        "Preregister criteria for unacceptable subgroup degradation"
+      ]
+    }
+  ]
+}
