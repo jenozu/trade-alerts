@@ -36,13 +36,15 @@ trade types). A daily Premier quota may require several sessions to finish.
 cd $HOME\Documents
 if (!(Test-Path .\trade-alerts)) { git clone https://github.com/jenozu/trade-alerts.git }
 cd .\trade-alerts
+git switch main
 git pull --ff-only origin main
-py -3.12 -m venv .venv-barchart-repairs
-.\.venv-barchart-repairs\Scripts\python.exe -m pip install playwright pytest
-.\.venv-barchart-repairs\Scripts\python.exe -m playwright install chromium
+py -3 -m venv tools\barchart\.venv
+$py = '.\tools\barchart\.venv\Scripts\python.exe'
+& $py -m pip install playwright pytest tzdata
+& $py -m playwright install chromium
 $tool = 'tools\barchart\download_history_repairs.py'
-.\.venv-barchart-repairs\Scripts\python.exe $tool plan
-.\.venv-barchart-repairs\Scripts\python.exe $tool probe
+& $py $tool plan
+& $py $tool probe
 ```
 
 `probe` opens a **visible** browser with an isolated persistent Chromium profile.
@@ -57,17 +59,17 @@ login credentials to the script. The browser profile stays on your machine.
 After the form selectors are confirmed, run exactly one live job:
 
 ```powershell
-.\.venv-barchart-repairs\Scripts\python.exe $tool once
-.\.venv-barchart-repairs\Scripts\python.exe $tool status
+& $py $tool once
+& $py $tool status
 ```
 
 Check its `progress.jsonl` record and the CSV (requested contract, range, one
 minute, saved row count, first/last CT timestamps and SHA-256). Then continue:
 
 ```powershell
-.\.venv-barchart-repairs\Scripts\python.exe $tool resume
-.\.venv-barchart-repairs\Scripts\python.exe $tool status
-.\.venv-barchart-repairs\Scripts\python.exe -m pytest -q tests\test_barchart_history_repairs.py
+& $py $tool resume
+& $py $tool status
+& $py -m pytest -q tests\test_barchart_history_repairs.py
 ```
 
 All data stays in `$HOME\Documents\barchart-mnq-repairs\` by default:
