@@ -1,0 +1,25 @@
+name: Verify Barchart repairs
+on:
+  pull_request:
+    paths:
+      - 'tools/barchart/download_history_repairs.py'
+      - 'tests/test_barchart_history_repairs.py'
+      - 'docs/barchart_history_repairs.md'
+      - '.github/workflows/verify-barchart-repairs.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt playwright
+      - name: Focused downloader regressions
+        run: python -m pytest -q tests/test_barchart_history_repairs.py
+      - name: Full repository regression suite
+        run: python -m pytest -q
