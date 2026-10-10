@@ -1,5 +1,10 @@
 # Pine Script 2 — NQ Automated Trading Strategy (research)
 
+## MNQ-only contract guard (2026-10-10)
+
+Both Pine trading **strategy files** (breakout V1 and reversal V2) now require `syminfo.root == "MNQ"` and `syminfo.pointvalue == 2.0` on first chart bar. They fail with `runtime.error()` on NQ or another incompatible chart so the broker emulator cannot silently use the NQ 10x multiplier. This changes the saved source code on GitHub only: **re-copy and save the latest Pine code in TradingView**; previously saved charts/scripts do not auto-sync with GitHub. Use `CME_MINI:MNQ1!` for continuous historical simulation and a specific active MNQ futures contract when appropriate for real feeds; record rollover/back-adjustment and exchange feed. Point value is $2 per index point per 1 MNQ (versus $20 for 1 NQ). The +$1,000 50-point sample shown on 2026-09-29 was consistent with one NQ, not MNQ, so do not treat it as an MNQ backtest result. No live brokerage orders are involved. 
+
+
 **Breakout V1:** [nq_breakout_retest_v1.pine](nq_breakout_retest_v1.pine) — initial baseline, TradingView loads and produced 14 simulated trades in a user-shared Sep–Oct 2026 report (profit factor 0.792; insufficient validation and zero default commissions).
 
 **Sweep/Reversal V2:** [nq_sweep_reversal_v2_research.pine](nq_sweep_reversal_v2_research.pine) — ordered sweep/displacement/MSS/FVG/hold research candidate. TradingView compile and backtest pending; see [reversal_v2_protocol.md](../backtests/reversal_v2_protocol.md). This is separate rather than a replacement of V1.
