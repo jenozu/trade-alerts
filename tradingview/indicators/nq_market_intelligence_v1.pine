@@ -1,0 +1,316 @@
+//@version=6
+// NQ Market Intelligence Indicator — V1 (research-only)
+// Companion to the Python trade-alerts engine. This is NOT an execution strategy.
+// Source references: config/sessions.yaml, config/strategy.yaml, src/snr.py.
+// Designed for 1-minute NQ/MNQ futures charts. Test against Python before trusting parity.
+indicator("NQ Market Intelligence — V1 (Research)", shorttitle="NQ MI v1", overlay=true, max_labels_count=100)
+
+// ---------- Configuration ----------
+const string TZ = "America/New_York"
+const string VERSION = "nq.mi.v1"
+bool showLevels = input.bool(true, "Show session levels", group="Display")
+bool showExtended = input.bool(false, "Show Asia/overnight levels", group="Display")
+bool showOpeningRanges = input.bool(true, "Show opening ranges", group="Display")
+bool showEMAs = input.bool(true, "Show EMA 9 / 21", group="Display")
+bool showFVG = input.bool(true, "Show latest 1m FVG zones", group="Display")
+bool showEvents = input.bool(true, "Show research event markers", group="Display")
+bool showPanel = input.bool(true, "Show status panel", group="Display")
+bool shadeTradingWindow = input.bool(false, "Shade 09:30–10:30 ET", group="Display")
+string vwapReset = input.string("Globex 18:00", "VWAP reset", options=["Globex 18:00", "RTH 09:30"], group="Research")
+string snapshotCadence = input.string("Off", "JSON snapshot cadence", options=["Off", "1m", "5m"], group="Telemetry")
+bool onlyEntryWindow = input.bool(false, "Snapshots only 09:30–10:30", group="Telemetry")
+int fvgMaxAge = input.int(20, "FVG maximum age (bars)", minval=1, maxval=200, group="Research")
+
+if barstate.isfirst and timeframe.in_seconds() != 60
+    runtime.error("NQ MI v1 requires a 1-minute chart for session, SNR, and event semantics.")
+
+// ---------- Session definitions (ET, including DST) ----------
+bool inGlobex = not na(time(timeframe.period, "1800-1700:1234567", TZ))
+bool inRth = not na(time(timeframe.period, "0930-1600:1234567", TZ))
+bool inPm = not na(time(timeframe.period, "0400-0930:1234567", TZ))
+bool inLondon = not na(time(timeframe.period, "0200-0500:1234567", TZ))
+bool inAsia = not na(time(timeframe.period, "2000-0000:1234567", TZ))
+bool inOvernight = not na(time(timeframe.period, "1800-0930:1234567", TZ))
+bool inEntryWindow = not na(time(timeframe.period, "0930-1030:1234567", TZ))
+bool inOr5 = not na(time(timeframe.period, "0930-0935:1234567", TZ))
+bool inOr15 = not na(time(timeframe.period, "0930-0945:1234567", TZ))
+bool newGlobex = inGlobex and not inGlobex[1]
+bool newRth = inRth and not inRth[1]
+
+// ---------- Causal session levels ----------
+var float lastRthHigh = na
+var float lastRthLow = na
+var float thisRthHigh = na
+var float thisRthLow = na
+var float pdh = na
+var float pdl = na
+var float pmh = na
+var float pml = na
+var float loh = na
+var float lol = na
+var float ash = na
+var float asl = na
+var float onh = na
+var float onl = na
+var float or5h = na
+var float or5l = na
+var float or15h = na
+var float or15l = na
+var bool or5Ready = false
+var bool or15Ready = false
+
+// Previous-day levels come from the *previous completed RTH session*, not a daily security() candle.
+if not inRth and inRth[1]
+    lastRthHigh := thisRthHigh
+    lastRthLow := thisRthLow
+if newGlobex
+    pdh := lastRthHigh
+    pdl := lastRthLow
+    pmh := na
+    pml := na
+    loh := na
+    lol := na
+    ash := na
+    asl := na
+    or5h := na
+    or5l := na
+    or15h := na
+    or15l := na
+    or5Ready := false
+    or15Ready := false
+
+if inRth
+    if newRth
+        thisRthHigh := high
+        thisRthLow := low
+    else
+        thisRthHigh := math.max(nz(thisRthHigh, high), high)
+        thisRthLow := math.min(nz(thisRthLow, low), low)
+
+if inPm
+    if not inPm[1]
+        pmh := high
+        pml := low
+    else
+        pmh := math.max(nz(pmh, high), high)
+        pml := math.min(nz(pml, low), low)
+
+if inLondon
+    if not inLondon[1]
+        loh := high
+        lol := low
+    else
+        loh := math.max(nz(loh, high), high)
+        lol := math.min(nz(lol, low), low)
+
+if inAsia
+    if not inAsia[1]
+        ash := high
+        asl := low
+    else
+        ash := math.max(nz(ash, high), high)
+        asl := math.min(nz(asl, low), low)
+
+if inOvernight
+    if not inOvernight[1]
+        onh := high
+        onl := low
+    else
+        onh := math.max(nz(onh, high), high)
+        onl := math.min(nz(onl, low), low)
+
+if inOr5
+    or5h := math.max(nz(or5h, high), high)
+    or5l := math.min(nz(or5l, low), low)
+if not inOr5 and inOr5[1]
+    or5Ready := true
+if inOr15
+    or15h := math.max(nz(or15h, high), high)
+    or15l := math.min(nz(or15l, low), low)
+if not inOr15 and inOr15[1]
+    or15Ready := true
+
+// ---------- VWAP / EMA / relative volume ----------
+float ema9 = ta.ema(close, 9)
+float ema21 = ta.ema(close, 21)
+float rollingVolumeBaseline = ta.sma(volume[1], 20)
+float rvol = rollingVolumeBaseline > 0 ? volume / rollingVolumeBaseline : na
+var float cumulativePV = 0.0
+var float cumulativeVolume = 0.0
+bool resetVWAP = vwapReset == "Globex 18:00" ? newGlobex : newRth
+if resetVWAP
+    cumulativePV := 0.0
+    cumulativeVolume := 0.0
+if inGlobex and not na(volume)
+    cumulativePV += hlc3 * volume
+    cumulativeVolume += volume
+float vwap = cumulativeVolume > 0 ? cumulativePV / cumulativeVolume : na
+
+// Python SNR convention: abs(net move over five bars) / SMA(true range, 14).
+// SNR is market quality, NOT bullish/bearish direction or probability.
+float prevClose = nz(close[1], close)
+float trueRange = math.max(high - low, math.max(math.abs(high - prevClose), math.abs(low - prevClose)))
+float atrSma = ta.sma(trueRange, 14)
+float snr = atrSma > 0 and not na(close[5]) ? math.abs(close - close[5]) / atrSma : na
+string snrQuality = na(snr) ? "N/A" : snr >= 1.20 ? "STRONG" : snr >= 0.80 ? "DEVELOPING" : "WEAK"
+
+// HTF close/EMA are context proxies, NOT equivalent to Python structural HTF bias.
+// Prior HTF bar only prevents historical/realtime look-ahead discrepancy.
+[close15, ema15] = request.security(syminfo.tickerid, "15", [close[1], ta.ema(close, 21)[1]], lookahead=barmerge.lookahead_on)
+[close30, ema30] = request.security(syminfo.tickerid, "30", [close[1], ta.ema(close, 21)[1]], lookahead=barmerge.lookahead_on)
+[close60, ema60] = request.security(syminfo.tickerid, "60", [close[1], ta.ema(close, 21)[1]], lookahead=barmerge.lookahead_on)
+f_context(float px, float average) =>
+    na(px) or na(average) ? "?" : px > average ? "+" : px < average ? "-" : "="
+string htfProxy = "15m " + f_context(close15, ema15) + " 30m " + f_context(close30, ema30) + " 1h " + f_context(close60, ema60)
+
+// ---------- Causal reference events (NOT entry signals) ----------
+float internalPivotHigh = ta.pivothigh(high, 2, 2)
+float internalPivotLow = ta.pivotlow(low, 2, 2)
+var float confirmedSwingHigh = na
+var float confirmedSwingLow = na
+if barstate.isconfirmed
+    if not na(internalPivotHigh)
+        confirmedSwingHigh := internalPivotHigh
+    if not na(internalPivotLow)
+        confirmedSwingLow := internalPivotLow
+
+// Must close beyond a confirmed pivot by the Python-configured 0.25 point buffer.
+// Named "swing break" here; full BOS/CHOCH/MSS classification needs parity testing.
+bool swingBreakUp = barstate.isconfirmed and not na(confirmedSwingHigh) and close > confirmedSwingHigh + 0.25 and close[1] <= confirmedSwingHigh + 0.25
+bool swingBreakDown = barstate.isconfirmed and not na(confirmedSwingLow) and close < confirmedSwingLow - 0.25 and close[1] >= confirmedSwingLow - 0.25
+
+f_buySweep(float level) =>
+    not na(level) and high >= level + syminfo.mintick and close < level and high[1] <= level
+f_sellSweep(float level) =>
+    not na(level) and low <= level - syminfo.mintick and close > level and low[1] >= level
+bool buySweep = barstate.isconfirmed and (f_buySweep(pdh) or (not inPm and f_buySweep(pmh)) or (not inLondon and f_buySweep(loh)))
+bool sellSweep = barstate.isconfirmed and (f_sellSweep(pdl) or (not inPm and f_sellSweep(pml)) or (not inLondon and f_sellSweep(lol)))
+
+// Three completed bars: bullish gap between high[2] and low, bearish between low[2] and high.
+// Active most-recent gaps are reference zones, not automatically qualified trades.
+bool newBullFvg = barstate.isconfirmed and not na(high[2]) and low >= high[2] + syminfo.mintick
+bool newBearFvg = barstate.isconfirmed and not na(low[2]) and high <= low[2] - syminfo.mintick
+var float bullTop = na
+var float bullBottom = na
+var float bearTop = na
+var float bearBottom = na
+var int bullCreated = na
+var int bearCreated = na
+bool bullHold = false
+bool bearHold = false
+bool bullInvalidated = false
+bool bearInvalidated = false
+
+if barstate.isconfirmed
+    if not na(bullCreated) and bar_index > bullCreated
+        if close < bullBottom
+            bullInvalidated := true
+            bullTop := na
+            bullBottom := na
+            bullCreated := na
+        else if bar_index - bullCreated > fvgMaxAge
+            bullTop := na
+            bullBottom := na
+            bullCreated := na
+        else
+            bullHold := low <= bullTop and high >= bullBottom and close >= bullTop
+    if not na(bearCreated) and bar_index > bearCreated
+        if close > bearTop
+            bearInvalidated := true
+            bearTop := na
+            bearBottom := na
+            bearCreated := na
+        else if bar_index - bearCreated > fvgMaxAge
+            bearTop := na
+            bearBottom := na
+            bearCreated := na
+        else
+            bearHold := high >= bearBottom and low <= bearTop and close <= bearBottom
+    if newBullFvg
+        bullTop := low
+        bullBottom := high[2]
+        bullCreated := bar_index
+    if newBearFvg
+        bearTop := low[2]
+        bearBottom := high
+        bearCreated := bar_index
+
+// ---------- Chart visuals ----------
+plot(showLevels ? pdh : na, "Previous RTH High", color=color.new(color.red, 10), style=plot.style_linebr)
+plot(showLevels ? pdl : na, "Previous RTH Low", color=color.new(color.green, 10), style=plot.style_linebr)
+plot(showLevels ? pmh : na, "Premarket High (4–9:30 ET)", color=color.new(color.orange, 0), style=plot.style_linebr)
+plot(showLevels ? pml : na, "Premarket Low (4–9:30 ET)", color=color.new(color.orange, 0), style=plot.style_linebr)
+plot(showLevels ? loh : na, "London High (2–5 ET)", color=color.new(color.lime, 0), style=plot.style_linebr)
+plot(showLevels ? lol : na, "London Low (2–5 ET)", color=color.new(color.red, 0), style=plot.style_linebr)
+plot(showExtended ? ash : na, "Asia High", color=color.new(color.aqua, 30), style=plot.style_linebr)
+plot(showExtended ? asl : na, "Asia Low", color=color.new(color.aqua, 30), style=plot.style_linebr)
+plot(showExtended ? onh : na, "Overnight High", color=color.new(color.blue, 25), style=plot.style_linebr)
+plot(showExtended ? onl : na, "Overnight Low", color=color.new(color.blue, 25), style=plot.style_linebr)
+plot(showOpeningRanges and or5Ready ? or5h : na, "OR5 High", color=color.new(color.yellow, 30), style=plot.style_linebr)
+plot(showOpeningRanges and or5Ready ? or5l : na, "OR5 Low", color=color.new(color.yellow, 30), style=plot.style_linebr)
+plot(showOpeningRanges and or15Ready ? or15h : na, "OR15 High", color=color.new(color.purple, 20), style=plot.style_linebr)
+plot(showOpeningRanges and or15Ready ? or15l : na, "OR15 Low", color=color.new(color.purple, 20), style=plot.style_linebr)
+plot(vwap, "VWAP (selected reset)", color=color.white, linewidth=2)
+plot(showEMAs ? ema9 : na, "EMA 9", color=color.aqua)
+plot(showEMAs ? ema21 : na, "EMA 21", color=color.yellow)
+bullTopPlot = plot(showFVG ? bullTop : na, "Latest bullish FVG upper", color=color.new(color.green, 50), style=plot.style_linebr)
+bullBottomPlot = plot(showFVG ? bullBottom : na, "Latest bullish FVG lower", color=color.new(color.green, 50), style=plot.style_linebr)
+bearTopPlot = plot(showFVG ? bearTop : na, "Latest bearish FVG upper", color=color.new(color.red, 50), style=plot.style_linebr)
+bearBottomPlot = plot(showFVG ? bearBottom : na, "Latest bearish FVG lower", color=color.new(color.red, 50), style=plot.style_linebr)
+fill(bullTopPlot, bullBottomPlot, color=color.new(color.green, 90), title="Bullish FVG reference zone")
+fill(bearTopPlot, bearBottomPlot, color=color.new(color.red, 90), title="Bearish FVG reference zone")
+plotshape(showEvents and inEntryWindow and sellSweep, title="Sell-side sweep (research)", style=shape.triangleup, location=location.belowbar, color=color.green, size=size.tiny)
+plotshape(showEvents and inEntryWindow and buySweep, title="Buy-side sweep (research)", style=shape.triangledown, location=location.abovebar, color=color.red, size=size.tiny)
+plotshape(showEvents and inEntryWindow and swingBreakUp, title="Confirmed swing break up (research)", style=shape.circle, location=location.belowbar, color=color.aqua, size=size.tiny)
+plotshape(showEvents and inEntryWindow and swingBreakDown, title="Confirmed swing break down (research)", style=shape.circle, location=location.abovebar, color=color.orange, size=size.tiny)
+bgcolor(shadeTradingWindow and inEntryWindow ? color.new(color.blue, 93) : na, title="NY entry research window")
+
+// Values also exported with chart CSV when TradingView makes plot data available.
+plot(snr, "Research SNR quality (1m)", display=display.data_window)
+plot(rvol, "Rolling RVOL (1m)", display=display.data_window)
+plot(sellSweep ? 1 : 0, "Sell-side sweep flag", display=display.data_window)
+plot(buySweep ? 1 : 0, "Buy-side sweep flag", display=display.data_window)
+plot(swingBreakUp ? 1 : 0, "Swing break up flag", display=display.data_window)
+plot(swingBreakDown ? 1 : 0, "Swing break down flag", display=display.data_window)
+plot(newBullFvg ? 1 : 0, "New bullish FVG flag", display=display.data_window)
+plot(newBearFvg ? 1 : 0, "New bearish FVG flag", display=display.data_window)
+plot(bullHold ? 1 : 0, "Bull FVG hold flag", display=display.data_window)
+plot(bearHold ? 1 : 0, "Bear FVG hold flag", display=display.data_window)
+
+var table panel = table.new(position.top_right, 2, 6, bgcolor=color.new(color.black, 25), border_width=1)
+if showPanel and barstate.islast
+    table.cell(panel, 0, 0, "NQ MI v1", text_color=color.white)
+    table.cell(panel, 1, 0, "RESEARCH ONLY", text_color=color.yellow)
+    table.cell(panel, 0, 1, "Window", text_color=color.white)
+    table.cell(panel, 1, 1, inEntryWindow ? "NY 09:30–10:30" : "OUTSIDE", text_color=inEntryWindow ? color.lime : color.silver)
+    table.cell(panel, 0, 2, "SNR / quality", text_color=color.white)
+    table.cell(panel, 1, 2, (na(snr) ? "N/A" : str.tostring(snr, "#.##")) + " " + snrQuality, text_color=color.white)
+    table.cell(panel, 0, 3, "Rolling RVOL", text_color=color.white)
+    table.cell(panel, 1, 3, na(rvol) ? "N/A" : str.tostring(rvol, "#.##"), text_color=color.white)
+    table.cell(panel, 0, 4, "HTF EMA proxy", text_color=color.white)
+    table.cell(panel, 1, 4, htfProxy, text_color=color.white)
+    table.cell(panel, 0, 5, "VWAP reset", text_color=color.white)
+    table.cell(panel, 1, 5, vwapReset, text_color=color.white)
+
+// ---------- Alert triggers / telemetry (NO live trade instructions) ----------
+alertcondition(buySweep and inEntryWindow, "Buy-side sweep (research)", "Buy-side liquidity sweep detected in NY window")
+alertcondition(sellSweep and inEntryWindow, "Sell-side sweep (research)", "Sell-side liquidity sweep detected in NY window")
+alertcondition(newBullFvg and inEntryWindow, "New bullish FVG (research)", "Confirmed 1m bullish FVG created")
+alertcondition(newBearFvg and inEntryWindow, "New bearish FVG (research)", "Confirmed 1m bearish FVG created")
+
+f_jsonNumber(float v) =>
+    na(v) ? "null" : str.tostring(v, "#.####")
+f_jsonBool(bool v) =>
+    v ? "true" : "false"
+bool snapshotDue = barstate.isconfirmed and snapshotCadence != "Off" and (not onlyEntryWindow or inEntryWindow) and (snapshotCadence == "1m" or minute(time_close, TZ) % 5 == 0)
+if snapshotDue
+    string payload = '{"schema":"nq.mi.snapshot.v1","mode":"research_only","version":"' + VERSION + '","symbol":"' + syminfo.tickerid + '","timeframe":"1","time_close_ms":' + str.tostring(time_close)
+    payload += ',"open":' + f_jsonNumber(open) + ',"high":' + f_jsonNumber(high) + ',"low":' + f_jsonNumber(low) + ',"close":' + f_jsonNumber(close) + ',"volume":' + f_jsonNumber(volume)
+    payload += ',"pdh":' + f_jsonNumber(pdh) + ',"pdl":' + f_jsonNumber(pdl) + ',"pmh":' + f_jsonNumber(pmh) + ',"pml":' + f_jsonNumber(pml) + ',"loh":' + f_jsonNumber(loh) + ',"lol":' + f_jsonNumber(lol)
+    payload += ',"vwap":' + f_jsonNumber(vwap) + ',"snr_quality":' + f_jsonNumber(snr) + ',"rvol":' + f_jsonNumber(rvol)
+    payload += ',"in_entry_window":' + f_jsonBool(inEntryWindow) + ',"buy_side_sweep":' + f_jsonBool(buySweep) + ',"sell_side_sweep":' + f_jsonBool(sellSweep)
+    payload += ',"swing_break_up":' + f_jsonBool(swingBreakUp) + ',"swing_break_down":' + f_jsonBool(swingBreakDown)
+    payload += ',"bullish_fvg_created":' + f_jsonBool(newBullFvg) + ',"bearish_fvg_created":' + f_jsonBool(newBearFvg)
+    payload += ',"bullish_fvg_hold":' + f_jsonBool(bullHold) + ',"bearish_fvg_hold":' + f_jsonBool(bearHold)
+    payload += ',"bullish_fvg_invalidated":' + f_jsonBool(bullInvalidated) + ',"bearish_fvg_invalidated":' + f_jsonBool(bearInvalidated) + '}'
+    alert(payload, alert.freq_once_per_bar_close)
