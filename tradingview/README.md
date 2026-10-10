@@ -1,38 +1,52 @@
-# TradingView / Pine Script Research Workspace
+# TradingView / Pine Script v6 — indicator and strategy tracks
 
-Development branch: `feature/tradingview-pinescript`.
-This is an isolated, research-only companion to the existing Python engine.
-Do not change `config/strategy.yaml`, `config/sessions.yaml`, EXP-030, R7–R12, or active run requests from this workspace.
+Branch: feature/tradingview-pinescript | Python research source of truth: main.
+Do not modify EXP-030, R7–R12 objectives, the active experiment request, or the active Python configuration from this branch.
 
-## Source-of-truth and scope
-- Python feature semantics and existing strategy configuration are authoritative until a reviewed parity comparison explicitly approves a difference.
-- Pine v6 strategies are for TradingView Premium Strategy Tester / Deep Backtesting experiments.
-- No live orders, broker integrations, or webhook-based order execution in the initial milestone.
-- Treat each proposed SMC filter as a hypothesis, not a guaranteed improvement.
-- Never interpret the 0–100 raw confluence score as a win probability.
+## Separate components
 
-## Repository map
-- `strategies/`: Pine v6 backtesting strategies (after rule translation and parity review)
-- `indicators/`: optional chart overlays and debug series
-- `alerts/`: versioned webhook event schemas (research telemetry only)
-- `backtests/`: experiment manifests and result interpretation, not raw/private datasets
-- `configs/`: Pine-to-Python rule crosswalks
-- `docs/`: verification checklists and TradingView manual setup
+### Pine Script 1: NQ Market Intelligence Indicator — **V1 committed, TradingView verification pending**
+File: indicators/nq_market_intelligence_v1.pine
 
-## Milestones
-1. Inventory exact Python entry/exit semantics and current experiment constraints.
-2. Implement minimum measurable breakout/retest strategy in Pine v6; label any simplification.
-3. Cross-check sample bars, session levels, candidate signals and fills against Python.
-4. Run Premium Deep Backtesting with defined date range, fees, slippage, contract and bar magnifier assumptions.
-5. Export and record strategy results and compare untouched holdout periods.
-6. Only later add realtime webhook telemetry, fail-safe collection and supported paper execution.
+- Chart context: PDH/PDL (previous RTH), premarket 04:00–09:30, London 02:00–05:00, Asia, overnight, OR5/OR15, VWAP, EMA9/21.
+- Research diagnostics: non-directional SNR quality, relative volume, causal confirmed swing breaks, simple FVG/hold/invalidation zones, reference liquidity sweeps.
+- Optional 1m/5m confirmed-bar JSON research snapshots via TradingView alert() (Off by default). Alerts do not place trades.
+- The 15m/30m/1H EMA context shown is a **proxy only**, not the Python structural HTF bias.
+- No entry, SL, TP, trade instructions, broker orders or simulated strategy trades; those require validated rules.
 
-## Invariants
-- Exchange futures symbols/contracts, timezone, RTH versus Globex levels and roll adjustments must be explicit.
-- Trading session is America/New_York; entries only from 09:30 to 10:30.
-- Confirmed bars only; higher timeframe values must not leak future candles.
-- Ambiguous TP/SL sequencing must be handled conservatively and reported.
-- Keep strategy code, configuration, exact dataset, commission/slippage, run date and screenshots/exports paired for repeatability.
-- Avoid committing account identifiers, tokens, raw paid market datasets, or private exports.
+See docs/indicator_v1_review.md for exact caveats and chart-side tests.
 
-Current status: branch and documentation scaffold only; no Pine strategy has been validated.
+### Pine Script 2: NQ Automated Strategy — **specification only**
+Folder: strategies/
+
+- Later use strategy() plus strategy.entry()/strategy.exit() for executable simulation in TradingView Premium Strategy Tester / Deep Backtesting.
+- Historical-only baseline first: breakout/retest and sweep/reversal are distinct models, tested against current Python setup-family and trade-planner contracts.
+- 09:30–10:30 ET entry window, 20–25 point preferred structural risk, milestone TP1 +25, TP2 +50, TP3 +75, TP4 +100.
+- Production automation requires out-of-sample + paper verification and a separate risk-controlled broker gateway. No live routing before that.
+
+See strategies/README.md.
+
+### Other folders
+- alerts/: research snapshot schema / eventual receiver contract; no VPS receiver deployed.
+- backtests/: experiment manifests and Deep Backtesting interpretation (not paid/raw market datasets).
+- configs/: Python/Pine parity matrix and config mismatch tracking.
+- docs/: chart instructions, verification records, review decisions.
+
+## Development order
+1. Load Indicator V1 into TradingView Premium on a **1-minute** MNQ/NQ futures chart and resolve any Pine compiler/UI errors. No compile claim until manually verified in TradingView.
+2. Compare several dated level calculations and reference signals with Python (DST, session overlap, FVG age, sweep conditions). Reconcile VWAP reset disagreement between strategy.yaml and sessions.yaml before parity approval.
+3. Incrementally add authentic Python market-state concepts and later research-qualified ENTRY/SL/TP overlays, preserving the old indicator's desired chart layout without importing its invalid trading logic.
+4. Implement separate Pine strategy baseline, compare trades with Python, test Deep Backtesting using in-sample/validation/untouched holdout data, costs and Bar Magnifier assumptions.
+5. Build VPS webhook ingestion with authenticity checks, deduplication and outage recovery; this is telemetry only.
+6. Paper trading and eventually permitted brokerage execution via a separate safety gateway after explicit approval.
+
+## Important safeguards
+- Python feature semantics and current research definitions remain authoritative.
+- Only completed candles and causally available higher-timeframe information may determine confirmed events.
+- SNR = market quality, not bullish/bearish bias or win probability.
+- No look-ahead, DST mistakes, inconsistent contract rollover, or silent proxy substitutions.
+- Store strategy version, symbol/contract, settings, test dates, costs and exports for reproducibility.
+- No credentials, account IDs, raw licensed data or private exports in Git.
+- All the current work is isolated to feature/tradingview-pinescript; main and EXP-030 are untouched.
+
+**Current checkpoint:** Indicator V1 committed; separate strategy/telemetry specifications committed; no TradingView compilation, Python tests, deep backtests or live alerts run for this checkpoint.
