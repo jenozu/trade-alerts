@@ -6,6 +6,32 @@ execution, SSH connection, strategy change or run-request modification.
 
 ## Readiness decision
 
+### Execution attempt — 2026-10-10
+
+This entry supersedes the operational status in the original audit below.
+The user explicitly authorized `run 30`. Request `EXP-030-r01-20261010`
+was committed to main at `fc1e8c2be3989df70cb5923ee765da70d26c1534`.
+[Actions run 38061224851](https://github.com/jenozu/trade-alerts/actions/runs/38061224851)
+completed with failure. Checkout, request validation and SSH configuration
+passed; the remote execution step failed with
+`Permission denied (publickey,password)` and exit code 255.
+
+The SSH server was reachable, but login was rejected before any remote command
+ran. VPS pytest and the EXP-030 wrapper did not start. No research results,
+VPS run manifest or downloadable run artifact were produced. EXP-030 remains
+prepared and unexecuted; research review and dependent specifications remain
+pending. User-provided terminal evidence before this attempt showed a clean
+main checkout at `26cfb40`, an executable project venv and an existing chronology
+source; workflow validation of these prerequisites has not occurred.
+
+Next resolve account/key authorization: confirm the Actions username, match
+the private key's derived public-key fingerprint to the selected account's
+authorized keys, check SSH file ownership/permissions and server policy.
+Do not disclose private keys or commit credentials. The active request is
+preserved as the failed attempt; documentation changes do not trigger execution.
+After access is corrected, an explicit `rerun 30` must create a new unique
+request ID. Do not treat this infrastructure failure as a research outcome.
+
 **EXP-030 is code-prepared and compatible with the existing dispatcher. VPS
 operational readiness is unverified, not failed.** No further trading-rule
 decision is needed to run this already approved diagnostic. Specifications for
