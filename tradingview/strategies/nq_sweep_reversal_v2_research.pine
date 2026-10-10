@@ -1,12 +1,17 @@
 //@version=6
-// NQ Sweep/Reversal v2 — ordered research candidate, NOT Python parity.
+// MNQ Sweep/Reversal v2 — ordered research candidate, NOT Python parity.
 // Long: sell-side sweep -> bullish displacement -> bullish MSS -> FVG -> later hold.
 // Short: buy-side sweep -> bearish displacement -> bearish MSS -> FVG -> later hold.
 // All setup state advances on completed 1-minute candles; strategy market fill next open.
 // No webhooks or live execution. Review docs/backtests before relying on any result.
-strategy("NQ Strategy V2 | Sweep Reversal (Research)", shorttitle="NQ REV v2", overlay=true, pyramiding=0, initial_capital=50000, currency=currency.USD, default_qty_type=strategy.fixed, default_qty_value=1, margin_long=5, margin_short=5, commission_type=strategy.commission.cash_per_contract, commission_value=0.0, slippage=1, process_orders_on_close=false, calc_on_every_tick=false, calc_on_order_fills=false)
+strategy("MNQ Strategy V2 | Sweep Reversal (Research)", shorttitle="MNQ REV v2", overlay=true, pyramiding=0, initial_capital=50000, currency=currency.USD, default_qty_type=strategy.fixed, default_qty_value=1, margin_long=5, margin_short=5, commission_type=strategy.commission.cash_per_contract, commission_value=0.0, slippage=1, process_orders_on_close=false, calc_on_every_tick=false, calc_on_order_fills=false)
 
 const string TZ = "America/New_York"
+// SAFETY: TradingView strategy() runs on the ACTIVE CHART instrument.
+// Refuse NQ and any non-MNQ chart to prevent 10x P&L mistakes.
+if barstate.isfirst and (syminfo.root != "MNQ" or math.abs(syminfo.pointvalue - 2.0) > 0.00001)
+    runtime.error("MNQ ONLY: switch chart to CME_MINI:MNQ1! (or a specific MNQ futures contract). NQ1! is the 10x larger E-mini contract.")
+
 string levelFamily = input.string("PMH/PML + PDH/PDL + London", "Sweep level families", options=["PMH/PML", "PDH/PDL", "PMH/PML + PDH/PDL + London"], group="Reversal")
 int coreMaxBars = input.int(10, "Max 1m bars: sweep to MSS", minval=2, maxval=30, group="Reversal")
 int afterMssMaxBars = input.int(20, "Max 1m bars: MSS to retest", minval=2, maxval=60, group="Reversal")
@@ -15,7 +20,7 @@ int medianLength = input.int(20, "Previous-body median length", minval=3, maxval
 float minBodyATR = input.float(0.80, "Min body / ATR", minval=0.1, maxval=5, step=0.05, group="Reversal")
 float minBodyMedian = input.float(1.80, "Min body / previous median", minval=0.1, maxval=8, step=0.1, group="Reversal")
 int swingBufferTicks = input.int(1, "MSS close beyond confirmed pivot (ticks)", minval=1, maxval=20, group="Reversal")
-int stopTicks = input.int(100, "Simulated stop (ticks; 100 = 25 pts NQ)", minval=1, maxval=500, group="Trade simulation")
+int stopTicks = input.int(100, "Simulated stop (ticks; 100 = 25 Nasdaq points)", minval=1, maxval=500, group="Trade simulation")
 string targetChoice = input.string("TP2 +50", "Terminal target (points)", options=["TP1 +25", "TP2 +50", "TP3 +75", "TP4 +100"], group="Trade simulation")
 int maximumHoldingBars = input.int(60, "Max open position (1m bars)", minval=1, maxval=240, group="Trade simulation")
 bool showLevels = input.bool(false, "Plot sweep levels", group="Visuals")
@@ -23,7 +28,7 @@ bool showStages = input.bool(true, "Show setup-stage markers", group="Visuals")
 bool showStops = input.bool(true, "Show live simulator stop/target", group="Visuals")
 
 if barstate.isfirst and timeframe.in_seconds() != 60
-    runtime.error("NQ reversal research V2 requires 1-minute chart candles.")
+    runtime.error("MNQ reversal research V2 requires 1-minute chart candles.")
 int targetTicks = targetChoice == "TP1 +25" ? int(math.round(25 / syminfo.mintick)) : targetChoice == "TP2 +50" ? int(math.round(50 / syminfo.mintick)) : targetChoice == "TP3 +75" ? int(math.round(75 / syminfo.mintick)) : int(math.round(100 / syminfo.mintick))
 
 // ---- Canonical ET session windows; prior RTH is not an exchange daily candle.
