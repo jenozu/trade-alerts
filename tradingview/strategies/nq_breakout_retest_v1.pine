@@ -1,0 +1,173 @@
+//@version=6
+// NQ Automated Strategy — V1 baseline: confirmed breakout + retest.
+// RESEARCH / SIMULATION ONLY. This is intentionally NOT full Python production parity.
+// Selected Python fill convention: market at NEXT 1m open after confirmed retest.
+// Uses TradingView's broker emulator; no live order routing or webhook alerts here.
+strategy("NQ Strategy V1 | Breakout + Retest (Research)", shorttitle="NQ BR v1", overlay=true, pyramiding=0, initial_capital=50000, currency=currency.USD, default_qty_type=strategy.fixed, default_qty_value=1, commission_type=strategy.commission.cash_per_contract, commission_value=0.0, slippage=1, process_orders_on_close=false, calc_on_every_tick=false, calc_on_order_fills=false)
+
+// --------------------- Research inputs ---------------------
+const string TZ = "America/New_York"
+string reference = input.string("PMH / PML", "Breakout reference", options=["PMH / PML", "PDH / PDL"], group="Setup")
+int breakoutTicks = input.int(1, "Close beyond level (ticks)", minval=1, maxval=20, group="Setup")
+int touchToleranceTicks = input.int(4, "Retest touch tolerance (ticks)", minval=0, maxval=40, group="Setup")
+int holdTicks = input.int(1, "Retest close hold (ticks)", minval=0, maxval=20, group="Setup")
+int invalidateTicks = input.int(1, "Invalidation close buffer (ticks)", minval=0, maxval=20, group="Setup")
+int maxRetestBars = input.int(5, "Max 1m bars after breakout for retest", minval=1, maxval=60, group="Setup")
+
+float stopPoints = input.float(25.0, "Fixed stop (NQ points)", minval=0.25, maxval=100.0, step=0.25, group="Research exits")
+string terminalTarget = input.string("TP2: 50", "Terminal profit target (NQ points)", options=["TP1: 25", "TP2: 50", "TP3: 75", "TP4: 100"], group="Research exits")
+int maxHoldingBars = input.int(60, "Maximum holding time (1m bars)", minval=1, maxval=240, group="Research exits")
+bool showReferenceLines = input.bool(false, "Show breakout reference levels", group="Visuals")
+bool showTradeLines = input.bool(true, "Show active stop and target", group="Visuals")
+bool showSignalMarkers = input.bool(true, "Show breakout/retest markers", group="Visuals")
+
+if barstate.isfirst and timeframe.in_seconds() != 60
+    runtime.error("NQ breakout/retest V1 is designed only for a 1-minute chart.")
+
+// Trade quantities/fees are configured in the Strategy Tester Properties tab.
+// Profit/loss offsets are in ticks relative to actual broker-emulator fill prices.
+int stopTicks = int(math.round(stopPoints / syminfo.mintick))
+float targetPoints = terminalTarget == "TP1: 25" ? 25.0 : terminalTarget == "TP2: 50" ? 50.0 : terminalTarget == "TP3: 75" ? 75.0 : 100.0
+int targetTicks = int(math.round(targetPoints / syminfo.mintick))
+
+// --------------------- Canonical NY session clock ---------------------
+bool inGlobex = not na(time(timeframe.period, "1800-1700:1234567", TZ))
+bool inRth = not na(time(timeframe.period, "0930-1600:1234567", TZ))
+bool inPm = not na(time(timeframe.period, "0400-0930:1234567", TZ))
+bool inEntryWindow = not na(time(timeframe.period, "0930-1030:1234567", TZ))
+bool newRth = inRth and not inRth[1]
+// The 17:00-18:00 Globex maintenance gap leaves the prior plotted bar inside
+// the prior Globex session: detecting the first ET 18:xx bar is more reliable.
+bool newGlobex = inGlobex and hour(time, TZ) == 18 and (na(time[1]) or hour(time[1], TZ) != 18 or dayofmonth(time[1], TZ) != dayofmonth(time, TZ))
+
+// Completion time of the signal must be BEFORE 10:30 ET, so the
+// NEXT bar's opening fill still falls inside the intended entry window.
+int signalCloseMins = hour(time_close, TZ) * 60 + minute(time_close, TZ)
+bool nextOpenAllowed = inEntryWindow and signalCloseMins >= 9 * 60 + 30 and signalCloseMins < 10 * 60 + 30
+
+// --------------------- Prior RTH and premarket levels ---------------------
+var float accumulatingRthHigh = na
+var float accumulatingRthLow = na
+var float completedRthHigh = na
+var float completedRthLow = na
+var float pdh = na
+var float pdl = na
+var float pmh = na
+var float pml = na
+
+// Finish prior RTH only after its 16:00 ET session has ended.
+if not inRth and inRth[1]
+    completedRthHigh := accumulatingRthHigh
+    completedRthLow := accumulatingRthLow
+// PDH / PDL become the previous completed RTH values at next Globex open.
+if newGlobex
+    pdh := completedRthHigh
+    pdl := completedRthLow
+    pmh := na
+    pml := na
+if inRth
+    if newRth
+        accumulatingRthHigh := high
+        accumulatingRthLow := low
+    else
+        accumulatingRthHigh := math.max(nz(accumulatingRthHigh, high), high)
+        accumulatingRthLow := math.min(nz(accumulatingRthLow, low), low)
+if inPm
+    if not inPm[1]
+        pmh := high
+        pml := low
+    else
+        pmh := math.max(nz(pmh, high), high)
+        pml := math.min(nz(pml, low), low)
+
+float upperLevel = reference == "PMH / PML" ? pmh : pdh
+float lowerLevel = reference == "PMH / PML" ? pml : pdl
+
+// --------------------- One pending breakout, one open trade ---------------------
+// There is no reversal-family model, no HTF gate and no SNR/confluence gate in V1.
+// State machine transitions: break CLOSE -> later retest touch + hold CLOSE ->
+// next 1m bar market fill; failed/expired retests are rejected, not traded.
+var int pendingDirection = 0          // +1 bullish break; -1 bearish break.
+var float pendingLevel = na
+var int pendingBreakBar = na
+
+bool breakoutLong = false
+bool breakoutShort = false
+bool confirmedLong = false
+bool confirmedShort = false
+
+if barstate.isconfirmed
+    // Avoid carrying a signal from one cash trading day into another.
+    if newRth
+        pendingDirection := 0
+        pendingLevel := na
+        pendingBreakBar := na
+
+    bool hadPending = pendingDirection != 0
+    if hadPending
+        bool stale = bar_index - pendingBreakBar > maxRetestBars
+        bool invalidLong = pendingDirection == 1 and close < pendingLevel - invalidateTicks * syminfo.mintick
+        bool invalidShort = pendingDirection == -1 and close > pendingLevel + invalidateTicks * syminfo.mintick
+        if stale or invalidLong or invalidShort
+            pendingDirection := 0
+            pendingLevel := na
+            pendingBreakBar := na
+        else if bar_index > pendingBreakBar and nextOpenAllowed and strategy.position_size == 0
+            if pendingDirection == 1
+                bool retestHeldLong = low <= pendingLevel + touchToleranceTicks * syminfo.mintick and close >= pendingLevel + holdTicks * syminfo.mintick
+                if retestHeldLong
+                    confirmedLong := true
+                    strategy.entry("BR Long", strategy.long, comment="Long: breakout/retest")
+                    strategy.exit("BR Long Exit", from_entry="BR Long", profit=targetTicks, loss=stopTicks, comment="Stop / terminal TP")
+            if pendingDirection == -1
+                bool retestHeldShort = high >= pendingLevel - touchToleranceTicks * syminfo.mintick and close <= pendingLevel - holdTicks * syminfo.mintick
+                if retestHeldShort
+                    confirmedShort := true
+                    strategy.entry("BR Short", strategy.short, comment="Short: breakout/retest")
+                    strategy.exit("BR Short Exit", from_entry="BR Short", profit=targetTicks, loss=stopTicks, comment="Stop / terminal TP")
+            if confirmedLong or confirmedShort
+                pendingDirection := 0
+                pendingLevel := na
+                pendingBreakBar := na
+
+    // No new same-bar replacement if a pending setup just expired/confirmed.
+    if not hadPending and pendingDirection == 0 and strategy.position_size == 0 and nextOpenAllowed
+        bool freshLong = not na(upperLevel) and close >= upperLevel + breakoutTicks * syminfo.mintick and close[1] <= upperLevel
+        bool freshShort = not na(lowerLevel) and close <= lowerLevel - breakoutTicks * syminfo.mintick and close[1] >= lowerLevel
+        if freshLong and not freshShort
+            breakoutLong := true
+            pendingDirection := 1
+            pendingLevel := upperLevel
+            pendingBreakBar := bar_index
+        else if freshShort and not freshLong
+            breakoutShort := true
+            pendingDirection := -1
+            pendingLevel := lowerLevel
+            pendingBreakBar := bar_index
+
+// Maximum holding-time exit (next bar open after approximately 60 elapsed minutes).
+// Bracket exits from the confirmation bar are already active on the fill bar.
+if barstate.isconfirmed and strategy.position_size != 0 and strategy.opentrades > 0
+    int heldBars = bar_index - strategy.opentrades.entry_bar_index(0) + 1
+    if heldBars >= maxHoldingBars
+        if strategy.position_size > 0
+            strategy.close("BR Long", comment="Maximum holding time")
+        else
+            strategy.close("BR Short", comment="Maximum holding time")
+
+// --------------------- Minimal visual output ---------------------
+plot(showReferenceLines ? upperLevel : na, "Breakout upper reference", color=color.new(color.orange, 40), style=plot.style_linebr)
+plot(showReferenceLines ? lowerLevel : na, "Breakout lower reference", color=color.new(color.aqua, 40), style=plot.style_linebr)
+plot(showReferenceLines and pendingDirection != 0 ? pendingLevel : na, "Pending retest level", color=color.new(color.yellow, 0), linewidth=2, style=plot.style_linebr)
+float activeStop = strategy.position_size > 0 ? strategy.position_avg_price - stopTicks * syminfo.mintick : strategy.position_size < 0 ? strategy.position_avg_price + stopTicks * syminfo.mintick : na
+float activeTarget = strategy.position_size > 0 ? strategy.position_avg_price + targetTicks * syminfo.mintick : strategy.position_size < 0 ? strategy.position_avg_price - targetTicks * syminfo.mintick : na
+plot(showTradeLines ? activeStop : na, "Active stop", color=color.new(color.red, 0), style=plot.style_linebr, linewidth=2)
+plot(showTradeLines ? activeTarget : na, "Terminal TP", color=color.new(color.green, 0), style=plot.style_linebr, linewidth=2)
+plotshape(showSignalMarkers and breakoutLong, "Long breakout close", shape.circle, location.belowbar, color=color.new(color.lime, 0), size=size.tiny)
+plotshape(showSignalMarkers and breakoutShort, "Short breakout close", shape.circle, location.abovebar, color=color.new(color.red, 0), size=size.tiny)
+plotshape(showSignalMarkers and confirmedLong, "Confirmed long retest", shape.triangleup, location.belowbar, color=color.new(color.green, 0), size=size.small)
+plotshape(showSignalMarkers and confirmedShort, "Confirmed short retest", shape.triangledown, location.abovebar, color=color.new(color.maroon, 0), size=size.small)
+
+// No alerts or externally delivered order signals in V1.
+// Historical performance is hypothetical and must be validated against Python,
+// broker-emulator fill limits, commissions, contract rolls and untouched data.
