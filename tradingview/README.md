@@ -14,7 +14,9 @@ Branch: feature/tradingview-pinescript. Existing Python research on main remains
 See [docs/indicator_v1_review.md](docs/indicator_v1_review.md).
 
 ## Pine 2 — Automated Strategy / Deep Backtesting
-**Current:** [strategies/nq_breakout_retest_v1.pine](strategies/nq_breakout_retest_v1.pine), a *simulation-only* Pine v6 baseline; **TradingView compile and backtests pending**.
+**Breakout V1:** [strategies/nq_breakout_retest_v1.pine](strategies/nq_breakout_retest_v1.pine), a simulation-only baseline. User verified Strategy Tester generated 14 trades Sep–Oct 2026 (net −$105 with zero commissions, win rate 28.57%, profit factor 0.792); this is *not* a conclusion about the full strategy.
+
+**Reversal V2:** [strategies/nq_sweep_reversal_v2_research.pine](strategies/nq_sweep_reversal_v2_research.pine), a separate ordered sweep → displacement → MSS proxy → FVG → retest research strategy; code committed, Pine compilation/backtesting not yet verified. [Reversal protocol](backtests/reversal_v2_protocol.md).
 
 - Primary PMH/PML 04:00–09:30 ET, or optional previous completed RTH PDH/PDL.
 - Close-confirmed breakout → later retest touch and hold → next 1m open market fill, strict 09:30–10:30 entry window.
