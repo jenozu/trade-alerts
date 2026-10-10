@@ -3,7 +3,7 @@
 // RESEARCH / SIMULATION ONLY. This is intentionally NOT full Python production parity.
 // Selected Python fill convention: market at NEXT 1m open after confirmed retest.
 // Uses TradingView's broker emulator; no live order routing or webhook alerts here.
-strategy("NQ Strategy V1 | Breakout + Retest (Research)", shorttitle="NQ BR v1", overlay=true, pyramiding=0, initial_capital=50000, currency=currency.USD, default_qty_type=strategy.fixed, default_qty_value=1, commission_type=strategy.commission.cash_per_contract, commission_value=0.0, slippage=1, process_orders_on_close=false, calc_on_every_tick=false, calc_on_order_fills=false)
+strategy("NQ Strategy V1 | Breakout + Retest (Research)", shorttitle="NQ BR v1", overlay=true, pyramiding=0, initial_capital=50000, currency=currency.USD, default_qty_type=strategy.fixed, default_qty_value=1, margin_long=5, margin_short=5, commission_type=strategy.commission.cash_per_contract, commission_value=0.0, slippage=1, process_orders_on_close=false, calc_on_every_tick=false, calc_on_order_fills=false)
 
 // --------------------- Research inputs ---------------------
 const string TZ = "America/New_York"
@@ -24,7 +24,9 @@ bool showSignalMarkers = input.bool(true, "Show breakout/retest markers", group=
 if barstate.isfirst and timeframe.in_seconds() != 60
     runtime.error("NQ breakout/retest V1 is designed only for a 1-minute chart.")
 
-// Trade quantities/fees are configured in the Strategy Tester Properties tab.
+// Trade quantities/fees and realistic broker margin belong in Strategy Tester Properties.
+// A 5% *illustrative simulation margin* is used so 1 NQ can trade with $50k equity;
+// this is NOT a broker / prop-firm maintenance or intraday margin recommendation.
 // Profit/loss offsets are in ticks relative to actual broker-emulator fill prices.
 int stopTicks = int(math.round(stopPoints / syminfo.mintick))
 float targetPoints = terminalTarget == "TP1: 25" ? 25.0 : terminalTarget == "TP2: 50" ? 50.0 : terminalTarget == "TP3: 75" ? 75.0 : 100.0
