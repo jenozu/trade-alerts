@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 
 DEFAULT_PATH = Path(__file__).resolve().parents[2] / "research-plans" / "exp031_035_preparation.json"
-EXPERIMENT_ID = re.compile(r"EXP-\\d{3}\\Z")
+EXPERIMENT_ID = re.compile(r"EXP-\d{3}\Z")
 REQUIRED = ("id", "stage", "name", "objective", "control", "candidate",
             "design", "dependencies", "deliverables", "decisions_required")
 
