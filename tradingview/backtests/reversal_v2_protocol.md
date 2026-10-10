@@ -1,5 +1,7 @@
 # Sweep-reversal V2 — research baseline and validation gates
 
+First reported 2026 MNQ one-trade result: see [Sep 29 forensic review](mnq_reversal_20260929_forensic_review.md). It is **pending the MNQ 1-minute TradingView CSV**. Do not infer exact MNQ fill timestamps from the earlier NQ trade-list screenshot.
+
 Code: ../strategies/nq_sweep_reversal_v2_research.pine
 Branch: feature/tradingview-pinescript
 Status: source committed; Pine Editor compilation and trading results NOT independently confirmed.
