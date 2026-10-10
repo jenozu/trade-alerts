@@ -1,12 +1,17 @@
 //@version=6
-// NQ Automated Strategy — V1 baseline: confirmed breakout + retest.
+// MNQ Automated Strategy — V1 baseline: confirmed breakout + retest.
 // RESEARCH / SIMULATION ONLY. This is intentionally NOT full Python production parity.
 // Selected Python fill convention: market at NEXT 1m open after confirmed retest.
 // Uses TradingView's broker emulator; no live order routing or webhook alerts here.
-strategy("NQ Strategy V1 | Breakout + Retest (Research)", shorttitle="NQ BR v1", overlay=true, pyramiding=0, initial_capital=50000, currency=currency.USD, default_qty_type=strategy.fixed, default_qty_value=1, margin_long=5, margin_short=5, commission_type=strategy.commission.cash_per_contract, commission_value=0.0, slippage=1, process_orders_on_close=false, calc_on_every_tick=false, calc_on_order_fills=false)
+strategy("MNQ Strategy V1 | Breakout + Retest (Research)", shorttitle="MNQ BR v1", overlay=true, pyramiding=0, initial_capital=50000, currency=currency.USD, default_qty_type=strategy.fixed, default_qty_value=1, margin_long=5, margin_short=5, commission_type=strategy.commission.cash_per_contract, commission_value=0.0, slippage=1, process_orders_on_close=false, calc_on_every_tick=false, calc_on_order_fills=false)
 
 // --------------------- Research inputs ---------------------
 const string TZ = "America/New_York"
+// SAFETY: TradingView strategy() runs on the ACTIVE CHART instrument.
+// Refuse NQ and any non-MNQ chart to prevent 10x P&L mistakes.
+if barstate.isfirst and (syminfo.root != "MNQ" or math.abs(syminfo.pointvalue - 2.0) > 0.00001)
+    runtime.error("MNQ ONLY: switch chart to CME_MINI:MNQ1! (or a specific MNQ futures contract). NQ1! is the 10x larger E-mini contract.")
+
 string reference = input.string("PMH / PML", "Breakout reference", options=["PMH / PML", "PDH / PDL"], group="Setup")
 int breakoutTicks = input.int(1, "Close beyond level (ticks)", minval=1, maxval=20, group="Setup")
 int touchToleranceTicks = input.int(4, "Retest touch tolerance (ticks)", minval=0, maxval=40, group="Setup")
@@ -14,18 +19,18 @@ int holdTicks = input.int(1, "Retest close hold (ticks)", minval=0, maxval=20, g
 int invalidateTicks = input.int(1, "Invalidation close buffer (ticks)", minval=0, maxval=20, group="Setup")
 int maxRetestBars = input.int(5, "Max 1m bars after breakout for retest", minval=1, maxval=60, group="Setup")
 
-float stopPoints = input.float(25.0, "Fixed stop (NQ points)", minval=0.25, maxval=100.0, step=0.25, group="Research exits")
-string terminalTarget = input.string("TP2: 50", "Terminal profit target (NQ points)", options=["TP1: 25", "TP2: 50", "TP3: 75", "TP4: 100"], group="Research exits")
+float stopPoints = input.float(25.0, "Fixed stop (Nasdaq index points)", minval=0.25, maxval=100.0, step=0.25, group="Research exits")
+string terminalTarget = input.string("TP2: 50", "Terminal profit target (Nasdaq index points)", options=["TP1: 25", "TP2: 50", "TP3: 75", "TP4: 100"], group="Research exits")
 int maxHoldingBars = input.int(60, "Maximum holding time (1m bars)", minval=1, maxval=240, group="Research exits")
 bool showReferenceLines = input.bool(false, "Show breakout reference levels", group="Visuals")
 bool showTradeLines = input.bool(true, "Show active stop and target", group="Visuals")
 bool showSignalMarkers = input.bool(true, "Show breakout/retest markers", group="Visuals")
 
 if barstate.isfirst and timeframe.in_seconds() != 60
-    runtime.error("NQ breakout/retest V1 is designed only for a 1-minute chart.")
+    runtime.error("MNQ breakout/retest V1 is designed only for a 1-minute chart.")
 
 // Trade quantities/fees and realistic broker margin belong in Strategy Tester Properties.
-// A 5% *illustrative simulation margin* is used so 1 NQ can trade with $50k equity;
+// A 5% *illustrative simulation margin* is used so 1 MNQ can trade with $50k equity;
 // this is NOT a broker / prop-firm maintenance or intraday margin recommendation.
 // Profit/loss offsets are in ticks relative to actual broker-emulator fill prices.
 int stopTicks = int(math.round(stopPoints / syminfo.mintick))
