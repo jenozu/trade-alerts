@@ -1,5 +1,10 @@
 # TradingView / Pine Script v6 — Indicator and strategy tracks
 
+## Instrument safety — MNQ only for simulations
+
+User-selected trading instrument is **MNQ (Micro E-mini Nasdaq-100)**, not NQ. Both strategy scripts contain a hard first-bar guard against wrong symbol root / point value; they must be **re-pasted into TradingView Pine Editor** because GitHub edits do not auto-update saved Pine scripts. Use `CME_MINI:MNQ1!` (not `CME_MINI:NQ1!`) for continuous-contract chart research. Confirm the instrument's point value is $2 per Nasdaq index point per contract and simulate realistic commissions. A previously observed +$1,000 on a 50-point NQ trade is not an MNQ result. The separate visual Market Intelligence Indicator is not an execution strategy and can continue being used as a data reference.
+
+
 Branch: feature/tradingview-pinescript. Existing Python research on main remains source of truth; do not alter EXP-030, R7–R12, strategy config, session config or active research runs without explicit separate authorization.
 
 ## Pine 1 — Market Intelligence Indicator
