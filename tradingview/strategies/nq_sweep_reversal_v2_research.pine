@@ -1,0 +1,265 @@
+//@version=6
+// NQ Sweep/Reversal v2 — ordered research candidate, NOT Python parity.
+// Long: sell-side sweep -> bullish displacement -> bullish MSS -> FVG -> later hold.
+// Short: buy-side sweep -> bearish displacement -> bearish MSS -> FVG -> later hold.
+// All setup state advances on completed 1-minute candles; strategy market fill next open.
+// No webhooks or live execution. Review docs/backtests before relying on any result.
+strategy("NQ Strategy V2 | Sweep Reversal (Research)", shorttitle="NQ REV v2", overlay=true, pyramiding=0, initial_capital=50000, currency=currency.USD, default_qty_type=strategy.fixed, default_qty_value=1, margin_long=5, margin_short=5, commission_type=strategy.commission.cash_per_contract, commission_value=0.0, slippage=1, process_orders_on_close=false, calc_on_every_tick=false, calc_on_order_fills=false)
+
+const string TZ = "America/New_York"
+string levelFamily = input.string("PMH/PML + PDH/PDL + London", "Sweep level families", options=["PMH/PML", "PDH/PDL", "PMH/PML + PDH/PDL + London"], group="Reversal")
+int coreMaxBars = input.int(10, "Max 1m bars: sweep to MSS", minval=2, maxval=30, group="Reversal")
+int afterMssMaxBars = input.int(20, "Max 1m bars: MSS to retest", minval=2, maxval=60, group="Reversal")
+int displacementAtr = input.int(14, "ATR (SMA true range)", minval=2, maxval=100, group="Reversal")
+int medianLength = input.int(20, "Previous-body median length", minval=3, maxval=100, group="Reversal")
+float minBodyATR = input.float(0.80, "Min body / ATR", minval=0.1, maxval=5, step=0.05, group="Reversal")
+float minBodyMedian = input.float(1.80, "Min body / previous median", minval=0.1, maxval=8, step=0.1, group="Reversal")
+int swingBufferTicks = input.int(1, "MSS close beyond confirmed pivot (ticks)", minval=1, maxval=20, group="Reversal")
+int stopTicks = input.int(100, "Simulated stop (ticks; 100 = 25 pts NQ)", minval=1, maxval=500, group="Trade simulation")
+string targetChoice = input.string("TP2 +50", "Terminal target (points)", options=["TP1 +25", "TP2 +50", "TP3 +75", "TP4 +100"], group="Trade simulation")
+int maximumHoldingBars = input.int(60, "Max open position (1m bars)", minval=1, maxval=240, group="Trade simulation")
+bool showLevels = input.bool(false, "Plot sweep levels", group="Visuals")
+bool showStages = input.bool(true, "Show setup-stage markers", group="Visuals")
+bool showStops = input.bool(true, "Show live simulator stop/target", group="Visuals")
+
+if barstate.isfirst and timeframe.in_seconds() != 60
+    runtime.error("NQ reversal research V2 requires 1-minute chart candles.")
+int targetTicks = targetChoice == "TP1 +25" ? int(math.round(25 / syminfo.mintick)) : targetChoice == "TP2 +50" ? int(math.round(50 / syminfo.mintick)) : targetChoice == "TP3 +75" ? int(math.round(75 / syminfo.mintick)) : int(math.round(100 / syminfo.mintick))
+
+// ---- Canonical ET session windows; prior RTH is not an exchange daily candle.
+bool inGlobex = not na(time(timeframe.period, "1800-1700:1234567", TZ))
+bool inRth = not na(time(timeframe.period, "0930-1600:1234567", TZ))
+bool inPm = not na(time(timeframe.period, "0400-0930:1234567", TZ))
+bool inLondon = not na(time(timeframe.period, "0200-0500:1234567", TZ))
+bool inEntryWindow = not na(time(timeframe.period, "0930-1030:1234567", TZ))
+bool firstRth = inRth and not inRth[1]
+bool firstGlobex = inGlobex and hour(time, TZ) == 18 and (na(time[1]) or hour(time[1], TZ) != 18 or dayofmonth(time[1], TZ) != dayofmonth(time, TZ))
+int nextBarStartMinuteET = hour(time_close, TZ) * 60 + minute(time_close, TZ)
+bool nextOpenWithinEntryWindow = inEntryWindow and nextBarStartMinuteET >= 570 and nextBarStartMinuteET < 630
+
+var float rthWorkingHigh = na
+var float rthWorkingLow = na
+var float completedRthHigh = na
+var float completedRthLow = na
+var float pdh = na
+var float pdl = na
+var float pmh = na
+var float pml = na
+var float loh = na
+var float lol = na
+
+if not inRth and inRth[1]
+    completedRthHigh := rthWorkingHigh
+    completedRthLow := rthWorkingLow
+if firstGlobex
+    pdh := completedRthHigh
+    pdl := completedRthLow
+    pmh := na
+    pml := na
+    loh := na
+    lol := na
+if inRth
+    if firstRth
+        rthWorkingHigh := high
+        rthWorkingLow := low
+    else
+        rthWorkingHigh := math.max(nz(rthWorkingHigh, high), high)
+        rthWorkingLow := math.min(nz(rthWorkingLow, low), low)
+if inPm
+    if not inPm[1]
+        pmh := high
+        pml := low
+    else
+        pmh := math.max(nz(pmh, high), high)
+        pml := math.min(nz(pml, low), low)
+if inLondon
+    if not inLondon[1]
+        loh := high
+        lol := low
+    else
+        loh := math.max(nz(loh, high), high)
+        lol := math.min(nz(lol, low), low)
+
+// ---- Raw liquidity sweep: one tick through a known level + close back through.
+f_buySideSweep(float level) =>
+    not na(level) and high >= level + syminfo.mintick and close < level and high[1] <= level
+f_sellSideSweep(float level) =>
+    not na(level) and low <= level - syminfo.mintick and close > level and low[1] >= level
+bool usePm = levelFamily != "PDH/PDL"
+bool useDay = levelFamily != "PMH/PML"
+bool useLondon = levelFamily == "PMH/PML + PDH/PDL + London"
+bool sweepSell = (usePm and not inPm and f_sellSideSweep(pml)) or (useDay and f_sellSideSweep(pdl)) or (useLondon and not inLondon and f_sellSideSweep(lol))
+bool sweepBuy = (usePm and not inPm and f_buySideSweep(pmh)) or (useDay and f_buySideSweep(pdh)) or (useLondon and not inLondon and f_buySideSweep(loh))
+
+// ---- Objective displacement using repo parameters (still needs Python parity).
+float priorClose = nz(close[1], close)
+float tr = math.max(high - low, math.max(math.abs(high - priorClose), math.abs(low - priorClose)))
+float atr = ta.sma(tr, displacementAtr)
+float candleBody = math.abs(close - open)
+float priorMedianBody = ta.median(math.abs(close[1] - open[1]), medianLength)
+float closeLocation = high > low ? (close - low) / (high - low) : 0.5
+bool bodyStrength = not na(atr) and atr > 0 and not na(priorMedianBody) and priorMedianBody > 0 and candleBody >= minBodyATR * atr and candleBody >= minBodyMedian * priorMedianBody
+bool bullDisplacement = barstate.isconfirmed and bodyStrength and close > open and closeLocation >= 0.75
+bool bearDisplacement = barstate.isconfirmed and bodyStrength and close < open and closeLocation <= 0.25
+
+// ---- Causally confirmed 2-left/2-right internal swing pivots.
+// Internal-trend proxy uses last two confirmed highs AND last two confirmed lows;
+// actual Python MSS also uses a broader structural state / deduplication system.
+float newSwingHigh = ta.pivothigh(high, 2, 2)
+float newSwingLow = ta.pivotlow(low, 2, 2)
+var float lastHigh = na
+var float prevHigh = na
+var float lastLow = na
+var float prevLow = na
+if barstate.isconfirmed
+    if not na(newSwingHigh)
+        prevHigh := lastHigh
+        lastHigh := newSwingHigh
+    if not na(newSwingLow)
+        prevLow := lastLow
+        lastLow := newSwingLow
+bool bearishInternalTrend = not na(prevHigh) and not na(prevLow) and lastHigh < prevHigh and lastLow < prevLow
+bool bullishInternalTrend = not na(prevHigh) and not na(prevLow) and lastHigh > prevHigh and lastLow > prevLow
+bool bullishMssProxy = barstate.isconfirmed and bearishInternalTrend and not na(lastHigh) and close > lastHigh + swingBufferTicks * syminfo.mintick and close[1] <= lastHigh + swingBufferTicks * syminfo.mintick
+bool bearishMssProxy = barstate.isconfirmed and bullishInternalTrend and not na(lastLow) and close < lastLow - swingBufferTicks * syminfo.mintick and close[1] >= lastLow - swingBufferTicks * syminfo.mintick
+
+// ---- FVG creation + later hold on the SAME tracked gap.
+// 1m three-candle gap. No IFVG or HTF FVGs in this prototype.
+bool bullGapCreated = barstate.isconfirmed and not na(high[2]) and low >= high[2] + syminfo.mintick
+bool bearGapCreated = barstate.isconfirmed and not na(low[2]) and high <= low[2] - syminfo.mintick
+
+// ---- Ordered setup state: 0 none; 1 swept; 2 displaced; 3 MSS; 4 FVG created.
+// Separate per-direction states prevent mixed chronology / opposite-family reuse.
+var int longStage = 0
+var int shortStage = 0
+var int longSweepBar = na
+var int shortSweepBar = na
+var int longMssBar = na
+var int shortMssBar = na
+var int longFvgBar = na
+var int shortFvgBar = na
+var float longFvgLower = na
+var float longFvgUpper = na
+var float shortFvgLower = na
+var float shortFvgUpper = na
+bool triggerLong = false
+bool triggerShort = false
+bool coreLong = false
+bool coreShort = false
+
+if barstate.isconfirmed
+    // Never carry an uncompleted reversal across a futures trading day.
+    if firstGlobex
+        longStage := 0
+        shortStage := 0
+
+    // Expire by original sweep or later MSS. Unlike rolling coincidence,
+    // future events cannot rescue an expired sweep.
+    if longStage > 0 and ((longStage <= 2 and bar_index - longSweepBar >= coreMaxBars) or (longStage >= 3 and bar_index - longMssBar > afterMssMaxBars))
+        longStage := 0
+    if shortStage > 0 and ((shortStage <= 2 and bar_index - shortSweepBar >= coreMaxBars) or (shortStage >= 3 and bar_index - shortMssBar > afterMssMaxBars))
+        shortStage := 0
+
+    // Recent new sweeps restart the corresponding setup, just as in Python.
+    if sweepSell and not sweepBuy
+        longStage := 1
+        longSweepBar := bar_index
+        longMssBar := na
+        longFvgBar := na
+        longFvgLower := na
+        longFvgUpper := na
+    if sweepBuy and not sweepSell
+        shortStage := 1
+        shortSweepBar := bar_index
+        shortMssBar := na
+        shortFvgBar := na
+        shortFvgLower := na
+        shortFvgUpper := na
+
+    // Require later bars for each transition to prevent same-candle chronology
+    // from being inferred from OHLC candle extremes.
+    if longStage == 1 and bar_index > longSweepBar and bullDisplacement
+        longStage := 2
+    if shortStage == 1 and bar_index > shortSweepBar and bearDisplacement
+        shortStage := 2
+
+    if longStage == 2 and bar_index > longSweepBar and bullishMssProxy
+        longStage := 3
+        longMssBar := bar_index
+        coreLong := true
+    if shortStage == 2 and bar_index > shortSweepBar and bearishMssProxy
+        shortStage := 3
+        shortMssBar := bar_index
+        coreShort := true
+
+    if longStage == 3 and bar_index > longMssBar and bullGapCreated
+        longStage := 4
+        longFvgBar := bar_index
+        longFvgLower := high[2]
+        longFvgUpper := low
+    if shortStage == 3 and bar_index > shortMssBar and bearGapCreated
+        shortStage := 4
+        shortFvgBar := bar_index
+        shortFvgLower := high
+        shortFvgUpper := low[2]
+
+    // Reversal fails if the tracked FVG is closed through its far boundary.
+    if longStage == 4 and bar_index > longFvgBar
+        if close < longFvgLower
+            longStage := 0
+        else if low <= longFvgUpper and high >= longFvgLower and close >= longFvgUpper and nextOpenWithinEntryWindow and strategy.position_size == 0
+            triggerLong := true
+            longStage := 0
+    if shortStage == 4 and bar_index > shortFvgBar
+        if close > shortFvgUpper
+            shortStage := 0
+        else if high >= shortFvgLower and low <= shortFvgUpper and close <= shortFvgLower and nextOpenWithinEntryWindow and strategy.position_size == 0
+            triggerShort := true
+            shortStage := 0
+
+    // Reject direction conflict. The selected family never creates both orders.
+    if triggerLong and triggerShort
+        triggerLong := false
+        triggerShort := false
+    if triggerLong and not triggerShort
+        strategy.entry("REV Long", strategy.long, comment="Sweep > displacement > MSS > FVG hold")
+        strategy.exit("REV Long Exit", from_entry="REV Long", profit=targetTicks, loss=stopTicks)
+    if triggerShort and not triggerLong
+        strategy.entry("REV Short", strategy.short, comment="Sweep > displacement > MSS > FVG hold")
+        strategy.exit("REV Short Exit", from_entry="REV Short", profit=targetTicks, loss=stopTicks)
+
+// Approximate 60-minute holding limit; strategy.close fills next available tick.
+if barstate.isconfirmed and strategy.position_size != 0 and strategy.opentrades > 0
+    int barsHeld = bar_index - strategy.opentrades.entry_bar_index(0) + 1
+    if barsHeld >= maximumHoldingBars
+        if strategy.position_size > 0
+            strategy.close("REV Long", comment="Maximum holding time")
+        else
+            strategy.close("REV Short", comment="Maximum holding time")
+
+float activeStop = strategy.position_size > 0 ? strategy.position_avg_price - stopTicks * syminfo.mintick : strategy.position_size < 0 ? strategy.position_avg_price + stopTicks * syminfo.mintick : na
+float activeTarget = strategy.position_size > 0 ? strategy.position_avg_price + targetTicks * syminfo.mintick : strategy.position_size < 0 ? strategy.position_avg_price - targetTicks * syminfo.mintick : na
+plot(showLevels ? pmh : na, "PMH", color=color.new(color.orange, 45), style=plot.style_linebr)
+plot(showLevels ? pml : na, "PML", color=color.new(color.orange, 45), style=plot.style_linebr)
+plot(showLevels ? pdh : na, "PDH", color=color.new(color.red, 45), style=plot.style_linebr)
+plot(showLevels ? pdl : na, "PDL", color=color.new(color.green, 45), style=plot.style_linebr)
+plot(showStops ? activeStop : na, "Active stop (simulated)", color=color.red, style=plot.style_linebr)
+plot(showStops ? activeTarget : na, "Active terminal TP (simulated)", color=color.lime, style=plot.style_linebr)
+plotshape(showStages and coreLong, "Ordered long core reached (research)", shape.circle, location.belowbar, color=color.aqua, size=size.tiny)
+plotshape(showStages and coreShort, "Ordered short core reached (research)", shape.circle, location.abovebar, color=color.orange, size=size.tiny)
+plotshape(showStages and triggerLong, "Reversal long confirmation (research)", shape.triangleup, location.belowbar, color=color.lime, size=size.small)
+plotshape(showStages and triggerShort, "Reversal short confirmation (research)", shape.triangledown, location.abovebar, color=color.red, size=size.small)
+
+// Diagnostic series for CSV exports and manual Python comparison. No alert() calls.
+plot(longStage, "Long reversal stage 0-4", display=display.data_window)
+plot(shortStage, "Short reversal stage 0-4", display=display.data_window)
+plot(sweepSell ? 1 : 0, "Sell-side sweep candidate", display=display.data_window)
+plot(sweepBuy ? 1 : 0, "Buy-side sweep candidate", display=display.data_window)
+plot(bullDisplacement ? 1 : 0, "Bullish displacement candidate", display=display.data_window)
+plot(bearDisplacement ? 1 : 0, "Bearish displacement candidate", display=display.data_window)
+plot(bullishMssProxy ? 1 : 0, "Bullish MSS proxy", display=display.data_window)
+plot(bearishMssProxy ? 1 : 0, "Bearish MSS proxy", display=display.data_window)
+plot(bullGapCreated ? 1 : 0, "Bullish FVG created", display=display.data_window)
+plot(bearGapCreated ? 1 : 0, "Bearish FVG created", display=display.data_window)
+plot(triggerLong ? 1 : 0, "Confirmed reversal long", display=display.data_window)
+plot(triggerShort ? 1 : 0, "Confirmed reversal short", display=display.data_window)
