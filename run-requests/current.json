@@ -1,7 +1,7 @@
 {
   "action": "run",
   "experiment": "EXP-030",
-  "request_id": "EXP-030-r01-20261010",
+  "request_id": "EXP-030-r02-20261010",
   "requested_by": "chatgpt",
-  "note": "Explicit user authorization: run 30. Execute the prepared 2023 confirmation-first family diagnostic; preserve archived control and frozen settings."
+  "note": "Explicit user authorization: rerun 30. Retry unchanged prepared EXP-030 after VPS SSH public-key authorization; retain frozen research settings and archived control."
 }
