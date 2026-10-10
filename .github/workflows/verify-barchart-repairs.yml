@@ -13,6 +13,12 @@ jobs:
   pytest:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # Some existing research fixture tests create synthetic git commits locally.
+    env:
+      GIT_AUTHOR_NAME: CI Fixture
+      GIT_AUTHOR_EMAIL: ci-fixture@example.invalid
+      GIT_COMMITTER_NAME: CI Fixture
+      GIT_COMMITTER_EMAIL: ci-fixture@example.invalid
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
