@@ -34,7 +34,9 @@ bool inOvernight = not na(time(timeframe.period, "1800-0930:1234567", TZ))
 bool inEntryWindow = not na(time(timeframe.period, "0930-1030:1234567", TZ))
 bool inOr5 = not na(time(timeframe.period, "0930-0935:1234567", TZ))
 bool inOr15 = not na(time(timeframe.period, "0930-0945:1234567", TZ))
-bool newGlobex = inGlobex and not inGlobex[1]
+// CME has no bars during its daily maintenance halt, so inGlobex[1] can still be true at 18:00.
+// Detect the first 18:xx ET bar explicitly, including gaps/partial historical loads.
+bool newGlobex = inGlobex and hour(time, TZ) == 18 and (na(time[1]) or hour(time[1], TZ) != 18 or dayofmonth(time[1], TZ) != dayofmonth(time, TZ))
 bool newRth = inRth and not inRth[1]
 
 // ---------- Causal session levels ----------
