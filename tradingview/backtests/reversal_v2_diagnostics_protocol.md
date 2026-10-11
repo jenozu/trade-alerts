@@ -171,12 +171,25 @@ target changes based on these counts. Next validate timestamp-aligned
 Pine and Python MSS/FVG event flags using identical MNQ one-minute source
 bars, before coding any rule-change variant.
 
+## Next tool: independent raw MSS/FVG comparison
+
+A read-only [Python-vs-Pine raw-event audit](../audit/README.md) has
+been added on this branch. It runs the canonical Python modules on
+the same TradingView 1-minute chart candles (and optionally checks
+independent OHLC against TradingView candles). This is not a parameter
+optimization or a trade generator.
+
+**Awaiting first chart-data CSV**, which must contain OHLC and Pine
+Data Window indicator series, NOT the Strategy Report trade-list CSV.
+The audit is designed to quantify exactly when the Pine MSS proxy
+and raw FVG creation disagree with the Python event calculations.
+No mismatch rates or strategy improvements can be claimed yet.
+
 ## Acceptance criteria before implementing V3
 
-- [ ] New diagnostic .pine compiles and runs in TradingView on MNQ 1m.
-- [ ] Test window, source revision, user inputs, fill detail and fees recorded.
-- [ ] Deep Backtesting entry/exit ledger matches V2 under identical settings
-      (not merely its total net P&L); if not, reconcile before proceeding.
+- [x] Diagnostic strategy was loaded and produced chart stage table in TradingView on MNQ 1m (user screenshot).
+- [ ] Exact Pine Editor saved revision and Bar Magnifier setting independently evidenced (fee-adjusted 12-trade CSV and user's setting confirmation recorded).
+- [x] User-confirmed diagnostic script recorded the same 12 entry/exit trades with commission-adjusted -$16 result; individual fills matched the original ledger.
 - [ ] Inspect at least one valid winner, losing setup and incomplete/expired
       setup with `SW → D → M → F → E` versus stage timeout.
 - [ ] Compare at least one such observed event sequence to the **actual**
