@@ -324,7 +324,7 @@ def select_form(page, job):
     return download
 
 
-def download_jobs(root: Path, *, mode: str, pause_seconds: float = 3):
+def download_jobs(root: Path, *, mode: str, headless: bool = False, pause_seconds: float = 3):
     from playwright.sync_api import sync_playwright
     jobs = pending(root)
     if not jobs:
@@ -332,7 +332,7 @@ def download_jobs(root: Path, *, mode: str, pause_seconds: float = 3):
         return
     with sync_playwright() as p:
         profile = root / 'browser_profile'
-        ctx = p.chromium.launch_persistent_context(str(profile), headless=False, accept_downloads=True)
+        ctx = p.chromium.launch_persistent_context(str(profile), headless=headless, accept_downloads=True)
         try:
             page = ctx.pages[0] if ctx.pages else ctx.new_page()
             for job in (jobs[:1] if mode in ('once', 'probe') else jobs):
@@ -386,7 +386,11 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('mode', choices=('plan', 'probe', 'once', 'resume', 'status'))
     parser.add_argument('--root', type=Path, default=Path.home() / 'Documents' / 'barchart-mnq-repairs')
+    parser.add_argument('--headless', action='store_true',
+                        help='Run once/resume without opening a browser window (requires saved login)')
     args = parser.parse_args(argv)
+    if args.headless and args.mode not in ('once', 'resume'):
+        parser.error('--headless is only supported with once or resume; use visible probe for login')
     try:
         if args.mode == 'plan':
             create_plan(args.root)
@@ -394,7 +398,7 @@ def main(argv=None):
             remaining = pending(args.root)
             print(f'Acquired: {len(request_jobs()) - len(remaining)}; pending: {len(remaining)}; not accepted')
         else:
-            download_jobs(args.root, mode=args.mode)
+            download_jobs(args.root, mode=args.mode, headless=args.headless)
     except (AcquisitionError, FileNotFoundError, PermissionError) as e:
         print('STOP:', e, file=sys.stderr)
         return 1

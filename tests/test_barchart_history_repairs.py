@@ -200,3 +200,64 @@ def test_barchart_numeric_aggregation_fail_closed():
         repair.configure_intraday_minutes(_FakePage(choices, interval_readback='5'))
     with pytest.raises(repair.AcquisitionError, match='Exact Intraday'):
         repair.configure_intraday_minutes(_FakePage([('Intraday Nearby', 'nearby')]))
+
+def test_headless_cli_modes_and_forwarding(monkeypatch, tmp_path):
+    calls = []
+    monkeypatch.setattr(repair, 'download_jobs',
+                        lambda root, *, mode, headless=False: calls.append((root, mode, headless)))
+    for mode, flag in [('once', True), ('resume', True), ('once', False),
+                       ('resume', False), ('probe', False)]:
+        args = [mode, '--root', str(tmp_path)] + (['--headless'] if flag else [])
+        assert repair.main(args) == 0
+    assert calls == [(tmp_path, 'once', True), (tmp_path, 'resume', True),
+                     (tmp_path, 'once', False), (tmp_path, 'resume', False),
+                     (tmp_path, 'probe', False)]
+
+
+def test_headless_not_allowed_for_probe_or_plan(tmp_path):
+    for mode in ('probe', 'plan', 'status'):
+        with pytest.raises(SystemExit) as exc:
+            repair.main([mode, '--root', str(tmp_path), '--headless'])
+        assert exc.value.code == 2
+
+
+def test_headless_launch_reuses_persistent_browser_profile(monkeypatch, tmp_path):
+    import sys
+    import types
+
+    launched = []
+    closed = []
+
+    class FakePage:
+        def goto(self, *_args, **_kwargs):
+            raise repair.AcquisitionError('Synthetic stop before a real page loads')
+
+    class FakeContext:
+        pages = [FakePage()]
+
+        def close(self):
+            closed.append(True)
+
+    class FakeChromium:
+        def launch_persistent_context(self, profile, **kwargs):
+            launched.append((profile, kwargs))
+            return FakeContext()
+
+    class FakePlaywright:
+        chromium = FakeChromium()
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            pass
+
+    module = types.ModuleType('playwright.sync_api')
+    module.sync_playwright = FakePlaywright
+    monkeypatch.setitem(sys.modules, 'playwright.sync_api', module)
+    monkeypatch.setattr(repair, 'pending', lambda root: [repair.request_jobs()[0]])
+    with pytest.raises(repair.AcquisitionError, match='Synthetic stop'):
+        repair.download_jobs(tmp_path, mode='once', headless=True)
+    assert launched == [(str(tmp_path / 'browser_profile'),
+                         {'headless': True, 'accept_downloads': True})]
+    assert closed == [True]
