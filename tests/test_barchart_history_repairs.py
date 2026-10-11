@@ -204,14 +204,15 @@ def test_barchart_numeric_aggregation_fail_closed():
 def test_headless_cli_modes_and_forwarding(monkeypatch, tmp_path):
     calls = []
     monkeypatch.setattr(repair, 'download_jobs',
-                        lambda root, *, mode, headless=False: calls.append((root, mode, headless)))
+                        lambda root, *, mode, headless=False, inspect_on_error=False:
+                        calls.append((root, mode, headless, inspect_on_error)))
     for mode, flag in [('once', True), ('resume', True), ('once', False),
                        ('resume', False), ('probe', False)]:
         args = [mode, '--root', str(tmp_path)] + (['--headless'] if flag else [])
         assert repair.main(args) == 0
-    assert calls == [(tmp_path, 'once', True), (tmp_path, 'resume', True),
-                     (tmp_path, 'once', False), (tmp_path, 'resume', False),
-                     (tmp_path, 'probe', False)]
+    assert calls == [(tmp_path, 'once', True, False), (tmp_path, 'resume', True, False),
+                     (tmp_path, 'once', False, False), (tmp_path, 'resume', False, False),
+                     (tmp_path, 'probe', False, False)]
 
 
 def test_headless_not_allowed_for_probe_or_plan(tmp_path):
@@ -261,3 +262,98 @@ def test_headless_launch_reuses_persistent_browser_profile(monkeypatch, tmp_path
     assert launched == [(str(tmp_path / 'browser_profile'),
                          {'headless': True, 'accept_downloads': True})]
     assert closed == [True]
+
+
+def test_inspect_on_error_is_visible_once_only(monkeypatch, tmp_path):
+    calls = []
+    monkeypatch.setattr(repair, 'download_jobs',
+                        lambda root, *, mode, headless=False, inspect_on_error=False:
+                        calls.append((mode, headless, inspect_on_error)))
+    assert repair.main(['once', '--root', str(tmp_path), '--inspect-on-error']) == 0
+    assert calls == [('once', False, True)]
+    for args in (['resume', '--inspect-on-error'],
+                 ['once', '--headless', '--inspect-on-error'],
+                 ['probe', '--inspect-on-error'],
+                 ['status', '--inspect-on-error']):
+        with pytest.raises(SystemExit) as exc:
+            repair.main(args + ['--root', str(tmp_path)])
+        assert exc.value.code == 2
+
+
+def test_browser_failure_reports_reason_and_waits_before_close(monkeypatch, tmp_path):
+    import sys
+    import types
+
+    evidence = {'clicked': 0, 'closed': 0, 'ack': 0}
+
+    class FakeDownload:
+        suggested_filename = 'NMH23.csv'
+
+        def failure(self):
+            return 'canceled'
+
+    class FakeTransfer:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            pass
+
+        @property
+        def value(self):
+            return FakeDownload()
+
+    class FakePage:
+        url = 'https://www.barchart.com/futures/quotes/NMH23/historical-download'
+
+        def goto(self, *_args, **_kwargs):
+            pass
+
+        def wait_for_timeout(self, *_args):
+            pass
+
+        def expect_download(self, *_args, **_kwargs):
+            return FakeTransfer()
+
+    class FakeButton:
+        def click(self):
+            evidence['clicked'] += 1
+
+    class FakeContext:
+        pages = [FakePage()]
+
+        def close(self):
+            evidence['closed'] += 1
+
+    class FakeChromium:
+        def launch_persistent_context(self, *_args, **kwargs):
+            assert kwargs['headless'] is False
+            return FakeContext()
+
+    class FakePlaywright:
+        chromium = FakeChromium()
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            pass
+
+    module = types.ModuleType('playwright.sync_api')
+    module.sync_playwright = FakePlaywright
+    monkeypatch.setitem(sys.modules, 'playwright.sync_api', module)
+    job = repair.request_jobs()[0]
+    monkeypatch.setattr(repair, 'pending', lambda root: [job])
+    monkeypatch.setattr(repair, 'select_form', lambda page, request: FakeButton())
+
+    def acknowledge(prompt):
+        assert 'Press Enter' in prompt
+        assert evidence['closed'] == 0  # browser stays visible until user finishes
+        evidence['ack'] += 1
+        return ''
+
+    monkeypatch.setattr('builtins.input', acknowledge)
+    with pytest.raises(repair.AcquisitionError, match="Playwright: 'canceled'.*no CSV saved"):
+        repair.download_jobs(tmp_path, mode='once', inspect_on_error=True)
+    assert evidence == {'clicked': 1, 'closed': 1, 'ack': 1}
+    assert not (tmp_path / 'original_csv').exists()
