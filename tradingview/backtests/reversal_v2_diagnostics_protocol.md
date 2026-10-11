@@ -123,6 +123,54 @@ of timed-out candidates. Use chart-data export only if numerical event
 comparisons become necessary; the Deep Backtesting trade-list CSV alone
 does not contain stage diagnostics.
 
+## 2026-10-11 diagnostic dashboard screenshot — observational findings
+
+The user displayed **MNQ1! 1-minute** with diagnostic strategy **MNQ V2 DX**
+visible. Chart crosshair was near 2026-10-09. The dashboard counts
+**currently loaded chart bars**; these are NOT the 2025-H1 Deep Backtesting
+stage counts. Unknown loaded-bar start/end boundaries and chart feed
+settings mean these cannot yet be treated as one controlled population.
+
+| Observed row | Long | Short |
+| --- | ---: | ---: |
+| Sweeps | 70 | 81 |
+| Displaced | 28 | 30 |
+| MSS proxy | 4 | 7 |
+| Linked FVG | 3 | 6 |
+| Entry signals | 0 | 1 |
+| New sweep reset | 21 | 29 |
+| Timeout: no displacement | 24 | 24 |
+| Timeout: no MSS | 21 | 21 |
+| Timeout: no FVG | 0 | 0 |
+| Timeout: no retest | 1 | 1 |
+| FVG invalidated | 2 | 4 |
+| Retest outside window | 2 | 4 |
+| Retest while in trade | 0 | 0 |
+| Globex resets | 1 | 1 |
+
+Stage totals: **151** sweeps, **58** displacement completions,
+**11** MSS proxy completions, **9** linked FVG creations and **1** order signal.
+They are *event counts*, not mutually-exclusive candidate denominators:
+fresh sweeps restart contexts, blocked retests can be counted separately
+from later acceptance, and truncation of chart history shifts results.
+It is invalid to compute conversion or rejection percentages using these
+totals as if they were the same cohorts.
+
+**Research question 1 — MSS:** 42 timeouts awaiting an MSS proxy (21/21)
+and only 11 completed MSS proxy stages were observed. Check causal swing
+confirmation, pivot ties, trend classification, and broken-level deduplication
+against Python; this does NOT yet establish that Pine wrongly rejected them.
+
+**Research question 2 — entry window/retest:** six FVG invalidations,
+six hold observations outside entry window, and two timeouts before FVG hold.
+Separate actual failure to retest from valid-but-outside-entry-window
+retests. The screenshot cannot establish trade-level chronology.
+
+**Locked behavior:** No entry filter, threshold, expiration, stop, or
+target changes based on these counts. Next validate timestamp-aligned
+Pine and Python MSS/FVG event flags using identical MNQ one-minute source
+bars, before coding any rule-change variant.
+
 ## Acceptance criteria before implementing V3
 
 - [ ] New diagnostic .pine compiles and runs in TradingView on MNQ 1m.
