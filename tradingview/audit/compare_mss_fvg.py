@@ -110,6 +110,11 @@ def prepare_bars(source: pd.DataFrame, *, chart: bool) -> pd.DataFrame:
         examples = result.loc[result.timestamp.duplicated(), "timestamp"].head(3).tolist()
         raise AuditInputError(f"Duplicate 1-minute bar-open timestamps: {examples}")
     result = result.sort_values("timestamp").reset_index(drop=True)
+    step_seconds = result.timestamp.diff().dt.total_seconds().dropna()
+    # Require actual 1-minute source bars, not merely an arbitrary timeframe
+    # labelled MNQ. Gaps for exchange breaks/weekends are allowed.
+    if len(step_seconds) > 0 and (step_seconds == 60).mean() < 0.5:
+        raise AuditInputError("Expected 1-minute chart data: fewer than half the adjacent bars are 60 seconds apart")
     if (result["high"] < result["low"]).any():
         raise AuditInputError("OHLC contains high < low")
     if (result["high"] < result[["open", "close"]].max(axis=1)).any():
