@@ -7,9 +7,11 @@ Both Pine trading **strategy files** (breakout V1 and reversal V2) now require `
 
 **Breakout V1:** [nq_breakout_retest_v1.pine](nq_breakout_retest_v1.pine) — initial baseline, TradingView loads and produced 14 simulated trades in a user-shared Sep–Oct 2026 report (profit factor 0.792; insufficient validation and zero default commissions).
 
-**Sweep/Reversal V2:** [nq_sweep_reversal_v2_research.pine](nq_sweep_reversal_v2_research.pine) — ordered sweep/displacement/MSS/FVG/hold research candidate. TradingView compile and backtest pending; see [reversal_v2_protocol.md](../backtests/reversal_v2_protocol.md). This is separate rather than a replacement of V1.
+**Sweep/Reversal V2:** [nq_sweep_reversal_v2_research.pine](nq_sweep_reversal_v2_research.pine) — ordered sweep/displacement/MSS/FVG/hold research candidate. Compiled by the user in TradingView; 2025-01-01–2025-06-30 Deep Backtesting recorded 12 trades and -$4 before fees, then -$16 with $0.50 per MNQ contract side and High bar detail. Compare detailed trade ledgers before assuming unchanged fills; see [2025H1 baseline](../backtests/mnq_reversal_v2_2025H1_baseline_results.md). This is not a statistically supported edge or Python parity.
+**V2 diagnostics:** [nq_sweep_reversal_v2_diagnostics.pine](nq_sweep_reversal_v2_diagnostics.pine) — separate, research-only script with sweep/displacement/MSS proxy/FVG/entry stage markers and timeout, invalidation, window/position-block reasons. **Trading rules unchanged; Pine compilation and matching Deep Backtest ledgers still need verification.** See [loading and validation checklist](../backtests/reversal_v2_diagnostics_protocol.md).
+
 **V1 protocol:** [Deep Backtesting / acceptance](../backtests/strategy_v1_protocol.md)
-**Status:** Breakout V1 was loaded into TradingView and generated the initial 14-trade sample. Reversal V2 source is committed but not yet compiled in TradingView. Python parity and statistically meaningful validation are pending for both. No live orders or broker webhooks.
+**Status:** Both original strategy research baselines have been loaded by the user in TradingView. The V2 diagnostic clone is newly committed but **not yet confirmed to compile/run in Pine Editor**. Python parity and statistically meaningful validation are pending for both. No live orders or broker webhooks.
 
 ## Current deliverable: breakout/retest baseline only
 - Pine v6 strategy() (NOT an indicator) submits *simulated* market orders after an independent confirmed-breakout and later confirmed retest.
