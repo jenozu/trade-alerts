@@ -324,7 +324,8 @@ def select_form(page, job):
     return download
 
 
-def download_jobs(root: Path, *, mode: str, headless: bool = False, pause_seconds: float = 3):
+def download_jobs(root: Path, *, mode: str, headless: bool = False,
+                  inspect_on_error: bool = False, pause_seconds: float = 3):
     from playwright.sync_api import sync_playwright
     jobs = pending(root)
     if not jobs:
@@ -357,8 +358,11 @@ def download_jobs(root: Path, *, mode: str, headless: bool = False, pause_second
                 with page.expect_download(timeout=60000) as transfer:
                     button.click()
                 download = transfer.value
-                if download.failure():
-                    raise AcquisitionError('Browser download failed')
+                failure = download.failure()
+                if failure:
+                    raise AcquisitionError(
+                        f'Browser download failed (Playwright: {failure!r}; '
+                        f'filename: {download.suggested_filename!r}); no CSV saved')
                 suggested = download.suggested_filename
                 if job['contract'].lower() not in suggested.lower() or not suggested.lower().endswith('.csv'):
                     raise AcquisitionError(f'Cannot independently verify symbol in browser filename: {suggested!r}')
@@ -378,6 +382,15 @@ def download_jobs(root: Path, *, mode: str, headless: bool = False, pause_second
                     print('First live file saved; review progress before running resume.')
                     break
                 time.sleep(pause_seconds)
+        except Exception:
+            if inspect_on_error and not headless:
+                print('Download failed; Chromium is still open for inspection. '
+                      'Check any Barchart error messages and browser Downloads.')
+                try:
+                    input('Press Enter to close Chromium after inspecting the page: ')
+                except EOFError:
+                    pass
+            raise
         finally:
             ctx.close()
 
@@ -388,9 +401,13 @@ def main(argv=None):
     parser.add_argument('--root', type=Path, default=Path.home() / 'Documents' / 'barchart-mnq-repairs')
     parser.add_argument('--headless', action='store_true',
                         help='Run once/resume without opening a browser window (requires saved login)')
+    parser.add_argument('--inspect-on-error', action='store_true',
+                        help='Keep the visible browser open after an unsuccessful once attempt')
     args = parser.parse_args(argv)
     if args.headless and args.mode not in ('once', 'resume'):
         parser.error('--headless is only supported with once or resume; use visible probe for login')
+    if args.inspect_on_error and (args.mode != 'once' or args.headless):
+        parser.error('--inspect-on-error requires visible once mode (without --headless)')
     try:
         if args.mode == 'plan':
             create_plan(args.root)
@@ -398,7 +415,8 @@ def main(argv=None):
             remaining = pending(args.root)
             print(f'Acquired: {len(request_jobs()) - len(remaining)}; pending: {len(remaining)}; not accepted')
         else:
-            download_jobs(args.root, mode=args.mode, headless=args.headless)
+            download_jobs(args.root, mode=args.mode, headless=args.headless,
+                          inspect_on_error=args.inspect_on_error)
     except (AcquisitionError, FileNotFoundError, PermissionError) as e:
         print('STOP:', e, file=sys.stderr)
         return 1
