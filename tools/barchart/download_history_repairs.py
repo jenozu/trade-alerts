@@ -250,6 +250,31 @@ def inspect_controls(page):
         if el.evaluate('(e) => e.tagName.toLowerCase()') == 'select':
             record['choices'] = el.locator('option').all_text_contents()[:25]
         print('CONTROL', json.dumps(record))
+    for el in page.locator('a, button').filter(has_text=re.compile(r'^\s*download\s*
+
+def configure_intraday_minutes(page):
+    """Use the controls observed on the live Premier download page.
+
+    The minute aggregation is a numeric input which can appear *after* the
+    frequency is switched to Intraday.  Never select Intraday Nearby.
+    """
+    freq = _only(page.locator('select[aria-label="Select frequency"]:visible'),
+                 'Barchart frequency selector')
+    options = freq.locator('option').all()
+    choices = [o.get_attribute('value') for o in options
+               if o.inner_text().strip().lower() == 'intraday']
+    if len(choices) != 1 or choices[0] is None:
+        raise AcquisitionError('Exact Intraday (not Nearby) option missing/ambiguous')
+    freq.select_option(value=choices[0])
+
+    interval = _only(page.locator(
+        'input[name="aggregation"][type="number"][aria-label="Enter intraday minutes"]:visible'),
+        'Barchart numeric intraday-minute input')
+    interval.fill('1')
+    interval.press('Tab')
+    if (freq.locator('option:checked').inner_text().strip().lower() != 'intraday' or
+            interval.input_value().strip() != '1'):
+        raise AcquisitionError('Intraday/1-minute numeric readback failed')
 
 
 def select_form(page, job):
@@ -266,34 +291,163 @@ def select_form(page, job):
     # An expired individual contract must never silently turn into Nearby/continuous data.
     for box in page.locator('input[type=checkbox]:visible').all():
         nearby_label = (box.get_attribute('aria-label') or '') + ' ' + (box.get_attribute('name') or '')
-        parent_text = box.evaluate('(e) => e.parentElement?.innerText || ')
+        parent_text = box.evaluate("(e) => e.parentElement?.innerText || ''")
         if re.search(r'nearby|continuous|back.adjust', nearby_label + ' ' + parent_text, re.I) and box.is_checked():
             raise AcquisitionError('Nearby/continuous/back-adjust option selected: refusing individual-contract claim')
-    selects = page.locator('select:visible')
-    interval_options = []
-    frequency_options = []
-    for el in selects.all():
-        options = [x.strip().lower() for x in el.locator('option').all_text_contents()]
-        if any(re.fullmatch(r'1\s*(min(?:ute)?s?)?', o) for o in options) and any('5' in o for o in options):
-            interval_options.append(el)
-        if any('intraday' in o for o in options) and any('daily' in o for o in options):
-            frequency_options.append(el)
-    if len(interval_options) != 1 or len(frequency_options) != 1:
-        raise AcquisitionError('Native interval/frequency selectors not uniquely identifiable; run probe')
-    freq, interval = frequency_options[0], interval_options[0]
-    opts = freq.locator('option').all()
-    matches = [o.get_attribute('value') for o in opts if o.inner_text().strip().lower() == 'intraday']
-    if len(matches) != 1:
-        raise AcquisitionError('Intraday choice ambiguous')
-    freq.select_option(value=matches[0])
-    opts = interval.locator('option').all()
-    matches = [o.get_attribute('value') for o in opts if re.fullmatch(r'1\s*(min(?:ute)?s?)?', o.inner_text().strip().lower())]
-    if len(matches) != 1:
-        raise AcquisitionError('One-minute choice ambiguous')
-    interval.select_option(value=matches[0])
-    if not ('intraday' in freq.locator('option:checked').inner_text().lower() and
-            re.fullmatch(r'1\s*(min(?:ute)?s?)?', interval.locator('option:checked').inner_text().strip().lower())):
-        raise AcquisitionError('Frequency/interval readback failed')
+    configure_intraday_minutes(page)
+    # Date selectors intentionally require explicit field semantics.
+    start = _only(page.locator('input[placeholder*="Start" i]:visible, input[aria-label*="Start Date" i]:visible'), 'start date')
+    end = _only(page.locator('input[placeholder*="End" i]:visible, input[aria-label*="End Date" i]:visible'), 'end date')
+    if start.evaluate('(e)=>e===document.activeElement') or end.evaluate('(e)=>e===document.activeElement'):
+        raise AcquisitionError('Unexpected active date control')
+    for field, value in ((start, job['start_date']), (end, job['end_date'])):
+        field.fill(value)
+        field.press('Tab')
+    def parse_readback(value):
+        v = value.strip()
+        for fmt in ('%Y-%m-%d', '%m/%d/%Y', '%Y/%m/%d'):
+            try:
+                return datetime.strptime(v, fmt).date().isoformat()
+            except ValueError:
+                pass
+        raise AcquisitionError(f'Unrecognized date readback: {v!r}')
+    if parse_readback(start.input_value()) != job['start_date'] or parse_readback(end.input_value()) != job['end_date']:
+        raise AcquisitionError('Date readback mismatch after fill')
+    buttons = page.locator('a.download-btn:visible').filter(has_text=re.compile(r'^\s*download\s*$', re.I))
+    download = _only(buttons, 'exact download control')
+    print('VERIFIED', job['contract'], job['start_date'], job['end_date'], 'Intraday, 1 minute, Chicago dates')
+    return download
+
+
+def download_jobs(root: Path, *, mode: str, pause_seconds: float = 3):
+    from playwright.sync_api import sync_playwright
+    jobs = pending(root)
+    if not jobs:
+        print('All requests downloaded and reverified (data acceptance still pending)')
+        return
+    with sync_playwright() as p:
+        profile = root / 'browser_profile'
+        ctx = p.chromium.launch_persistent_context(str(profile), headless=False, accept_downloads=True)
+        try:
+            page = ctx.pages[0] if ctx.pages else ctx.new_page()
+            for job in (jobs[:1] if mode in ('once', 'probe') else jobs):
+                url = f'https://www.barchart.com/futures/quotes/{job["contract"]}/historical-download'
+                page.goto(url, wait_until='domcontentloaded', timeout=60000)
+                page.wait_for_timeout(2000)
+                if mode == 'probe':
+                    input('Log into Barchart manually in the open browser, then press Enter here to inspect the page: ')
+                    inspect_controls(page)
+                    print('Probe is read-only; no download was attempted. Login manually and rerun probe if needed.')
+                    break
+                if re.search(r'login|sign.in|captcha|challenge', page.url, re.I):
+                    raise AcquisitionError('Manual login/challenge required; stop and rerun after login')
+                button = select_form(page, job)
+                # Reject any preexisting or orphan download before clicking.
+                target = root / 'original_csv' / job['filename']
+                if target.exists():
+                    raise AcquisitionError('Destination already exists without verified manifest entry')
+                staging = root / 'original_csv' / (job['filename'] + '.partial')
+                if staging.exists():
+                    raise AcquisitionError('Leftover partial file; stop for manual inspection')
+                with page.expect_download(timeout=60000) as transfer:
+                    button.click()
+                download = transfer.value
+                if download.failure():
+                    raise AcquisitionError('Browser download failed')
+                suggested = download.suggested_filename
+                if job['contract'].lower() not in suggested.lower() or not suggested.lower().endswith('.csv'):
+                    raise AcquisitionError(f'Cannot independently verify symbol in browser filename: {suggested!r}')
+                staging.parent.mkdir(parents=True, exist_ok=True)
+                download.save_as(str(staging))
+                try:
+                    data = staging.read_bytes()
+                    validation = validate_csv(data, job)
+                    write_new(target, data)
+                    if sha(target.read_bytes()) != validation['sha256']:
+                        raise AcquisitionError('Post-write hash verification failed')
+                    append_progress(root, job, validation, page.url, suggested)
+                    print('ACQUIRED (UNACCEPTED)', target, validation)
+                finally:
+                    staging.unlink(missing_ok=True)
+                if mode == 'once':
+                    print('First live file saved; review progress before running resume.')
+                    break
+                time.sleep(pause_seconds)
+        finally:
+            ctx.close()
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('mode', choices=('plan', 'probe', 'once', 'resume', 'status'))
+    parser.add_argument('--root', type=Path, default=Path.home() / 'Documents' / 'barchart-mnq-repairs')
+    args = parser.parse_args(argv)
+    try:
+        if args.mode == 'plan':
+            create_plan(args.root)
+        elif args.mode == 'status':
+            remaining = pending(args.root)
+            print(f'Acquired: {len(request_jobs()) - len(remaining)}; pending: {len(remaining)}; not accepted')
+        else:
+            download_jobs(args.root, mode=args.mode)
+    except (AcquisitionError, FileNotFoundError, PermissionError) as e:
+        print('STOP:', e, file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())
+, re.I)).all():
+        if el.is_visible():
+            print('ACTION', json.dumps({'tag': el.evaluate('(e) => e.tagName.toLowerCase()'),
+                                        'class': el.get_attribute('class'),
+                                        'text': el.inner_text().strip()}))
+
+
+def configure_intraday_minutes(page):
+    """Use the controls observed on the live Premier download page.
+
+    The minute aggregation is a numeric input which can appear *after* the
+    frequency is switched to Intraday.  Never select Intraday Nearby.
+    """
+    freq = _only(page.locator('select[aria-label="Select frequency"]:visible'),
+                 'Barchart frequency selector')
+    options = freq.locator('option').all()
+    choices = [o.get_attribute('value') for o in options
+               if o.inner_text().strip().lower() == 'intraday']
+    if len(choices) != 1 or choices[0] is None:
+        raise AcquisitionError('Exact Intraday (not Nearby) option missing/ambiguous')
+    freq.select_option(value=choices[0])
+
+    interval = _only(page.locator(
+        'input[name="aggregation"][type="number"][aria-label="Enter intraday minutes"]:visible'),
+        'Barchart numeric intraday-minute input')
+    interval.fill('1')
+    interval.press('Tab')
+    if (freq.locator('option:checked').inner_text().strip().lower() != 'intraday' or
+            interval.input_value().strip() != '1'):
+        raise AcquisitionError('Intraday/1-minute numeric readback failed')
+
+
+def select_form(page, job):
+    """Verify known native controls; never guess among multiple date/interval fields.
+
+    Barchart may change the UI. On change, STOP and use `probe`; do not guess.
+    """
+    if '/futures/quotes/' + job['contract'] + '/historical-download' not in page.url:
+        raise AcquisitionError('Wrong contract URL or login redirected')
+    if re.search(r'login|sign.in|captcha|challenge|access.denied', page.url, re.I):
+        raise AcquisitionError('Login/challenge detected')
+    if not re.search(r'\b' + re.escape(job['contract']) + r'\b', page.locator('body').inner_text(timeout=10000)):
+        raise AcquisitionError('Visible page lacks exact contract symbol')
+    # An expired individual contract must never silently turn into Nearby/continuous data.
+    for box in page.locator('input[type=checkbox]:visible').all():
+        nearby_label = (box.get_attribute('aria-label') or '') + ' ' + (box.get_attribute('name') or '')
+        parent_text = box.evaluate("(e) => e.parentElement?.innerText || ''")
+        if re.search(r'nearby|continuous|back.adjust', nearby_label + ' ' + parent_text, re.I) and box.is_checked():
+            raise AcquisitionError('Nearby/continuous/back-adjust option selected: refusing individual-contract claim')
+    configure_intraday_minutes(page)
     # Date selectors intentionally require explicit field semantics.
     start = _only(page.locator('input[placeholder*="Start" i]:visible, input[aria-label*="Start Date" i]:visible'), 'start date')
     end = _only(page.locator('input[placeholder*="End" i]:visible, input[aria-label*="End Date" i]:visible'), 'end date')
