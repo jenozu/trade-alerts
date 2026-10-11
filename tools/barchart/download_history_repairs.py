@@ -325,17 +325,33 @@ def select_form(page, job):
 
 
 def download_jobs(root: Path, *, mode: str, headless: bool = False,
-                  inspect_on_error: bool = False, pause_seconds: float = 3):
+                  inspect_on_error: bool = False, browser_channel: str = 'chromium',
+                  pause_seconds: float = 3):
     from playwright.sync_api import sync_playwright
     jobs = pending(root)
     if not jobs:
         print('All requests downloaded and reverified (data acceptance still pending)')
         return
+    if browser_channel not in ('chromium', 'chrome', 'msedge'):
+        raise AcquisitionError('Unsupported browser channel')
     with sync_playwright() as p:
-        profile = root / 'browser_profile'
-        ctx = p.chromium.launch_persistent_context(str(profile), headless=headless, accept_downloads=True)
+        # Distinct browser profiles avoid version migrations and profile locking
+        # when switching from bundled Chromium to system Chrome/Edge.
+        suffix = '' if browser_channel == 'chromium' else '_' + browser_channel
+        profile = root / ('browser_profile' + suffix)
+        launch_options = {'headless': headless, 'accept_downloads': True}
+        if browser_channel != 'chromium':
+            launch_options['channel'] = browser_channel
+        ctx = p.chromium.launch_persistent_context(str(profile), **launch_options)
+        observed = []
         try:
+            ctx.on('close', lambda *_: observed.append('browser_context_closed'))
             page = ctx.pages[0] if ctx.pages else ctx.new_page()
+            page.on('close', lambda *_: observed.append('page_closed'))
+            page.on('crash', lambda *_: observed.append('page_crashed'))
+            page.on('download', lambda *_: observed.append('download_event'))
+            print('BROWSER', browser_channel, 'headless' if headless else 'visible',
+                  'profile:', profile)
             for job in (jobs[:1] if mode in ('once', 'probe') else jobs):
                 url = f'https://www.barchart.com/futures/quotes/{job["contract"]}/historical-download'
                 page.goto(url, wait_until='domcontentloaded', timeout=60000)
@@ -382,17 +398,28 @@ def download_jobs(root: Path, *, mode: str, headless: bool = False,
                     print('First live file saved; review progress before running resume.')
                     break
                 time.sleep(pause_seconds)
-        except Exception:
+        except Exception as exc:
+            print('BROWSER_DIAGNOSTIC', json.dumps({'events': observed,
+                  'error_type': type(exc).__name__, 'browser_channel': browser_channel}),
+                  file=sys.stderr)
             if inspect_on_error and not headless:
-                print('Download failed; Chromium is still open for inspection. '
+                print('Download failed; browser may still be open for inspection. '
                       'Check any Barchart error messages and browser Downloads.')
                 try:
-                    input('Press Enter to close Chromium after inspecting the page: ')
+                    input('Press Enter when finished inspecting the browser: ')
                 except EOFError:
                     pass
             raise
         finally:
-            ctx.close()
+            preserving_error = sys.exc_info()[0] is not None
+            try:
+                ctx.close()
+            except Exception as close_error:
+                if preserving_error and type(close_error).__name__ == 'TargetClosedError':
+                    print('BROWSER_CLOSE_NOTE: context was already closed; preserving original error',
+                          file=sys.stderr)
+                else:
+                    raise
 
 
 def main(argv=None):
@@ -401,6 +428,8 @@ def main(argv=None):
     parser.add_argument('--root', type=Path, default=Path.home() / 'Documents' / 'barchart-mnq-repairs')
     parser.add_argument('--headless', action='store_true',
                         help='Run once/resume without opening a browser window (requires saved login)')
+    parser.add_argument('--channel', choices=('chromium', 'chrome', 'msedge'),
+                        default='chromium', help='Browser engine channel; Chrome/Edge have separate login profiles')
     parser.add_argument('--inspect-on-error', action='store_true',
                         help='Keep the visible browser open after an unsuccessful once attempt')
     args = parser.parse_args(argv)
@@ -416,7 +445,8 @@ def main(argv=None):
             print(f'Acquired: {len(request_jobs()) - len(remaining)}; pending: {len(remaining)}; not accepted')
         else:
             download_jobs(args.root, mode=args.mode, headless=args.headless,
-                          inspect_on_error=args.inspect_on_error)
+                          inspect_on_error=args.inspect_on_error,
+                          browser_channel=args.channel)
     except (AcquisitionError, FileNotFoundError, PermissionError) as e:
         print('STOP:', e, file=sys.stderr)
         return 1
