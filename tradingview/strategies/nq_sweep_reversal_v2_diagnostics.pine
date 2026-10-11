@@ -4,7 +4,7 @@
 // Short: buy-side sweep -> bearish displacement -> bearish MSS -> FVG -> later hold.
 // All setup state advances on completed 1-minute candles; strategy market fill next open.
 // No webhooks or live execution. Review docs/backtests before relying on any result.
-strategy("MNQ Strategy V2 | Sweep Reversal (Diagnostics)", shorttitle="MNQ REV v2 DIAG", overlay=true, pyramiding=0, initial_capital=50000, currency=currency.USD, default_qty_type=strategy.fixed, default_qty_value=1, margin_long=5, margin_short=5, commission_type=strategy.commission.cash_per_contract, commission_value=0.0, slippage=1, process_orders_on_close=false, calc_on_every_tick=false, calc_on_order_fills=false)
+strategy("MNQ Strategy V2 | Sweep Reversal (Diagnostics)", shorttitle="MNQ V2 DX", overlay=true, pyramiding=0, initial_capital=50000, currency=currency.USD, default_qty_type=strategy.fixed, default_qty_value=1, margin_long=5, margin_short=5, commission_type=strategy.commission.cash_per_contract, commission_value=0.0, slippage=1, process_orders_on_close=false, calc_on_every_tick=false, calc_on_order_fills=false)
 
 const string TZ = "America/New_York"
 // SAFETY: TradingView strategy() runs on the ACTIVE CHART instrument.
