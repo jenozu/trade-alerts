@@ -161,7 +161,10 @@ def audit(
     if warmup_bars < 0 or min_shared_bars <= 0 or max_samples < 0:
         raise AuditInputError("warmup>=0, min_shared_bars>=1 and max_samples>=0 required")
     pine_bars = prepare_bars(chart_source, chart=True)
-    pine_events = pd.DataFrame({"timestamp": pine_bars.timestamp})
+    raw_time_col = next((c for c in ("timestamp", "time", "Time", "datetime") if c in chart_source.columns), None)
+    if raw_time_col is None:
+        raise AuditInputError("Chart export has no bar-open timestamp column")
+    pine_events = pd.DataFrame({"timestamp": timestamps(chart_source[raw_time_col], raw_time_col)})
     for name, plot_title in PINE_FIELDS.items():
         pine_events[name] = bool_series(chart_source[column(chart_source, plot_title)], plot_title)
     pine_events = pine_events.sort_values("timestamp").reset_index(drop=True)
