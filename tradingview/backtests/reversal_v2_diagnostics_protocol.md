@@ -75,6 +75,35 @@ new trade list. Then inspect the **diagnostic chart table** and stage markers
 on chart-loaded historical candles; do not mistake the Deep Backtesting order
 CSV for diagnostic-stage export. Avoid modifying entry rules yet.
 
+## Commission-adjusted ORIGINAL V2 export — 2026-10-11
+
+The uploaded `MNQ_REV_v2_CME_MINI_MNQ1!_2026-10-11.csv` is named
+**MNQ REV v2** (original strategy), **not MNQ V2 DX**. Its SHA-256 is
+`696e7c3d866d42510a9aca891d1fcd7d5fedebf6d588ca85530fd8f1c0de7cdd`.
+Direct 24-row comparison against the fee-free original CSV confirms:
+
+- All **12 trades** retain identical trade IDs, side, entry/exit timestamps,
+  entry/exit prices, position size, and duration.
+- Results: **4 wins**, **8 losses**, 33.33% win rate.
+- Original gross trading P&L **-$4** (4 x +$100; 8 x -$50.50).
+- The updated CSV shows `Commission USD = 1` per completed trade
+  (duplicated as a trade-level value on its corresponding entry and exit rows).
+  Sum across **exit rows only** = **$12 total**; do not double-count 24 rows.
+- Net after fees = **-$16** (4 x +$99; 8 x -$51.50).
+- The exact P&L difference is entirely explained by commissions; selected
+  field columns for favorable/adverse excursion changed by the fee allocation.
+- This report cannot independently establish High bar detail/Bar Magnifier
+  was enabled; confirm through TradingView UI.
+- **Commission-adjusted diagnostic-strategy parity is still open** because
+  this filename names the original script. The earlier `MNQ_V2_DX...`
+  export was fee-free and matched original fee-free 24-row CSV.
+
+**Next acceptance input:** a fresh `MNQ_V2_DX...` trade CSV *after*
+setting USD $0.50 per-side commission under the **diagnostic** script's
+Properties, plus the diagnostic chart's lower-right event table.
+The comparison must use identical test range, one MNQ contract, and
+bar-detail settings. Do not change the strategy rules.
+
 ## How to read the chart
 
 In **Inputs → Diagnostics**:
