@@ -48,6 +48,33 @@ or signal correctness.
    new study will exactly reproduce all executions. Inspect any divergence
    before changing a setting or the entry algorithm.
 
+## First external regression check — 2026-10-11
+
+The user uploaded the original V2 `MNQ_REV_v2_CME_MINI_MNQ1!_2026-10-10.csv`
+and the new diagnostic `MNQ_V2_DX_CME_MINI_MNQ1!_2026-10-11.csv`.
+
+Comparing the original CSV bytes and all 24 report rows shows **byte-for-byte
+identical exports** (both SHA-256:
+`64b855a9cae6343fc2022f25e8de4495a5297e8262491ac85e15780b385d2185`).
+All 12 paired trades match in number, side, entry/exit time, entry/exit price,
+durations, excursion fields, outcome, and cumulative P&L. This establishes
+ledger-level regression parity **for the specific exported settings**, not full
+Python signal parity.
+
+**Important incomplete acceptance gate:** Both exports record `Commission USD=0`
+on all rows and final cumulative profit **-$4**, despite the user's separate
+report of **-$16** after commission settings. Thus the *new diagnostic strategy*
+was not demonstrated to have $0.50 per-side commissions applied in this export.
+No Bar Magnifier/High setting can be proven from trade-list CSV alone.
+The trade-list CSV contains **no stage, timeout or rejection telemetry**.
+
+Next actions: on the **diagnostic script** (not just original V2), set $0.50 USD
+cash-per-contract commission per side and High bar detail, rerun identical Deep
+Backtesting window, check net -$16 *if fills remain unchanged*, and export a
+new trade list. Then inspect the **diagnostic chart table** and stage markers
+on chart-loaded historical candles; do not mistake the Deep Backtesting order
+CSV for diagnostic-stage export. Avoid modifying entry rules yet.
+
 ## How to read the chart
 
 In **Inputs → Diagnostics**:
