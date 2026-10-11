@@ -70,6 +70,51 @@ range, one minute, saved row count, first/last CT timestamps and SHA-256).
 **Headless download has not yet been tested against a live Premier session**:
 this first request is an experiment, not a guarantee it will succeed.
 
+## Browser closes during download transfer
+
+A `VERIFIED` line and a proposed CSV filename mean the download *started*;
+they do **not** prove that the CSV completed. An error such as `Target page,
+context or browser has been closed` may indicate page closure, browser crash,
+or an interrupted transfer. The exact cause is not known from this message
+alone, and the downloader must not count it as acquired.
+
+As an isolation test, use your **installed Google Chrome** instead of the
+bundled Playwright Chromium browser. Playwright officially supports Chrome
+using `channel="chrome"`. The Chrome profile is intentionally separate
+(`browser_profile_chrome`), so you may need to log in once:
+
+```powershell
+& $py $tool probe --channel chrome
+# In the launched Chrome window, sign in to Barchart Premier if needed.
+# Open the NMH23 historical-download page and press Enter in PowerShell.
+& $py $tool once --channel chrome --inspect-on-error
+& $py $tool status
+```
+
+The downloader's `BROWSER_DIAGNOSTIC` output records whether Playwright
+observed a page crash, page closure, context closure, or a download event.
+It does not save cookies or raw HTML. If the context has already closed,
+cleanup will preserve the first error instead of replacing it with a second
+exception from `ctx.close()`.
+
+If both Chromium and Chrome fail, compare by manually using Barchart's
+normal download form *inside the visible probe browser*, without running
+`once`. Use the **same exact symbol** (`NMH23`), 1-minute interval and
+dates (2022-10-17 through 2022-10-20) as the first pending request. A
+manual successful download is diagnostic evidence only: it is **not** an
+accepted or manifest-tracked acquisition and should not be copied to the
+repair originals folder. Contact Barchart support if normal browser
+downloads fail for the same historic window.
+
+For low-level Chromium process-exit information on Windows, you can
+temporarily set `$env:DEBUG='pw:browser'` before `once` and then
+`Remove-Item Env:DEBUG` afterward. Do not post unredacted debug logs
+or profile/session contents. Start with the concise `BROWSER_DIAGNOSTIC`.
+
+Once Chrome works in visible mode, `once --channel chrome --headless`
+can test headless **separately**. A visible success does not guarantee
+headless access, and login/challenge handling remains manual.
+
 If `once` reports `Browser download failed` immediately after a VERIFIED line,
 the page controls worked but the browser reported an unsuccessful transfer. Stop
 before `resume` and use the visible diagnostic mode:
