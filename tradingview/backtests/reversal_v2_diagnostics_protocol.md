@@ -61,48 +61,33 @@ durations, excursion fields, outcome, and cumulative P&L. This establishes
 ledger-level regression parity **for the specific exported settings**, not full
 Python signal parity.
 
-**Important incomplete acceptance gate:** Both exports record `Commission USD=0`
-on all rows and final cumulative profit **-$4**, despite the user's separate
-report of **-$16** after commission settings. Thus the *new diagnostic strategy*
-was not demonstrated to have $0.50 per-side commissions applied in this export.
-No Bar Magnifier/High setting can be proven from trade-list CSV alone.
-The trade-list CSV contains **no stage, timeout or rejection telemetry**.
+**Historical note:** The initial diagnostic export and original baseline
+were fee-free and byte-for-byte identical. A later uploaded **commission-adjusted
+diagnostic export** was confirmed by the user (regardless of its CSV filename)
+and verified trade-by-trade. See the section below. The CSV does not include
+stage flags and cannot itself verify Bar Magnifier settings.
 
-Next actions: on the **diagnostic script** (not just original V2), set $0.50 USD
-cash-per-contract commission per side and High bar detail, rerun identical Deep
-Backtesting window, check net -$16 *if fills remain unchanged*, and export a
-new trade list. Then inspect the **diagnostic chart table** and stage markers
-on chart-loaded historical candles; do not mistake the Deep Backtesting order
-CSV for diagnostic-stage export. Avoid modifying entry rules yet.
+## Commission-adjusted diagnostic V2 export — 2026-10-11
 
-## Commission-adjusted ORIGINAL V2 export — 2026-10-11
+The user explicitly confirmed that the updated CSV `MNQ_REV_v2_CME_MINI_MNQ1!_2026-10-11.csv`
+came from **the correct diagnostic Pine script** despite its export filename.
+TradingView-generated filenames are not reliable script identifiers, so do
+not infer strategy identity from exported filenames in subsequent comparisons.
 
-The uploaded `MNQ_REV_v2_CME_MINI_MNQ1!_2026-10-11.csv` is named
-**MNQ REV v2** (original strategy), **not MNQ V2 DX**. Its SHA-256 is
-`696e7c3d866d42510a9aca891d1fcd7d5fedebf6d588ca85530fd8f1c0de7cdd`.
-Direct 24-row comparison against the fee-free original CSV confirms:
+A prior comparison of the 24-row updated CSV with the fee-free baseline
+found that all **12 simulated trades** matched in entry/exit timestamp,
+price, direction, quantity, and outcome. There were **4 winners / 8 losers**,
+gross trading P&L **-$4**, with **$12 total** ($0.50 per side on each of 12
+round trips) and resulting net P&L **-$16**.
 
-- All **12 trades** retain identical trade IDs, side, entry/exit timestamps,
-  entry/exit prices, position size, and duration.
-- Results: **4 wins**, **8 losses**, 33.33% win rate.
-- Original gross trading P&L **-$4** (4 x +$100; 8 x -$50.50).
-- The updated CSV shows `Commission USD = 1` per completed trade
-  (duplicated as a trade-level value on its corresponding entry and exit rows).
-  Sum across **exit rows only** = **$12 total**; do not double-count 24 rows.
-- Net after fees = **-$16** (4 x +$99; 8 x -$51.50).
-- The exact P&L difference is entirely explained by commissions; selected
-  field columns for favorable/adverse excursion changed by the fee allocation.
-- This report cannot independently establish High bar detail/Bar Magnifier
-  was enabled; confirm through TradingView UI.
-- **Commission-adjusted diagnostic-strategy parity is still open** because
-  this filename names the original script. The earlier `MNQ_V2_DX...`
-  export was fee-free and matched original fee-free 24-row CSV.
+**Acceptance for trade-ledger parity:** satisfied for the uploaded historical
+CSV samples **based on the user's explicit script confirmation** plus row-level
+comparison. This does not establish Python/Pine stage-event parity, independently
+confirm High bar-detail settings, or prove Pine history across other windows.
 
-**Next acceptance input:** a fresh `MNQ_V2_DX...` trade CSV *after*
-setting USD $0.50 per-side commission under the **diagnostic** script's
-Properties, plus the diagnostic chart's lower-right event table.
-The comparison must use identical test range, one MNQ contract, and
-bar-detail settings. Do not change the strategy rules.
+**Next:** inspect diagnostic stage counts and blocked/expired setups from the
+chart table/Data Window. No additional CSV or commission reconfiguration is
+needed merely to resolve export naming.
 
 ## How to read the chart
 
