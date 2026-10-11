@@ -56,21 +56,41 @@ controls. If the site uses custom React/Angular controls or labels changed,
 selector update. Never use blind click coordinates, skip a captcha or supply
 login credentials to the script. The browser profile stays on your machine.
 
-After the form selectors are confirmed, run exactly one live job:
+After the form selectors are confirmed, run exactly one live job. To download
+without showing a Chromium window, add the optional `--headless` switch. It
+uses the same saved browser profile that you authenticated in visible `probe`:
 
 ```powershell
-& $py $tool once
+& $py $tool once --headless
 & $py $tool status
 ```
 
-Check its `progress.jsonl` record and the CSV (requested contract, range, one
-minute, saved row count, first/last CT timestamps and SHA-256). Then continue:
+Check the first `progress.jsonl` record and the CSV (requested contract,
+range, one minute, saved row count, first/last CT timestamps and SHA-256).
+**Headless download has not yet been tested against a live Premier session**:
+this first request is an experiment, not a guarantee it will succeed.
+
+If the site redirects to login, shows a challenge, blocks headless automation,
+or changes its controls, the downloader must stop. It does not bypass login or
+CAPTCHA. Close other browser instances using this automation profile and run
+`& $py $tool probe` for a visible login. If needed, run a visible first
+download with `& $py $tool once`.
+
+Only after reviewing the first successful file, continue:
 
 ```powershell
-& $py $tool resume
+& $py $tool resume --headless
 & $py $tool status
 & $py -m pytest -q tests\test_barchart_history_repairs.py
 ```
+
+Omit `--headless` to use the original visible workflow. The flag is allowed
+only for `once` and `resume`; `probe` stays visible for manual login.
+Do not start two downloaders against the same profile or work directory.
+
+**Headless means no browser window**, not a Windows background service. Leave
+the PowerShell process and computer running during the downloads. Barchart
+quota/rate limits and login expiration still apply.
 
 All data stays in `$HOME\Documents\barchart-mnq-repairs\` by default:
 `request_manifest.json` and its SHA-256 lock (immutable request plan),
