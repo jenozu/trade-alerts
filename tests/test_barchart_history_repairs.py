@@ -204,15 +204,17 @@ def test_barchart_numeric_aggregation_fail_closed():
 def test_headless_cli_modes_and_forwarding(monkeypatch, tmp_path):
     calls = []
     monkeypatch.setattr(repair, 'download_jobs',
-                        lambda root, *, mode, headless=False, inspect_on_error=False:
-                        calls.append((root, mode, headless, inspect_on_error)))
+                        lambda root, *, mode, headless=False, inspect_on_error=False, browser_channel='chromium':
+                        calls.append((root, mode, headless, inspect_on_error, browser_channel)))
     for mode, flag in [('once', True), ('resume', True), ('once', False),
                        ('resume', False), ('probe', False)]:
         args = [mode, '--root', str(tmp_path)] + (['--headless'] if flag else [])
         assert repair.main(args) == 0
-    assert calls == [(tmp_path, 'once', True, False), (tmp_path, 'resume', True, False),
-                     (tmp_path, 'once', False, False), (tmp_path, 'resume', False, False),
-                     (tmp_path, 'probe', False, False)]
+    assert calls == [(tmp_path, 'once', True, False, 'chromium'),
+                     (tmp_path, 'resume', True, False, 'chromium'),
+                     (tmp_path, 'once', False, False, 'chromium'),
+                     (tmp_path, 'resume', False, False, 'chromium'),
+                     (tmp_path, 'probe', False, False, 'chromium')]
 
 
 def test_headless_not_allowed_for_probe_or_plan(tmp_path):
@@ -230,11 +232,17 @@ def test_headless_launch_reuses_persistent_browser_profile(monkeypatch, tmp_path
     closed = []
 
     class FakePage:
+        def on(self, event, callback):
+            pass
+
         def goto(self, *_args, **_kwargs):
             raise repair.AcquisitionError('Synthetic stop before a real page loads')
 
     class FakeContext:
         pages = [FakePage()]
+
+        def on(self, event, callback):
+            pass
 
         def close(self):
             closed.append(True)
@@ -267,10 +275,10 @@ def test_headless_launch_reuses_persistent_browser_profile(monkeypatch, tmp_path
 def test_inspect_on_error_is_visible_once_only(monkeypatch, tmp_path):
     calls = []
     monkeypatch.setattr(repair, 'download_jobs',
-                        lambda root, *, mode, headless=False, inspect_on_error=False:
-                        calls.append((mode, headless, inspect_on_error)))
+                        lambda root, *, mode, headless=False, inspect_on_error=False, browser_channel='chromium':
+                        calls.append((mode, headless, inspect_on_error, browser_channel)))
     assert repair.main(['once', '--root', str(tmp_path), '--inspect-on-error']) == 0
-    assert calls == [('once', False, True)]
+    assert calls == [('once', False, True, 'chromium')]
     for args in (['resume', '--inspect-on-error'],
                  ['once', '--headless', '--inspect-on-error'],
                  ['probe', '--inspect-on-error'],
@@ -306,6 +314,9 @@ def test_browser_failure_reports_reason_and_waits_before_close(monkeypatch, tmp_
     class FakePage:
         url = 'https://www.barchart.com/futures/quotes/NMH23/historical-download'
 
+        def on(self, event, callback):
+            pass
+
         def goto(self, *_args, **_kwargs):
             pass
 
@@ -321,6 +332,9 @@ def test_browser_failure_reports_reason_and_waits_before_close(monkeypatch, tmp_
 
     class FakeContext:
         pages = [FakePage()]
+
+        def on(self, event, callback):
+            pass
 
         def close(self):
             evidence['closed'] += 1
@@ -357,3 +371,114 @@ def test_browser_failure_reports_reason_and_waits_before_close(monkeypatch, tmp_
         repair.download_jobs(tmp_path, mode='once', inspect_on_error=True)
     assert evidence == {'clicked': 1, 'closed': 1, 'ack': 1}
     assert not (tmp_path / 'original_csv').exists()
+
+
+def test_browser_channel_profile_isolation_and_launch(monkeypatch, tmp_path):
+    import sys
+    import types
+
+    launched = []
+    closed = []
+
+    class FakePage:
+        def on(self, event, callback):
+            pass
+
+        def goto(self, *_args, **_kwargs):
+            raise repair.AcquisitionError('Stop after launch')
+
+    class FakeContext:
+        pages = [FakePage()]
+
+        def on(self, event, callback):
+            pass
+
+        def close(self):
+            closed.append(True)
+
+    class FakeChromium:
+        def launch_persistent_context(self, profile, **options):
+            launched.append((profile, options))
+            return FakeContext()
+
+    class FakePlaywright:
+        chromium = FakeChromium()
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            pass
+
+    module = types.ModuleType('playwright.sync_api')
+    module.sync_playwright = FakePlaywright
+    monkeypatch.setitem(sys.modules, 'playwright.sync_api', module)
+    monkeypatch.setattr(repair, 'pending', lambda root: [repair.request_jobs()[0]])
+
+    for channel in ('chromium', 'chrome', 'msedge'):
+        with pytest.raises(repair.AcquisitionError, match='Stop after launch'):
+            repair.download_jobs(tmp_path, mode='once', browser_channel=channel)
+
+    assert launched == [
+        (str(tmp_path / 'browser_profile'), {'headless': False, 'accept_downloads': True}),
+        (str(tmp_path / 'browser_profile_chrome'),
+         {'headless': False, 'accept_downloads': True, 'channel': 'chrome'}),
+        (str(tmp_path / 'browser_profile_msedge'),
+         {'headless': False, 'accept_downloads': True, 'channel': 'msedge'}),
+    ]
+    assert len(closed) == 3
+
+
+def test_browser_channel_forwarded_from_cli(monkeypatch, tmp_path):
+    observed = []
+    monkeypatch.setattr(repair, 'download_jobs',
+                        lambda root, *, mode, headless, inspect_on_error, browser_channel:
+                        observed.append((mode, headless, browser_channel)))
+    assert repair.main(['probe', '--root', str(tmp_path), '--channel', 'chrome']) == 0
+    assert repair.main(['once', '--root', str(tmp_path), '--channel', 'msedge',
+                        '--headless']) == 0
+    assert observed == [('probe', False, 'chrome'), ('once', True, 'msedge')]
+
+
+def test_preexisting_browser_closure_does_not_hide_original_failure(monkeypatch, tmp_path):
+    import sys
+    import types
+
+    class TargetClosedError(Exception):
+        pass
+
+    class FakePage:
+        def on(self, event, callback):
+            pass
+
+        def goto(self, *_args, **_kwargs):
+            raise repair.AcquisitionError('Original navigation failure')
+
+    class FakeContext:
+        pages = [FakePage()]
+
+        def on(self, event, callback):
+            pass
+
+        def close(self):
+            raise TargetClosedError('Target page, context or browser has been closed')
+
+    class FakeChromium:
+        def launch_persistent_context(self, *_args, **_kwargs):
+            return FakeContext()
+
+    class FakePlaywright:
+        chromium = FakeChromium()
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            pass
+
+    module = types.ModuleType('playwright.sync_api')
+    module.sync_playwright = FakePlaywright
+    monkeypatch.setitem(sys.modules, 'playwright.sync_api', module)
+    monkeypatch.setattr(repair, 'pending', lambda root: [repair.request_jobs()[0]])
+    with pytest.raises(repair.AcquisitionError, match='Original navigation failure'):
+        repair.download_jobs(tmp_path, mode='once')
