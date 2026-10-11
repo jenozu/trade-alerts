@@ -70,6 +70,23 @@ range, one minute, saved row count, first/last CT timestamps and SHA-256).
 **Headless download has not yet been tested against a live Premier session**:
 this first request is an experiment, not a guarantee it will succeed.
 
+If `once` reports `Browser download failed` immediately after a VERIFIED line,
+the page controls worked but the browser reported an unsuccessful transfer. Stop
+before `resume` and use the visible diagnostic mode:
+
+```powershell
+& $py $tool once --inspect-on-error
+& $py $tool status
+```
+
+This prints Playwright's download failure reason and the suggested filename,
+**then pauses with Chromium open on failure**. Inspect Barchart's on-page
+message and Chrome Downloads (Ctrl+J); take a screenshot if appropriate,
+without including passwords, cookies, or private account information. Return
+to PowerShell and press Enter to close the browser. Only `once` in visible
+mode supports this diagnostic flag; no request is considered acquired on
+failure. No files are overwritten and no plan rebuild is needed.
+
 If the site redirects to login, shows a challenge, blocks headless automation,
 or changes its controls, the downloader must stop. It does not bypass login or
 CAPTCHA. Close other browser instances using this automation profile and run
