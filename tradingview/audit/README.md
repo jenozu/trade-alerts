@@ -24,6 +24,30 @@ candidates, object-based FVG retest/IFVG lifecycle, confluence or fills.
 Pine MSS is a proxy; an event mismatch is a research finding, not automatic
 proof of a coding error or a reason to relax trading rules.
 
+## Latest execution (2026-10-11)
+
+On the existing Hostinger VPS, the user ran the isolated auditor from
+`/docker/trade-alerts-tv-audit` using canonical Python `src/` imports
+and the September 29–October 9, 2026 TradingView one-minute chart CSV.
+
+- **11/11 targeted pytest tests passed** (2.11 seconds).
+- **11,538 shared one-minute bars** compared after 40-bar warmup.
+- Raw FVG creation **fully matched** on the compared bars:
+  1,168 bullish, 1,136 bearish, 0 disagreements.
+- Raw MSS event flags **differed**: 36 bullish and 30 bearish
+  disagreement bars. The source is a Pine first-cross proxy versus
+  Python deduplicated structural breaks; reason for **each** mismatch
+  has not been independently classified by the direct-run report.
+- Exit code **1** means valid `differences_found`, not failed pytest.
+- See [dated reproducible report](../backtests/mnq_20260929_morning_signal_audit.md)
+  for source coverage, first mismatch time and MVP limitations.
+
+**Raw-event parity milestone complete with MSS differences documented.**
+Do not repeat the same audit or mistake same-source TradingView OHLC
+checks for independent Barchart history validation. Full **ordered
+candidate/entry** parity remains separate and unproven; prioritize one
+MVP paper-trade decision rather than broad new test infrastructure.
+
 ## Export input once (not a trade list)
 
 1. Load **MNQ V2 Diagnostics** on TradingView's 1-minute MNQ chart.
@@ -91,10 +115,11 @@ or backtest result should be claimed until tests complete.
 
 ## Acceptance gates
 
-- [ ] Run the isolated regression suite.
-- [ ] Get at least one usable one-minute chart data export; confirm OHLC
-      and four raw indicator series, with ample historical warmup.
-- [ ] Compare with canonical Python on the exact same candles.
+- [x] Run the isolated regression suite: 11 passed on VPS.
+- [x] TradingView exported usable UTC OHLC and four raw indicator series;
+      11,578 rows, with a 40-bar warmup exclusion.
+- [x] Execute canonical Python modules against the chart OHLC:
+      full raw FVG match and 66 MSS event differences documented.
 - [ ] Classify MSS mismatches by pivot tie, active-level deduplication,
       and bullish/bearish trend state; classify FVG gaps by bounds.
 - [ ] If comparing to independent Barchart history, resolve roll/price
