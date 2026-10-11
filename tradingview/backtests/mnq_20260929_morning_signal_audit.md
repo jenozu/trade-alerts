@@ -66,6 +66,46 @@ column-name bug after pandas merge (`name` vs `name_python`), now patched.
 No actual Python-module-backed parity run has been completed yet; GitHub CI
 results have not been verified. This documentation is not a test pass.
 
+## Lean follow-up: are out-of-window MSS differences trade-relevant?
+
+On 2026-10-11, the user-provided **11,578-row** chart export was
+rechecked locally using the source-guided **Python-rule reconstruction**
+(the canonical GitHub modules were not imported or executed in this
+isolated runtime).
+
+After excluding the initial 40 warmup bars, MSS proxy vs Python-rule
+disagreements total **36 bullish and 30 bearish**. At these 66
+timestamp-specific bars:
+
+- **65** were on candles with the same-direction Pine reversal stage **0**
+  (no active candidate after processing the bar).
+- **One** bullish disagreement at **2026-10-05 05:47 ET** had long
+  reversal stage **1**, with `Bullish displacement candidate = 0`,
+  `Bullish MSS proxy = 0`, and no entry; it was still awaiting
+  displacement, not an eligible MSS-confirmation stage.
+- **Zero** disagreed on any stage-2 MSS confirmation in an active
+  same-direction setup; **zero** of the disagreement bars had a
+  simultaneous corresponding side liquidity sweep flag.
+- The early morning mismatches at 2026-10-01 09:14, 2026-10-05 09:06
+  and 2026-10-08 09:13 ET all showed **both reversal stages = 0**.
+- The confirmed September 29 09:30–09:37 candidate continued
+  sweep → displacement/MSS → linked FVG → retest/entry without
+  reconstructed raw-event disagreement.
+
+**Provisional MVP decision:** Do **not** rewrite MSS or loosen the
+entry rules based on these differences. They do not coincide with
+trade-ready V2 candidate events in this exported dataset, though this
+does not establish full causal entry parity over all history.
+
+**Still required before a canonical-Python parity claim:** run the
+committed `tradingview/audit/compare_mss_fvg.py` inside a checkout
+containing the actual `src/` modules with the same input CSV, and
+resolve mismatches if the imported canonical outputs differ. The
+current isolated sandbox has the chart CSV but **no repository checkout
+or network access to GitHub**, so this direct-import gate is pending.
+Do not mark it passed based on the reconstruction. Barchart
+price/contract parity also remains unchecked.
+
 ## Limitations and minimal next MVP gate
 
 The chart CSV starts at **08:02 ET**, so it omits the earlier 04:00–08:01
