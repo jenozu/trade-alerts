@@ -5,6 +5,49 @@
 **File SHA-256:** `e4d3db1fa2e86ba62a9f0f540cfde228da485c7f5ff0c84372082fb1cea8c95c`. Raw CSV not committed.
 **Rows:** 11,578 x 53 columns. Coverage begins 2026-09-29 **08:02 ET** and ends 2026-10-09 **16:59 ET**; includes normal futures maintenance/weekend gaps. First 40 rows excluded from cross-code signal checks for partial-history warmup.
 
+## VPS direct-import audit — verified 2026-10-11
+
+The user ran the **actual existing canonical Python modules** through
+`tradingview/audit/compare_mss_fvg.py` from the isolated
+`/docker/trade-alerts-tv-audit` checkout (not by changing `main`).
+The same TradingView chart CSV was uploaded separately to
+`/root/mnq_sep29_chart.csv` on their VPS.
+
+- Targeted regression suite: **11 passed in 2.11 seconds**.
+- Audit completed, **11,578 chart bars / 11,538 compared** after 40 warmup
+  bars; actual data source was **TradingView OHLC**, not Barchart.
+- Exact paired results:
+
+| Signal | Pine | Canonical Python | Both | Pine only | Python only | Disagreeing bars |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Bullish MSS | 143 | 133 | 120 | 23 | 13 | 36 |
+| Bearish MSS | 151 | 139 | 130 | 21 | 9 | 30 |
+| Bullish FVG created | 1,168 | 1,168 | 1,168 | 0 | 0 | **0** |
+| Bearish FVG created | 1,136 | 1,136 | 1,136 | 0 | 0 | **0** |
+
+- Audit status was `differences_found`, exit **1**, which is the
+  documented **valid difference-reporting outcome**, not a crash or failed
+  test.
+- The first UTC timestamp with an MSS difference was
+  **2026-09-29 14:54 UTC = 10:54 ET**, after the 09:30–10:30 entry window.
+- The direct-import audit's **global aggregates** matched the earlier
+  reconstruction's aggregates exactly, strengthening confidence in that
+  earlier exploratory analysis. However, the terminal's 20 printed
+  mismatch examples are **not** a complete timestamped concordance:
+  claiming canonical **morning-only** or **active-stage** zero differences
+  still requires computing those specific intersections with canonical
+  events. The reconstruction's morning/stage classifications below remain
+  *source-guided* until then.
+- **MVP disposition:** raw FVG calculation parity is confirmed on this
+  sample; Python and Pine raw MSS semantics are **not identical** and
+  that difference is acknowledged. No evidence yet that a mismatch
+  affects the one observed 09:37 ET V2 short entry, and no justification
+  yet to rewrite entry criteria or re-optimize parameters.
+
+This validates **raw-event implementation only**, not the seven-step
+order workflow, source-independent market-data integrity, complete
+Barchart/continuous-contract history, or profitability.
+
 ## September 29 qualifying short — observed in exported Pine flags
 
 | Candle opening time (America/New_York) | Observation |
@@ -63,8 +106,9 @@ the revised stage count.
 
 The audit tool `tradingview/audit/compare_mss_fvg.py` also had an output
 column-name bug after pandas merge (`name` vs `name_python`), now patched.
-No actual Python-module-backed parity run has been completed yet; GitHub CI
-results have not been verified. This documentation is not a test pass.
+A **direct Python-module-backed parity run was later completed on the
+user's VPS**, and targeted pytest passed (details above). GitHub Actions
+CI itself has not been independently verified.
 
 ## Lean follow-up: are out-of-window MSS differences trade-relevant?
 
@@ -97,14 +141,12 @@ entry rules based on these differences. They do not coincide with
 trade-ready V2 candidate events in this exported dataset, though this
 does not establish full causal entry parity over all history.
 
-**Still required before a canonical-Python parity claim:** run the
-committed `tradingview/audit/compare_mss_fvg.py` inside a checkout
-containing the actual `src/` modules with the same input CSV, and
-resolve mismatches if the imported canonical outputs differ. The
-current isolated sandbox has the chart CSV but **no repository checkout
-or network access to GitHub**, so this direct-import gate is pending.
-Do not mark it passed based on the reconstruction. Barchart
-price/contract parity also remains unchecked.
+**Canonical Python raw-event execution is now complete on the user's
+VPS** (results above). Both bullish and bearish FVG event flags matched;
+MSS flags differed on 66 bars, consistent in count with the reconstruction,
+but we cannot promote the reconstruction's exact stage/window classifications
+to independently verified canonical conclusions without timestamp-level
+intersection. **Barchart price/contract parity remains unchecked.**
 
 ## Limitations and minimal next MVP gate
 
@@ -114,16 +156,15 @@ it cannot independently reconstruct complete PMH/PDH levels or verify
 Barchart-to-TradingView price/roll parity. Many level plot columns are blank
 when `Show sweep levels` is disabled, even though the Pine setup flags exist.
 
-**Next (single MVP gate):** Run the fixed existing
-`tradingview/audit/compare_mss_fvg.py` through the user's existing
-repository environment against this exact CSV, using actual canonical
-Python imports. The report must reproduce zero morning raw-event differences
-and identify the later outside-window proxy differences; if not, resolve the
-implementation mismatch. Then review one complete Python object-linked
-sweep/FVG/entry decision on the same source bars **when full premarket and
-previous RTH context is available**. Only implement a trading-rule fix if
-it affects actual entry validation. Do not tune stops/targets or use 2025
-H2 holdout.
+**Next (single MVP gate):** Review one *full* linked Python
+sweep/displacement/MSS/FVG/retest/entry decision against the known
+September 29 09:37 ET Pine short **when prior RTH, 04:00–09:30 premarket
+and any required warmup bars are available**. The current chart CSV
+begins at 08:02 ET and is insufficient to independently rebuild all
+session levels. If it is not possible without more work/data, explicitly
+mark full setup parity *unproven* and move on to MVP paper trading rather
+than inventing a clean bill of health. Do not re-run the same raw audit,
+loosen thresholds, re-optimize exits, or touch the 2025-H2 holdout.
 
 All updates confined to `feature/tradingview-pinescript`; original
 Pine V2 strategy and `main` remain untouched.
