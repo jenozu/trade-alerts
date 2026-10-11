@@ -303,8 +303,11 @@ plot(triggerShort ? 1 : 0, "Confirmed reversal short", display=display.data_wind
 // DIAG-ONLY BEGIN: OBSERVATIONS
 // All values below are derived AFTER the original trading state machine.
 // They cannot affect the original triggerLong/triggerShort, entry or exit logic.
-bool diagLongDisplaced = barstate.isconfirmed and diagPrevLongStage == 1 and longStage == 2
-bool diagShortDisplaced = barstate.isconfirmed and diagPrevShortStage == 1 and shortStage == 2
+// V2 may complete displacement AND MSS on a single confirmed candle:
+// the original state machine can advance stage 1 -> 2 -> 3 in one pass.
+// Count displacement as completed in either stage 2 or 3 (read-only).
+bool diagLongDisplaced = barstate.isconfirmed and diagPrevLongStage == 1 and longStage >= 2
+bool diagShortDisplaced = barstate.isconfirmed and diagPrevShortStage == 1 and shortStage >= 2
 bool diagLongFvg = barstate.isconfirmed and longStage == 4 and longFvgBar == bar_index
 bool diagShortFvg = barstate.isconfirmed and shortStage == 4 and shortFvgBar == bar_index
 bool diagLongInvalid = barstate.isconfirmed and diagPrevLongStage == 4 and not diagRolloverLong and not diagLongExpired and not diagLongRestart and bar_index > diagPrevLongFvgBar and close < diagPrevLongFvgLower
