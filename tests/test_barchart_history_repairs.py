@@ -87,3 +87,116 @@ def test_candle_limit_and_duplicate_rejected():
     with pytest.raises(repair.AcquisitionError, match='Duplicate'):
         repair.validate_csv(repeated.encode(), job())
     assert repair.main(['status','--root','/path/does/not/exist']) == 1
+
+
+class _FakeOption:
+    def __init__(self, text, value):
+        self.text, self.value = text, value
+
+    def inner_text(self):
+        return self.text
+
+    def get_attribute(self, attr):
+        assert attr == 'value'
+        return self.value
+
+
+class _FakeOptions:
+    def __init__(self, options):
+        self.options = options
+
+    def all(self):
+        return self.options
+
+
+class _FakeSelected:
+    def __init__(self, frequency):
+        self.frequency = frequency
+
+    def inner_text(self):
+        return self.frequency.selected
+
+
+class _FakeFrequency:
+    first = property(lambda self: self)
+
+    def __init__(self, choices):
+        self.choices = choices
+        self.selected = ''
+
+    def count(self):
+        return 1
+
+    def is_visible(self):
+        return True
+
+    def locator(self, selector):
+        if selector == 'option':
+            return _FakeOptions([_FakeOption(t, v) for t, v in self.choices])
+        if selector == 'option:checked':
+            return _FakeSelected(self)
+        raise AssertionError(selector)
+
+    def select_option(self, *, value):
+        self.selected = next(text for text, v in self.choices if v == value)
+
+
+class _FakeInterval:
+    first = property(lambda self: self)
+
+    def __init__(self, *, visible=True, readback='1'):
+        self.visible = visible
+        self.readback = readback
+        self.value = ''
+        self.tabbed = False
+
+    def count(self):
+        return 1 if self.visible else 0
+
+    def is_visible(self):
+        return self.visible
+
+    def fill(self, value):
+        self.value = value
+
+    def press(self, key):
+        assert key == 'Tab'
+        self.tabbed = True
+
+    def input_value(self):
+        return self.readback
+
+
+class _FakePage:
+    def __init__(self, choices, *, interval_visible=True, interval_readback='1'):
+        self.freq = _FakeFrequency(choices)
+        self.interval = _FakeInterval(visible=interval_visible, readback=interval_readback)
+        self.aggregation_looked_up_after_selection = False
+
+    def locator(self, selector):
+        if selector == 'select[aria-label="Select frequency"]:visible':
+            return self.freq
+        if selector == 'input[name="aggregation"][type="number"][aria-label="Enter intraday minutes"]:visible':
+            self.aggregation_looked_up_after_selection = self.freq.selected == 'Intraday'
+            return self.interval
+        raise AssertionError(selector)
+
+
+def test_barchart_numeric_aggregation_selected_after_exact_intraday():
+    page = _FakePage([('Intraday Nearby', 'nearby'), ('Daily', 'daily'),
+                      ('Intraday', 'intraday')])
+    repair.configure_intraday_minutes(page)
+    assert page.freq.selected == 'Intraday'  # never Nearby/continuous
+    assert page.aggregation_looked_up_after_selection  # field may be dynamically rendered
+    assert page.interval.value == '1'
+    assert page.interval.tabbed  # commit input change
+
+
+def test_barchart_numeric_aggregation_fail_closed():
+    choices = [('Intraday', 'intraday'), ('Intraday Nearby', 'nearby')]
+    with pytest.raises(repair.AcquisitionError, match='numeric intraday-minute'):
+        repair.configure_intraday_minutes(_FakePage(choices, interval_visible=False))
+    with pytest.raises(repair.AcquisitionError, match='readback'):
+        repair.configure_intraday_minutes(_FakePage(choices, interval_readback='5'))
+    with pytest.raises(repair.AcquisitionError, match='Exact Intraday'):
+        repair.configure_intraday_minutes(_FakePage([('Intraday Nearby', 'nearby')]))

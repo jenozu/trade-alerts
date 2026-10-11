@@ -250,6 +250,36 @@ def inspect_controls(page):
         if el.evaluate('(e) => e.tagName.toLowerCase()') == 'select':
             record['choices'] = el.locator('option').all_text_contents()[:25]
         print('CONTROL', json.dumps(record))
+    for el in page.locator('a, button').filter(has_text=re.compile(r'^\s*download\s*$', re.I)).all():
+        if el.is_visible():
+            print('ACTION', json.dumps({'tag': el.evaluate('(e) => e.tagName.toLowerCase()'),
+                                        'class': el.get_attribute('class'),
+                                        'text': el.inner_text().strip()}))
+
+
+def configure_intraday_minutes(page):
+    """Use the controls observed on the live Premier download page.
+
+    The minute aggregation is a numeric input which can appear *after* the
+    frequency is switched to Intraday.  Never select Intraday Nearby.
+    """
+    freq = _only(page.locator('select[aria-label="Select frequency"]:visible'),
+                 'Barchart frequency selector')
+    options = freq.locator('option').all()
+    choices = [o.get_attribute('value') for o in options
+               if o.inner_text().strip().lower() == 'intraday']
+    if len(choices) != 1 or choices[0] is None:
+        raise AcquisitionError('Exact Intraday (not Nearby) option missing/ambiguous')
+    freq.select_option(value=choices[0])
+
+    interval = _only(page.locator(
+        'input[name="aggregation"][type="number"][aria-label="Enter intraday minutes"]:visible'),
+        'Barchart numeric intraday-minute input')
+    interval.fill('1')
+    interval.press('Tab')
+    if (freq.locator('option:checked').inner_text().strip().lower() != 'intraday' or
+            interval.input_value().strip() != '1'):
+        raise AcquisitionError('Intraday/1-minute numeric readback failed')
 
 
 def select_form(page, job):
@@ -266,34 +296,10 @@ def select_form(page, job):
     # An expired individual contract must never silently turn into Nearby/continuous data.
     for box in page.locator('input[type=checkbox]:visible').all():
         nearby_label = (box.get_attribute('aria-label') or '') + ' ' + (box.get_attribute('name') or '')
-        parent_text = box.evaluate('(e) => e.parentElement?.innerText || ')
+        parent_text = box.evaluate("(e) => e.parentElement?.innerText || ''")
         if re.search(r'nearby|continuous|back.adjust', nearby_label + ' ' + parent_text, re.I) and box.is_checked():
             raise AcquisitionError('Nearby/continuous/back-adjust option selected: refusing individual-contract claim')
-    selects = page.locator('select:visible')
-    interval_options = []
-    frequency_options = []
-    for el in selects.all():
-        options = [x.strip().lower() for x in el.locator('option').all_text_contents()]
-        if any(re.fullmatch(r'1\s*(min(?:ute)?s?)?', o) for o in options) and any('5' in o for o in options):
-            interval_options.append(el)
-        if any('intraday' in o for o in options) and any('daily' in o for o in options):
-            frequency_options.append(el)
-    if len(interval_options) != 1 or len(frequency_options) != 1:
-        raise AcquisitionError('Native interval/frequency selectors not uniquely identifiable; run probe')
-    freq, interval = frequency_options[0], interval_options[0]
-    opts = freq.locator('option').all()
-    matches = [o.get_attribute('value') for o in opts if o.inner_text().strip().lower() == 'intraday']
-    if len(matches) != 1:
-        raise AcquisitionError('Intraday choice ambiguous')
-    freq.select_option(value=matches[0])
-    opts = interval.locator('option').all()
-    matches = [o.get_attribute('value') for o in opts if re.fullmatch(r'1\s*(min(?:ute)?s?)?', o.inner_text().strip().lower())]
-    if len(matches) != 1:
-        raise AcquisitionError('One-minute choice ambiguous')
-    interval.select_option(value=matches[0])
-    if not ('intraday' in freq.locator('option:checked').inner_text().lower() and
-            re.fullmatch(r'1\s*(min(?:ute)?s?)?', interval.locator('option:checked').inner_text().strip().lower())):
-        raise AcquisitionError('Frequency/interval readback failed')
+    configure_intraday_minutes(page)
     # Date selectors intentionally require explicit field semantics.
     start = _only(page.locator('input[placeholder*="Start" i]:visible, input[aria-label*="Start Date" i]:visible'), 'start date')
     end = _only(page.locator('input[placeholder*="End" i]:visible, input[aria-label*="End Date" i]:visible'), 'end date')
