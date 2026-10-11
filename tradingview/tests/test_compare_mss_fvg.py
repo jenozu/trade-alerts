@@ -113,3 +113,9 @@ def test_duplicate_timestamps_rejected(pine_chart, config):
 def test_warmup_requires_sufficient_intersection(pine_chart, config):
     with pytest.raises(AuditInputError, match="require at least"):
         audit(pine_chart, settings=config, warmup_bars=90, min_shared_bars=100)
+
+def test_non_one_minute_chart_rejected(pine_chart, config):
+    chart = pine_chart.copy()
+    chart["time"] = chart["time"].iloc[0] + np.arange(len(chart)) * 300
+    with pytest.raises(AuditInputError, match="Expected 1-minute chart data"):
+        audit(chart, settings=config, min_shared_bars=100)
