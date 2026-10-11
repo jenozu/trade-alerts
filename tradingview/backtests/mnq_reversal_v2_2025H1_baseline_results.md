@@ -24,6 +24,20 @@
 - All entry/exit price differences reproduce reported P&L at **$2.00 per MNQ point**, confirming correct trade value arithmetic.
 - Times in the CSV have **no timezone offset**. TradingView chart was shown in UTC-4, but session-specific timezone must be confirmed before exact Python timestamp comparison.
 
+## Subsequent TradingView settings check (user-reported)
+
+After changing the TradingView Deep Backtesting strategy properties to Lucid's
+reported $0.50 USD MNQ **per contract per side**, and changing historical bar
+detail to **High**, the user observed the Strategy Report's **net P&L = -$16**
+for the same 2025-01-01 to 2025-06-30 test window.
+
+This exactly matches the initial -$4 result minus $12 in fees across twelve
+unchanged round trips. **However, a new complete trade-list export was not
+provided**, so the individual trades, fill prices, counts, win rate, and
+bar-detail effects have NOT been independently confirmed to match. The new
+diagnostic script must reproduce the individual trades under identical
+TradingView settings; matching a single net P&L is insufficient.
+
 ## Interpretation / blockers
 
 1. The research-only V2 does **not** demonstrate positive after-cost expectancy; sample is low count, results are not statistically robust.
