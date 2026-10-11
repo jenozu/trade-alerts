@@ -213,7 +213,7 @@ def audit(
     mismatches = []
     for name in PINE_FIELDS:
         p = compared[f"{name}_pine"].astype(bool)
-        y = compared[name].astype(bool)
+        y = compared[f"{name}_python"].astype(bool)
         mismatch = p != y
         fields[name] = {
             "pine_events": int(p.sum()),
