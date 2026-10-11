@@ -31,12 +31,14 @@ reported $0.50 USD MNQ **per contract per side**, and changing historical bar
 detail to **High**, the user observed the Strategy Report's **net P&L = -$16**
 for the same 2025-01-01 to 2025-06-30 test window.
 
-This exactly matches the initial -$4 result minus $12 in fees across twelve
-unchanged round trips. **However, a new complete trade-list export was not
-provided**, so the individual trades, fill prices, counts, win rate, and
-bar-detail effects have NOT been independently confirmed to match. The new
-diagnostic script must reproduce the individual trades under identical
-TradingView settings; matching a single net P&L is insufficient.
+Subsequently, the user uploaded the commission-adjusted full trade-list
+CSV and **explicitly confirmed** that the correct diagnostic strategy was
+running, irrespective of TradingView-generated export filename. A row-level
+comparison established identical 12-trade entry/exit times, prices, sides and
+quantities with $12 total fees and -$16 net P&L. Diagnostic code regression
+parity is therefore accepted **for this observed ledger only**. The CSV does
+not establish the High bar detail setting independently or certify Pine-Python
+signal equivalence; stage-by-stage comparison remains pending.
 
 ## Interpretation / blockers
 
