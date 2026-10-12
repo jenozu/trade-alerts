@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "purpose": "Nonexecuting draft research contracts EXP-046 through EXP-050; no historical execution, live deployment, or strategy promotion.",
+  "execution_enabled": false,
+  "datasets_certified": false,
+  "experiments": [
+    {
+      "id": "EXP-046",
+      "stage": "R10",
+      "name": "Rolling walk-forward validation",
+      "objective": "Assess frozen-candidate performance across chronological, genuinely unseen validation windows without reusing future information.",
+      "control": "PENDING: immutable frozen candidate and comparable baseline, producer/data identities",
+      "candidate": "NONE: sequential validation protocol, no strategy change",
+      "design": "Draft only: freeze control and candidate identities, predeclare evaluation protocol and reject unknown causality, incomplete provenance or insufficient evidence. Never infer deployment or execution approval.",
+      "dependencies": [
+        "EXP-044 approved candidate freeze",
+        "EXP-045 holdout protocol and provenance decision",
+        "data-integrity certification"
+      ],
+      "decisions_required": [
+        "Approve training/validation lengths, step and warmup",
+        "Predeclare embargo, rollover handling and as-of feature rules",
+        "Define whether and how calibration may occur strictly inside each training window",
+        "Freeze cost model, sample criteria and fold aggregation before inspecting outcomes"
+      ],
+      "deliverables": [
+        "walk_forward_protocol_lock.json",
+        "fold_metrics.csv",
+        "aggregate_validation_report.md"
+      ]
+    },
+    {
+      "id": "EXP-047",
+      "stage": "R11",
+      "name": "Equivalent-contract isolated-candidate comparison",
+      "objective": "Compare baseline, entry-quality, score, and exit candidates only when each has independent valid evidence and identical execution/data contracts.",
+      "control": "PENDING: corrected frozen control with executable accepted trade paths",
+      "candidate": "PENDING: independently supported entry, score, and exit variants; may be fewer than four",
+      "design": "Draft only: freeze control and candidate identities, predeclare evaluation protocol and reject unknown causality, incomplete provenance or insufficient evidence. Never infer deployment or execution approval.",
+      "dependencies": [
+        "EXP-044–046 reviewed evidence",
+        "certified input identities and comparable accounting/fee conventions"
+      ],
+      "decisions_required": [
+        "Identify and freeze each candidate and evidence chain",
+        "Prove common control, signal timing, fills, risk, target and cost definitions",
+        "Set cross-family and long/short minimum sample rules",
+        "Predeclare primary metric, risk constraint and missing-candidate policy"
+      ],
+      "deliverables": [
+        "candidate_identity_matrix.json",
+        "matched_candidate_metrics.csv",
+        "comparison_review.md"
+      ]
+    },
+    {
+      "id": "EXP-048",
+      "stage": "R11",
+      "name": "Combined candidate against frozen controls",
+      "objective": "Test only combinations of independently supported changes, with explicit interaction attribution.",
+      "control": "PENDING: immutable corrected baseline plus all eligible isolated variants",
+      "candidate": "PENDING: combination of approved, independently justified changes",
+      "design": "Draft only: freeze control and candidate identities, predeclare evaluation protocol and reject unknown causality, incomplete provenance or insufficient evidence. Never infer deployment or execution approval.",
+      "dependencies": [
+        "EXP-047 reviewed isolated comparison",
+        "EXP-044–046 robustness and unseen validation evidence",
+        "certified inputs and matching execution contracts"
+      ],
+      "decisions_required": [
+        "Approve allowed combination and freeze its complete config",
+        "Specify interaction attribution and precedence where changes conflict",
+        "Define comparison criteria without re-optimizing on held-out data",
+        "Specify fallback if evidence does not justify combining any changes"
+      ],
+      "deliverables": [
+        "combined_candidate_lock.json",
+        "combined_vs_control_metrics.csv",
+        "combination_decision.md"
+      ]
+    },
+    {
+      "id": "EXP-049",
+      "stage": "R12",
+      "name": "Shadow/live consistency and production acceptance audit",
+      "objective": "Audit whether frozen simulated decisions match properly timestamped live/shadow observations and all operational/risk criteria.",
+      "control": "PENDING: final candidate identity from EXP-047–048",
+      "candidate": "NONE: read-only operational evidence audit; no trading or deployment",
+      "design": "Draft only: freeze control and candidate identities, predeclare evaluation protocol and reject unknown causality, incomplete provenance or insufficient evidence. Never infer deployment or execution approval.",
+      "dependencies": [
+        "EXP-047–048 final comparison and validation",
+        "independently collected timestamped shadow/live observations",
+        "approved production gate checklist"
+      ],
+      "decisions_required": [
+        "Specify shadow period, collection evidence and data retention",
+        "Approve timestamp, alert, fill and missing-observation reconciliation tolerance",
+        "Define risk limits, outage, disconnect and failure handling expectations",
+        "Require human interpretation of failures and insufficient sample coverage"
+      ],
+      "deliverables": [
+        "shadow_parity_audit.json",
+        "operational_gate_matrix.csv",
+        "production_evidence_review.md"
+      ]
+    },
+    {
+      "id": "EXP-050",
+      "stage": "R12",
+      "name": "Final readiness and immutable research evidence",
+      "objective": "Assemble a reproducible acceptance decision with locked code/data/config artifacts; do not deploy automatically.",
+      "control": "PENDING: final candidate, baseline and all approved evidence manifests",
+      "candidate": "NONE: review/packaging decision, not live promotion",
+      "design": "Draft only: freeze control and candidate identities, predeclare evaluation protocol and reject unknown causality, incomplete provenance or insufficient evidence. Never infer deployment or execution approval.",
+      "dependencies": [
+        "EXP-049 reviewed outcome",
+        "all applicable R7–R12 evidence and data-integrity certificates",
+        "independent explicit promotion authorization if deployment ever requested"
+      ],
+      "decisions_required": [
+        "Approve final acceptance gates and adjudication rules",
+        "Confirm complete provenance and reproducible hashes of final artifacts",
+        "Decide blocked/rejected/accepted-for-review separately from deployment",
+        "Require separate explicit production deployment decision"
+      ],
+      "deliverables": [
+        "final_acceptance_matrix.json",
+        "artifact_hash_manifest.json",
+        "release_readiness_decision.md"
+      ]
+    }
+  ]
+}
