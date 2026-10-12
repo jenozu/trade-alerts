@@ -130,13 +130,15 @@ def validate_csv(data: bytes, job: dict):
             raise AcquisitionError('CSV has unexpected columns/field count')
         if symbol_key and row[symbol_key].strip().upper() != job['contract']:
             raise AcquisitionError('CSV row symbol does not match requested contract')
-        try:
-            moment = datetime.strptime(row['Time'].strip(), '%Y/%m/%d %H:%M')
-        except ValueError:
+        moment = None
+        for fmt in ('%Y/%m/%d %H:%M', '%Y-%m-%d %H:%M', '%Y-%m-%d %H:%M:%S'):
             try:
-                moment = datetime.strptime(row['Time'].strip(), '%Y-%m-%d %H:%M:%S')
-            except ValueError as e:
-                raise AcquisitionError(f'Invalid minute timestamp: {row["Time"]!r}') from e
+                moment = datetime.strptime(row['Time'].strip(), fmt)
+                break
+            except ValueError:
+                continue
+        if moment is None:
+            raise AcquisitionError(f'Invalid minute timestamp: {row["Time"]!r}')
         if not date.fromisoformat(job['start_date']) <= moment.date() <= date.fromisoformat(job['end_date']):
             raise AcquisitionError(f'CSV timestamp outside requested CT dates: {moment}')
         if moment.second or moment.microsecond:
