@@ -162,6 +162,11 @@ and `browser_profile\` (browser sign-in state; never commit or share it).
 The downloader refuses unknown existing files, changed hash, unsupported CSV
 headers, malformed OHLCV, invalid timestamps, wrong symbol *when present in CSV*,
 ambiguous controls, login walls, download errors, or suspicious filenames.
+The strict minute parser supports the two observed Barchart formats
+`YYYY/MM/DD HH:MM` and `YYYY-MM-DD HH:MM` (also the existing
+`YYYY-MM-DD HH:MM:SS` format when seconds are zero). It still enforces the
+manifest's Chicago CT date range, minute alignment, timezone/DST checks and
+one-minute adjacency.
 It never marks missing/empty days as complete and never overwrites existing CSVs.
 Any interruption can be resumed after reviewing the reason it stopped.
 
