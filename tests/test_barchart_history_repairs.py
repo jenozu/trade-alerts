@@ -58,6 +58,36 @@ def test_validate_csv_and_errors():
         repair.validate_csv(sym, job())
 
 
+def test_barchart_hyphenated_minute_timestamps_from_live_csv():
+    # Actual October 2026 Premier download printed '2022-10-20 23:47';
+    # the prior strict parser supported slash minutes / hyphen seconds only.
+    target = repair.request_jobs()[0]
+    assert target['contract'] == 'NMH23'
+    assert target['start_date'] == '2022-10-17'
+    assert target['end_date'] == '2022-10-20'
+    csv_bytes = (
+        'Time,Open,High,Low,Latest,Volume\n'
+        '2022-10-20 23:47,12000.25,12001.50,12000.00,12001.00,6\n'
+        '2022-10-20 23:46,12000.00,12001.00,11999.00,12000.25,5\n'
+    ).encode()
+    result = repair.validate_csv(csv_bytes, target)
+    assert result['row_count'] == 2
+    assert result['first_timestamp_ct'] == '2022-10-20T23:46:00'
+    assert result['last_timestamp_ct'] == '2022-10-20T23:47:00'
+    assert result['sha256'] == repair.sha(csv_bytes)
+    with pytest.raises(repair.AcquisitionError, match='Invalid minute timestamp'):
+        repair.validate_csv(csv_bytes.replace(b'23:46', b'23:60'), target)
+
+
+def test_barchart_all_three_supported_timestamp_forms():
+    for first in (b'2023/02/01', b'2023-02-01'):
+        for suffix in (b'', b':00') if first == b'2023-02-01' else (b'',):
+            blob = sample().replace(b'2023/02/01', first)
+            if suffix:
+                blob = blob.replace(b'09:30', b'09:30' + suffix).replace(b'09:31', b'09:31' + suffix)
+            assert repair.validate_csv(blob, job())['row_count'] == 2
+
+
 def test_provenance_resume_tamper_and_orphan(tmp_path):
     root = tmp_path/'repair'
     repair.create_plan(root)
