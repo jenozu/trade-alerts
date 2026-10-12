@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "purpose": "Non-executing preparation contracts only. No selection or historical execution authorized.",
+  "execution_enabled": false,
+  "datasets_certified": false,
+  "experiments": [
+    {
+      "id": "EXP-041",
+      "stage": "R9",
+      "name": "Single-parameter sensitivity",
+      "objective": "Assess performance stability around a previously selected single parameter without introducing post-hoc parameter search.",
+      "control": "PENDING: frozen accepted-path candidate and identical execution control",
+      "candidate": "PENDING: predeclared adjacent parameter values; one parameter only",
+      "design": "Preregister contract, verify input identity/causality and record all exclusions before any historical outcome evaluation. No parameter or trading-rule changes are approved by this draft.",
+      "dependencies": [
+        "EXP-039 and EXP-040 robustness evidence",
+        "certified, frozen data and sufficient comparable executed trades"
+      ],
+      "decisions_required": [
+        "Identify chosen parameter and original value",
+        "Approve exact perturbation grid and invariant settings before outcomes",
+        "Approve minimum sample and plateau interpretation"
+      ],
+      "deliverables": [
+        "sensitivity_metrics.csv",
+        "parameter_grid_lock.json",
+        "plateau_review.md"
+      ]
+    },
+    {
+      "id": "EXP-042",
+      "stage": "R9",
+      "name": "MNQ transaction cost and fill stress",
+      "objective": "Evaluate whether a frozen candidate's edge survives realistic fees and bounded slippage stress scenarios.",
+      "control": "PENDING: frozen accepted-path candidate and verified contract quantity/point value",
+      "candidate": "PENDING: independently specified account fees and slippage grid",
+      "design": "Preregister contract, verify input identity/causality and record all exclusions before any historical outcome evaluation. No parameter or trading-rule changes are approved by this draft.",
+      "dependencies": [
+        "certified data and execution path",
+        "immutable comparable trade ledger",
+        "verified broker/account cost schedule"
+      ],
+      "decisions_required": [
+        "Record commission and exchange/clearing fee per-side/per-contract",
+        "Specify MNQ quantity, tick and dollar-per-point conventions",
+        "Predeclare entry and exit slippage/stress scenarios and no-fill handling"
+      ],
+      "deliverables": [
+        "cost_assumptions.json",
+        "gross_net_scenarios.csv",
+        "cost_stress_report.md"
+      ]
+    },
+    {
+      "id": "EXP-043",
+      "stage": "R9",
+      "name": "Return outlier dependence",
+      "objective": "Quantify how much aggregate results depend on a predeclared set of largest winners.",
+      "control": "PENDING: locked cost-adjusted executed-trade ledgers",
+      "candidate": "NONE: descriptive ablation of outcome rows only",
+      "design": "Preregister contract, verify input identity/causality and record all exclusions before any historical outcome evaluation. No parameter or trading-rule changes are approved by this draft.",
+      "dependencies": [
+        "EXP-042 verified costs",
+        "immutable comparable control and candidate ledgers"
+      ],
+      "decisions_required": [
+        "Choose top-winner removal count or fraction before analysis",
+        "Define ties, rank ordering, zero/negative outcomes, and per-family exclusions",
+        "Define minimum sample and decision criterion"
+      ],
+      "deliverables": [
+        "outlier_exclusion_lock.json",
+        "outlier_robustness.csv",
+        "outlier_review.md"
+      ]
+    },
+    {
+      "id": "EXP-044",
+      "stage": "R9",
+      "name": "Robustness synthesis and freeze proposal",
+      "objective": "Integrate independent R9 findings into a transparent candidate freeze recommendation without automatically selecting a winner.",
+      "control": "PENDING: all independently frozen R9 variants",
+      "candidate": "NONE: evidence synthesis and review only",
+      "design": "Preregister contract, verify input identity/causality and record all exclusions before any historical outcome evaluation. No parameter or trading-rule changes are approved by this draft.",
+      "dependencies": [
+        "EXP-039–EXP-043 reviewed evidence",
+        "certified comparative ledgers",
+        "stable configuration and producer hashes"
+      ],
+      "decisions_required": [
+        "Approve evidence thresholds and treatment of conflicting segments",
+        "Define handling of insufficient sample or missing cost data",
+        "Require explicit human approval before candidate freeze"
+      ],
+      "deliverables": [
+        "robustness_evidence_index.json",
+        "candidate_readiness_matrix.csv",
+        "freeze_recommendation.md"
+      ]
+    },
+    {
+      "id": "EXP-045",
+      "stage": "R10",
+      "name": "Truly unseen holdout validation",
+      "objective": "Test one explicitly frozen candidate on a genuinely untouched period under a preregistered evaluation protocol.",
+      "control": "PENDING: approved frozen candidate from EXP-044",
+      "candidate": "NONE: frozen candidate evaluated once against approved holdout",
+      "design": "Preregister contract, verify input identity/causality and record all exclusions before any historical outcome evaluation. No parameter or trading-rule changes are approved by this draft.",
+      "dependencies": [
+        "EXP-044 human-approved freeze",
+        "independent proof that holdout interval is untouched",
+        "certified input data and identical simulation contract"
+      ],
+      "decisions_required": [
+        "Document evidence that proposed holdout was not previously inspected or tuned on",
+        "Predeclare dates, exclusions, warmup, contract rolls and embargo rules",
+        "Approve cost model, sample criteria and fail/accept thresholds",
+        "Define policy if no genuinely untouched holdout exists (remain blocked; no relabeling 2026)"
+      ],
+      "deliverables": [
+        "holdout_identity_lock.json",
+        "unseen_evaluation_metrics.json",
+        "holdout_decision.md"
+      ]
+    }
+  ]
+}
