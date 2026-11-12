@@ -93,3 +93,4 @@ Job records: `/docker/trade-alerts/.automation-runs/jobs/<id>/` (gitignored dir 
 ## Decision log
 - 2026-11-12: Proposed. Owner priority is direct Claude↔VPS SSH + job manager. Test jobs only until Phase 4 is approved. No RULES.md changes.
 - 2026-11-12: Owner chose admin access via dedicated sudo account on `vps` (2.25.108.3), no forced command. Host confirmed; `lnve` out of scope. Experiment safeguards unchanged.
+- 2026-11-12: Phase 0 check. `ssh vps` logs in as `deploy` but is locked by a forced command (`vps-agent 1.2.0`, a web-app deploy gatekeeper; its help says admin actions use sudo from your own login, never the deploy key). No shell, sudo unverifiable through it. `vps list` shows no apps; trade-alerts is not a vps-agent app, and `/docker/trade-alerts` could not be checked. Admin access needs a new `claude` sudo account (owner action). Open: confirm trade-alerts actually lives on 2.25.108.3.
