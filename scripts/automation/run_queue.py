@@ -32,8 +32,8 @@ from telegram_transport import send_telegram_alert  # noqa: E402
 
 # Only a reviewed code change may add a wrapper here. A wrapper qualifies once it
 # writes EXECUTION_OUTPUT_LOCK.json and ARCHIVE_MANIFEST.json into $AUTOMATION_RUN_DIR.
-# Neither EXP-001 nor EXP-030 does both today, so the allowlist starts empty.
-ALLOWED_WRAPPERS: frozenset[str] = frozenset()
+# EXP-030 qualifies (writes both). EXP-001 does not.
+ALLOWED_WRAPPERS: frozenset[str] = frozenset({"EXP-030"})
 MAX_QUEUE_LENGTH = MAX_BATCH
 ITEM_TIMEOUT_SECONDS = 360 * 60  # same limit as the single-run workflow
 OUTPUT_LOCK = "EXECUTION_OUTPUT_LOCK.json"

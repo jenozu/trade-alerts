@@ -70,3 +70,19 @@ done
 if test -f "$OUTPUT/diagnostic_trades.csv"; then
   cp "$OUTPUT/diagnostic_trades.csv" "$AUTOMATION_RUN_DIR/"
 fi
+
+# Hash manifest of the copied evidence, required by scripts/automation/run_queue.py.
+# Covers only files this wrapper copied (not the live run.log / executor manifest).
+"$PYTHON_BIN" - "$AUTOMATION_RUN_DIR" <<'PY'
+import json, sys
+from pathlib import Path
+from scripts.archive_experiment import sha256_file
+run = Path(sys.argv[1])
+names = ['FAMILY_POLICY_COMPARISON.json', 'EXECUTION_AUDIT_SUMMARY.json', 'decisions.json',
+         'effective_strategy.yaml', 'EXPERIMENT_INPUT_LOCK.json', 'EXECUTION_OUTPUT_LOCK.json',
+         'diagnostic_trades.csv']
+files = [{'path': n, 'bytes': (run / n).stat().st_size, 'sha256': sha256_file(run / n)}
+         for n in names if (run / n).is_file()]
+(run / 'ARCHIVE_MANIFEST.json').write_text(json.dumps({'experiment': 'EXP-030', 'files': files}, indent=2) + '\n')
+print(f'PASS: ARCHIVE_MANIFEST.json written for {len(files)} files')
+PY
