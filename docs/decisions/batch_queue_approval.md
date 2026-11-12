@@ -1,6 +1,6 @@
-# Decision (DRAFT, needs owner approval): batch approval of experiment queues
+# Decision (APPROVED 2026-11-11): batch approval of experiment queues
 
-**Status:** proposed — not approved. Until approved, the queue runner must not
+**Status:** approved by owner 2026-11-11. RULES.md §17 amendment still pending (owner-written). Allowlist remains empty until a wrapper qualifies.
 be used, and RULES.md §17 ("one explicit run per request") stands unchanged.
 
 ## Change being proposed
@@ -34,4 +34,4 @@ without further confirmation between items.
 
 ## Owner decision
 
-- [ ] Approve  - [ ] Reject  - [ ] Approve with changes: ______
+- [x] Approve  - [ ] Reject  - [ ] Approve with changes: ______
