@@ -1,0 +1,18 @@
+# Fixed experiment queue. Written by the operator in advance; the runner never
+# adds, reorders, chooses or retries items. Nothing here may depend on earlier results.
+#
+# Each item needs:
+#   experiment: EXP-NNN       (wrapper must exist AND be in run_queue.ALLOWED_WRAPPERS)
+#   request_id: unique ID     (never reused; a failed run needs a new ID + approval)
+#   prereg:     committed path to the preregistration for this run
+#   periods:    years used; each must be development_research in config/research_policy.yaml
+#
+# Example (not active):
+#   - experiment: EXP-031
+#     request_id: EXP-031-q001-r01
+#     prereg: docs/research/proposed_experiment_registry_r7_r12.md
+#     periods: [2023]
+#
+# Intentionally empty: no wrapper is allowlisted yet, and the runner refuses empty queues.
+queue_id: QUEUE-001
+items: []
