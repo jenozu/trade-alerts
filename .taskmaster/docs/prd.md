@@ -37,7 +37,7 @@ No account creation, SSH or sudo changes on any server until the trade VPS is co
 ## Infrastructure audit (2026-11-12, read-only, from this PC; VPS not contacted)
 | Item | Finding |
 |---|---|
-| Local SSH config | `Host vps` → 2.25.108.3, user `deploy`, key `~/.ssh/claude_vps` (already exists). `Host lnve` → 72.60.170.192, user `root`. **Owner confirmed `vps` is the trade VPS.** |
+| Local SSH config | `Host vps` → 2.25.108.3, user `deploy`, key `~/.ssh/claude_vps` (already exists). `Host lnve` → 72.60.170.192, user `root`. **Trade VPS not yet confirmed; see Servers table.** |
 | Paths the repo assumes | Workflow: `/docker/trade-alerts` (+ `.venv`). EXP-030: `/root/trade-alerts-verify-…`. EXP-001: `/docker/trade-alerts-2023`, `-2024`. Suggests the repo runs as **root** today. |
 | Current run path | GitHub Actions → SSH as `TRADE_VPS_USER` with `ssh-keyscan` (host key not pinned) → `execute_run_request.py`. |
 | Existing VPS automation | `deploy.sh`, `deploy/install.sh`, systemd units under `deploy/systemd/` (alert timers). systemd is therefore available. |
