@@ -205,3 +205,17 @@ and experiment execution.
 - The VPS automation must refuse to overwrite an unexpectedly dirty tracked working tree.
 - The runner must record the Git SHA used for the experiment.
 - This command layer does not relax any no-look-ahead, testing, archive, or strategy-ambiguity requirement above.
+
+### 17a. Fixed Experiment Queues (approved 2026-11-11)
+
+- A committed queue file under `automation/queues/QUEUE-NNN.yaml` plus an explicit
+  user command equivalent to `run queue QUEUE-NNN` authorizes each listed item, in order.
+- The queue is written by the user in advance. Automation may not add, reorder,
+  choose, or adapt items based on earlier results.
+- Queues run only through `scripts/automation/run_queue.py`, which calls the existing
+  single-run executor per item and accepts only wrappers in its code-level allowlist.
+- Pass/fail is decided by plain Python checks. Any failure halts the queue; no
+  automatic retry. A rerun needs a new request ID and explicit user approval.
+- Queues may not include holdout or non-`development_research` periods per
+  `config/research_policy.yaml`.
+- See `docs/queue_runner.md` and `docs/decisions/batch_queue_approval.md`.
