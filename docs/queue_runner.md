@@ -1,7 +1,7 @@
 # Experiment queue runner
 
 Runs a fixed, committed list of experiments one after another on the VPS.
-**Status: built and tested with fixtures only. Not yet approved for use** — see
+**Status: approved (RULES.md §17a). Fixture-tested; not yet run on the VPS.** See
 `docs/decisions/batch_queue_approval.md`.
 
 ## What it does
