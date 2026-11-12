@@ -210,8 +210,8 @@ def test_invalid_items_refused(tmp_path, bad, match):
         rq.run_queue(root, queue, sha, allowed=ALLOW)
 
 
-def test_default_allowlist_is_empty_and_refuses(tmp_path):
-    assert rq.ALLOWED_WRAPPERS == frozenset()
+def test_default_allowlist_only_exp030_and_refuses_others(tmp_path):
+    assert rq.ALLOWED_WRAPPERS == frozenset({"EXP-030"})
     root, queue, sha = make_project(tmp_path, [item("R1")])
     with pytest.raises(rq.QueueRefused, match="allowlist"):
         rq.run_queue(root, queue, sha)
@@ -283,3 +283,24 @@ def test_missing_credentials_skips_notification(tmp_path, monkeypatch):
     monkeypatch.delenv("TELEGRAM_CHAT_ID", raising=False)
     root, queue, sha = make_project(tmp_path, [item("R1")])
     assert rq.run_queue(root, queue, sha, allowed=ALLOW)["notification"].startswith("skipped")
+
+
+def test_exp030_wrapper_manifest_step_passes_runner_verification(tmp_path):
+    import sys
+    from pathlib import Path
+    wrapper = (Path(__file__).resolve().parents[1] / "automation/experiments/EXP-030.sh").read_text()
+    snippet = wrapper.rsplit("<<'PY'\n", 1)[1].split("\nPY\n", 1)[0]
+    run = tmp_path / "run"
+    run.mkdir()
+    sha = "a" * 40
+    (run / "manifest.json").write_text(json.dumps(
+        {"status": "passed", "exit_code": 0, "expected_sha": sha, "actual_sha": sha}))
+    import hashlib
+    identity = {"files": {}}
+    digest = hashlib.sha256(json.dumps(identity, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    (run / "EXECUTION_OUTPUT_LOCK.json").write_text(json.dumps(
+        {"input_identity_sha256": digest, "identity": identity, "artifacts": {}}))
+    (run / "decisions.json").write_text("[]")
+    subprocess.run([sys.executable, "-c", snippet, str(run)], check=True,
+                   cwd=Path(__file__).resolve().parents[1])
+    assert rq.verify_run(run, sha)["hashed_files"] == 2
